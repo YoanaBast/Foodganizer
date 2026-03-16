@@ -8,37 +8,31 @@
             </a>
         </div>
 
+
         <div class="tab-buttons-container">
             <a href="{% url 'generate_grocery_list' %}" class="tab-button {% if request.resolver_match.url_name == 'generate_grocery_list' %}active{% endif %}">Generate Grocery List</a>
             <a href="{% url 'meal_suggestions' %}" class="tab-button {% if request.resolver_match.url_name == 'meal_suggestions' %}active{% endif %}">Get Meal Suggestions</a>
-            <a href="{% url 'manage_fridge' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_fridge' %}active{% endif %}">Update your Fridge</a>
-            <a href="{% url 'manage_recipes' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_recipes' %}active{% endif %}">Manage Recipes</a>
-            <a href="{% url 'manage_ingredients' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_ingredients' %}active{% endif %}">Manage Ingredients</a>
+            <a href="{% url 'manage_fridge' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_fridge' %}active{% endif %}">Fridge</a>
+            <a href="{% url 'manage_recipes' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_recipes' %}active{% endif %}">Recipes</a>
+            <a href="{% url 'manage_ingredients' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_ingredients' %}active{% endif %}">Ingredients</a>
         </div>
 
-        <div class="nav-icons">
-            <div class="tooltip">
-                <a href="{% url 'user_grocery_list' %}"><img src="{% static 'images/grocery-cart.svg' %}" alt="Grocery List" width="24" height="24"></a>
-                <span class="tooltip-text">Groceries</span>
-            </div>
-
-            <div class="tooltip">
-                <a href="{% url 'meal_list' %}"><img src="{% static 'images/fork_knife.svg' %}" alt="Meals List" width="24" height="24"></a>
-                <span class="tooltip-text">Meals</span>
-            </div>
-
-            <div class="tooltip">
-                <a href="{% url 'calorie-tracker' %}"><img src="{% static 'images/kcal.svg' %}" alt="Home" width="24" height="24"></a>
-                <span class="tooltip-text">Kcal</span>
-            </div>
-
-            <div class="tooltip">
-                <a href="{% url 'homepage' %}"><img src="{% static 'images/home.svg' %}" alt="Home" width="24" height="24"></a>
-                <span class="tooltip-text">Home</span>
-            </div>
+            <ul class="nav-links">
+                {% if request.user.is_authenticated %}
+                    <li><a href="{% url 'profile' %}">Profile</a></li>
+                    <li>
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn">Logout</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                    <li><a href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+            </ul>
 
 
-        </div>
 
     </div>
 </header>

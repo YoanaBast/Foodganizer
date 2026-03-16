@@ -85,10 +85,7 @@ If you don't want to use the fast setup, you can follow the steps below
 ```
 
 ## Notes:
-1. This is developed as uni assignment. To be compliant to the no auth requirement, I have assigned a default user for all logic that needs it. I intend to scale the app and a huge part of my logic will depend on dynamic users. 
-   - default user in question: user = get_object_or_404(User, username="default")
-   - No auth requirement: "Authentication and Django User management are explicitly excluded from the following requirements. You are not supposed to implement login, logout, registration, or user-related functionality."
-
+1. This project was developed in 2 parts for an uni exam. The first one required no user auth. Now that I have an existing DB structure with multiple migrations, I will use a Profile model (OneToOne), as opposed to an AbstractUser class, because I'd like to keep my migrations - they mark my progress, my previous errors and redesigns I've done. 
 2. The project uses WhiteNoise to serve static files because DEBUG=False. Without it, collectstatic doesn’t serve files correctly. DEBUG=False is required for the custom 404 page.
 
 ## See Also:

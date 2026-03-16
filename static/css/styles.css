@@ -141,6 +141,10 @@ header .logo img.header-logo {
     height: 35px;
 }
 
+header li a {
+    color: green
+}
+
 @media (max-width: 768px) {
     header .logo img.header-logo {
         height: 22px;
@@ -1257,4 +1261,53 @@ body:has(.modal-overlay:target) {
     margin: 0;          /* remove default p margin */
     font-size: 2rem;    /* smaller text */
     text-align: left;   /* align text to left if you want */
+}
+
+/* ============================================================
+   BUBBLE MENU
+   ============================================================ */
+
+
+.floating-buttons{
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;   /* important */
+
+    z-index: 1000;
+}
+
+.bubble{
+    width:50px;
+    height:50px;
+    background:#1e1e1e;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+}
+
+.toggle {
+    width: 35px;
+    height: 35px;
+    color: var(--accent);
+    transition: box-shadow 0.2s, transform 0.2s;
+    border-radius: 50%;
+}
+
+.toggle:hover {
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+    transform: scale(1.05);
+}
+
+.bubble img{
+    width:22px;
+    height:22px;
+    display:block;
+}
+
+.menu-item{
+    display:grid;
 }

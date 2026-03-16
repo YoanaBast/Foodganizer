@@ -1,0 +1,48 @@
+{% load static %}
+
+
+<div class="floating-buttons">
+    <div class="bubble toggle" onclick="toggleBubbles()">
+        ☰
+    </div>
+
+    <div class="bubble tooltip menu-item">
+        <a href="{% url 'homepage' %}">
+            <img src="{% static 'images/home.svg' %}" width="24" height="24">
+        </a>
+        <span class="tooltip-text">Home</span>
+    </div>
+
+    <div class="bubble tooltip menu-item">
+        <a href="{% url 'user_grocery_list' %}">
+            <img src="{% static 'images/grocery-cart.svg' %}" width="24" height="24">
+        </a>
+        <span class="tooltip-text">Groceries</span>
+    </div>
+
+    <div class="bubble tooltip menu-item">
+        <a href="{% url 'meal_list' %}">
+            <img src="{% static 'images/fork_knife.svg' %}" width="24" height="24">
+        </a>
+        <span class="tooltip-text">Meals</span>
+    </div>
+
+      <div class="bubble tooltip menu-item">
+        <a href="{% url 'calorie-tracker' %}">
+            <img src="{% static 'images/kcal.svg' %}"width="24" height="24">
+        </a>
+        <span class="tooltip-text">Kcal</span>
+    </div>
+
+</div>
+
+
+<script>
+function toggleBubbles(){
+    document.querySelectorAll('.menu-item').forEach(el=>{
+        el.style.display = el.style.display === 'grid' ? 'none' : 'grid';
+    });
+}
+</script>
+
+

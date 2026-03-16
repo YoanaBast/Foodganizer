@@ -16,19 +16,16 @@
 
 
 <body>
-       {% include 'header.html' %}
+
+   {% include 'header.html' %}
+   {% include 'bubble_menu.html' %}
+
 
 <main>
-<!--    {% if messages %}-->
-<!--        <div style="max-width:1200px; margin: 0.75rem auto; padding: 0 1.5rem;">-->
-<!--            {% for message in messages %}-->
-<!--                <div class="message {{ message.tags }}">{{ message }}</div>-->
-<!--            {% endfor %}-->
-<!--        </div>-->
-<!--    {% endif %}-->
 
     {% block content %}
     {% endblock %}
+
 </main>
 
        {% include 'footer.html' %}
