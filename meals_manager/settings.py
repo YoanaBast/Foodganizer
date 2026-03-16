@@ -36,7 +36,8 @@ PROJECT_APPS = [
     'recipes',
     'ingredients',
     'planner',
-    'core'
+    'core',
+    'users'
 ]
 
 INSTALLED_APPS = [
@@ -123,6 +124,9 @@ USE_I18N = True
 
 USE_TZ = True
 
+LOGIN_REDIRECT_URL = 'homepage'
+LOGOUT_REDIRECT_URL = 'homepage'
+LOGIN_URL = 'login'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="container-home" style="padding-top: 2rem; padding-bottom: 2rem;">
+    <h2>Profile</h2>
+
+    <div class="grid-container">
+        <div class="grid-item info">
+            <p><strong>Username:</strong> {{ request.user.username }}</p>
+            <p><strong>Email:</strong> {{ request.user.email }}</p>
+            <p><strong>First Name:</strong> {{ request.user.first_name|default:"-" }}</p>
+            <p><strong>Last Name:</strong> {{ request.user.last_name|default:"-" }}</p>
+        </div>
+
+        <div class="grid-item info">
+            {% if request.user.profile.profile_picture %}
+                <img src="{{ request.user.profile.profile_picture.url }}" alt="Profile Picture" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;">
+            {% else %}
+                <p>No profile picture uploaded.</p>
+            {% endif %}
+
+            <p style="margin-top: 1rem;"><strong>Bio:</strong> {{ request.user.profile.bio|default:"-" }}</p>
+        </div>
+    </div>
+
+    <a href="{% url 'edit_profile' %}" class="btn" style="margin-top: 1rem;">Edit Profile</a>
+</div>
+{% endblock %}
