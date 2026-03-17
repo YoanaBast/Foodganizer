@@ -1,13 +1,17 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.db import models
 
 # Create your models here.
+UserModel = get_user_model()
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(UserModel, primary_key=True, on_delete=models.CASCADE, related_name='profile')
     profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
     bio = models.TextField(blank=True)
 
+    def __str__(self):
+        return self.user.username
 
 # class AbstractUser(AbstractBaseUser, PermissionsMixin):
 #     username = "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
