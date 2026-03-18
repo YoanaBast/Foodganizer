@@ -53,3 +53,4 @@ I want to disclose all tools used. Special thanks to everyone, who have develope
 - https://favicon.io/favicon-generator/
 - https://emojicombos.com/heart
 - https://readme-typing-svg.herokuapp.com/demo/
+- https://uiverse.io/kamehame-ha/chilly-snake-91
