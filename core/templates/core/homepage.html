@@ -20,56 +20,119 @@ Foodganizer Home
 </div>
 
 
-<div class="container-home-cards">
+<div class="cards">
 
-<a href="{% url 'generate_grocery_list' %}" class="tab-head-cards">
-    <div id="grocery-list" class="tab-content-cards card" data-text="Get a personalized grocery list!">
-      <p>Generate Grocery List</p>
+  <a href="{% url 'generate_grocery_list' %}" class="card">
+    <div class="card-inner">
+      <div class="card-img">
+        <img src="/static/images/ingredients_card.png" alt="">
+      </div>
+      <div class="card-content">
+        <p>Get a personalized grocery list</p>
+      </div>
+      <div class="card-wave">
+        <p class="title">Generate Grocery List</p>
+      </div>
     </div>
-</a>
+  </a>
 
-<a href="{% url 'user_grocery_list' %}" class="tab-head-cards">
-    <div id="grocery-list-product" class="tab-content-cards card" data-text="Your personalized grocery list!">
-      <p>View Grocery List</p>
+  <a href="{% url 'user_grocery_list' %}" class="card">
+    <div class="card-inner">
+      <div class="card-img">
+        <img src="/static/images/ingredients_card.png" alt="">
+      </div>
+      <div class="card-content">
+        <p>Your saved grocery list</p>
+      </div>
+      <div class="card-wave">
+        <p class="title">View Grocery List</p>
+      </div>
     </div>
-</a>
+  </a>
 
-<a href="{% url 'meal_suggestions' %}" class="tab-head-cards">
-    <div id="meal-suggestions" class="tab-content-cards card" data-text="See what you can cook right now!">
-      <p>Get Meal Suggestions</p>
+  <a href="{% url 'meal_suggestions' %}" class="card">
+    <div class="card-inner">
+      <div class="card-img">
+        <img src="/static/images/meal_suggest.png" alt="">
+      </div>
+      <div class="card-content">
+        <p>See what you can cook right now with the ingredients in your fridge!</p>
+      </div>
+      <div class="card-wave">
+        <p class="title">Meal Suggestions</p>
+      </div>
     </div>
-</a>
+  </a>
 
-<a href="{% url 'meal_list' %}" class="tab-head-cards">
-    <div id="meal-list" class="tab-content-cards card" data-text="Your own grocery list!">
-      <p>Your Meals Meals</p>
+  <a href="{% url 'meal_list' %}" class="card">
+    <div class="card-inner">
+      <div class="card-img">
+        <img src="/static/images/ingredients_card.png" alt="">
+      </div>
+      <div class="card-content">
+        <p>Your saved meals</p>
+      </div>
+      <div class="card-wave">
+        <p class="title">Your Meals</p>
+      </div>
     </div>
-</a>
+  </a>
 
-<a href="{% url 'manage_recipes' %}" class="tab-head-cards">
-    <div id="manage-recipes" class="tab-content-cards card" data-text="Manage your recipes here!">
-      <p>Manage Recipes </p>
+  <a href="{% url 'manage_recipes' %}" class="card">
+    <div class="card-inner">
+      <div class="card-img">
+        <img src="/static/images/recipes_card.png" alt="">
+      </div>
+      <div class="card-content">
+        <p>Edit and organize recipes</p>
+      </div>
+      <div class="card-wave">
+        <p class="title">Manage Recipes</p>
+      </div>
     </div>
-</a>
+  </a>
 
-<a href="{% url 'manage_fridge' %}" class="tab-head-cards">
-    <div id="update-fridge" class="tab-content-cards card" data-text="What do you have in your fridge?">
-      <p>Update your Fridge</p>
+  <a href="{% url 'manage_fridge' %}" class="card">
+    <div class="card-inner">
+      <div class="card-img">
+        <img src="/static/images/fridge_card.png" alt="">
+      </div>
+      <div class="card-content">
+        <p>Track what’s in your fridge</p>
+      </div>
+      <div class="card-wave">
+        <p class="title">Update Fridge</p>
+      </div>
     </div>
-</a>
+  </a>
 
-<a href="{% url 'manage_ingredients' %}" class="tab-head-cards">
-    <div id="manage-ingredients" class="tab-content-cards card" data-text="Introduce new ingredients here.">
-      <p>Manage Ingredients </p>
+  <a href="{% url 'manage_ingredients' %}" class="card">
+    <div class="card-inner">
+      <div class="card-img">
+        <img src="/static/images/ingredients_card.png" alt="">
+      </div>
+      <div class="card-content">
+        <p>Browse ingredients, or introduce new flavours to the Foodganizer!</p>
+      </div>
+      <div class="card-wave">
+        <p class="title">Manage Ingredients</p>
+      </div>
     </div>
-</a>
+  </a>
 
-<a href="{% url 'calorie-tracker' %}" class="tab-head-cards">
-<div id="calorie-tracker" class="tab-content-cards card" data-text="Coming Soon">
-      <p>Calorie Tracker </p>
-</div>
-</a>
-
+  <a href="{% url 'calorie-tracker' %}" class="card">
+    <div class="card-inner">
+      <div class="card-img">
+        <img src="/static/images/ingredients_card.png" alt="">
+      </div>
+      <div class="card-content">
+        <p>Coming soon</p>
+      </div>
+      <div class="card-wave">
+        <p class="title">Calorie Tracker</p>
+      </div>
+    </div>
+  </a>
 
 </div>
 
