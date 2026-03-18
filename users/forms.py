@@ -27,11 +27,40 @@ class RegisterForm(UserCreationForm):
 
 
 class LoginForm(AuthenticationForm):
+    error_messages = {
+        'invalid_login': "Wrong username or password.",
+        'inactive': "This account is inactive.",
+    }
+
     username = forms.CharField(
-        label='Username or Email',
-        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Username or Email'})
+        label='Username',
+        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Username'})
     )
     password = forms.CharField(
         label='Password',
         widget=forms.PasswordInput(attrs={'class': 'form-input', 'placeholder': 'Password'})
     )
+
+class ProfileEditForm(forms.ModelForm):
+    first_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-input'}))
+    last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-input'}))
+
+    class Meta:
+        model = Profile
+        fields = ['profile_picture', 'bio']
+        widgets = {
+            'bio': forms.Textarea(attrs={'class': 'form-input', 'rows': 4}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.user_id:
+            self.fields['first_name'].initial = self.instance.user.first_name
+            self.fields['last_name'].initial = self.instance.user.last_name
+
+    def save(self, commit=True):
+        profile = super().save(commit=commit)
+        profile.user.first_name = self.cleaned_data['first_name']
+        profile.user.last_name = self.cleaned_data['last_name']
+        profile.user.save()
+        return profile

@@ -11,17 +11,30 @@
 
 </head>
 <body>
-<div class="container-home" style="padding-top: 2rem; padding-bottom: 2rem;">
-    <h2>Log in</h2>
 
-    <form method="post">
+<div style="max-width: 400px; margin: 2rem auto;">
+    <form method="post" novalidate style="width: 100%; box-sizing: border-box;">
         {% csrf_token %}
 
-        {{ form.as_p }}
+        <div class="form-group">
+            {{ form.username.label_tag }}
+            {{ form.username }}
+        </div>
 
-        <button type="submit" class="btn">Login</button>
+        <div class="form-group">
+            {{ form.password.label_tag }}
+            {{ form.password }}
+        </div>
+
+        {{ form.non_field_errors }}
+
+        <button type="submit" class="btn" style="margin-top: 0.5rem;">Login</button>
     </form>
 
+    <p style="margin-top: 1rem;">
+        Don't have an account? <a href="{% url 'register' %}">Register here</a>
+    </p>
 </div>
+
 </body>
 </html>
