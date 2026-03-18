@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
 from ingredients.models import Ingredient, MeasurementUnit, IngredientMeasurementUnit
 from planner.helpers import convert_qty_to_unit, build_needed_dict, subtract_fridge, save_grocery_list, \
-    save_generation_history, build_preview_message
+    save_generation_history, build_preview_message, get_or_create_fridge_item
 from planner.models import UserFridge, UserGroceryList, GroceryListGeneration, GroceryListGenerationItem, UserMealList
 from recipes.models import Recipe, RecipeIngredient
 
@@ -21,6 +21,42 @@ from recipes.models import Recipe, RecipeIngredient
 """
 FRIDGE VIEWS
 """
+class DeleteAnonFridgeItemView(View):
+    def post(self, request, index):
+        fridge = request.session.get('anon_fridge', [])
+        if 0 <= index < len(fridge):
+            fridge.pop(index)
+            request.session['anon_fridge'] = fridge
+        return redirect('manage_fridge')
+
+
+class EditAnonFridgeItemView(View):
+    def get(self, request, index):
+        fridge = request.session.get('anon_fridge', [])
+        if not (0 <= index < len(fridge)):
+            return redirect('manage_fridge')
+        item = fridge[index]
+        ingredient = get_object_or_404(Ingredient, id=item['ingredient_id'])
+        form = UserFridgeForm(initial={'quantity': item['quantity'], 'unit': item['unit_id']})
+        return render(request, 'planner/edit_fridge.html', {
+            'form': form,
+            'item': {'ingredient': ingredient, 'quantity': item['quantity']},
+            'ingredient_units': ingredient.measurement_units.select_related('unit').all(),
+            'anon_index': index,
+        })
+
+    def post(self, request, index):
+        fridge = request.session.get('anon_fridge', [])
+        if not (0 <= index < len(fridge)):
+            return redirect('manage_fridge')
+        ingredient = get_object_or_404(Ingredient, id=fridge[index]['ingredient_id'])
+        form = UserFridgeForm(request.POST)
+        if form.is_valid():
+            fridge[index]['quantity'] = form.cleaned_data['quantity']
+            fridge[index]['unit_id'] = form.cleaned_data['unit'].id
+            request.session['anon_fridge'] = fridge
+        return redirect('manage_fridge')
+
 
 class ManageFridgeView(ListView):
     template_name = 'planner/manage_fridge.html'
@@ -28,13 +64,29 @@ class ManageFridgeView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        user, _ = User.objects.get_or_create(username="default")
-        return UserFridge.objects.filter(user=user).select_related('ingredient__category', 'unit')
+        if self.request.user.is_authenticated:
+            return UserFridge.objects.filter(user=self.request.user).select_related('ingredient__category', 'unit')
+        return UserFridge.objects.none()  # anon gets empty DB queryset, session handled in template
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['ingredients'] = Ingredient.objects.all()
+        if not self.request.user.is_authenticated:
+            anon_fridge = self.request.session.get('anon_fridge', [])
+            resolved = []
+            for index, item in enumerate(anon_fridge):
+                try:
+                    resolved.append({
+                        'index': index,  # ← add this
+                        'ingredient': Ingredient.objects.get(id=item['ingredient_id']),
+                        'unit': MeasurementUnit.objects.get(id=item['unit_id']),
+                        'quantity': item['quantity'],
+                    })
+                except (Ingredient.DoesNotExist, MeasurementUnit.DoesNotExist):
+                    continue
+            context['anon_fridge'] = resolved
         return context
+
 
 
 class EditFridgeItemView(UpdateView):
@@ -53,15 +105,14 @@ class EditFridgeItemView(UpdateView):
 
 class DeleteFridgeItemView(View):
     def post(self, request, fridge_id):
-        user, _ = User.objects.get_or_create(username="default")
-        item = get_object_or_404(UserFridge, id=fridge_id, user=user)
-        item.delete()
+        if request.user.is_authenticated:
+            item = get_object_or_404(UserFridge, id=fridge_id, user=request.user)
+            item.delete()
         return redirect('manage_fridge')
 
 
 class AddFridgeItemView(View):
     def post(self, request):
-        user, _ = User.objects.get_or_create(username="default")
         ing_id = request.POST.get("ingredient_id")
         ingredient = get_object_or_404(Ingredient, id=ing_id)
 
@@ -73,38 +124,7 @@ class AddFridgeItemView(View):
         qty = form.cleaned_data['quantity']
         unit = form.cleaned_data['unit']
 
-        items = UserFridge.objects.filter(user=user, ingredient=ingredient)
-        target_item = items.filter(unit=unit).first()
-
-        for item in items.exclude(id=getattr(target_item, "id", None)):
-            try:
-                item_unit_conv = IngredientMeasurementUnit.objects.get(ingredient=ingredient, unit=item.unit)
-                target_unit_conv = IngredientMeasurementUnit.objects.get(ingredient=ingredient, unit=unit)
-            except IngredientMeasurementUnit.DoesNotExist:
-                continue
-
-            qty_in_base = item.quantity * item_unit_conv.conversion_to_base
-            qty_in_target = qty_in_base / target_unit_conv.conversion_to_base
-
-            if target_item:
-                target_item.quantity += qty_in_target
-                target_item.save()
-            else:
-                target_item = UserFridge.objects.create(
-                    user=user, ingredient=ingredient,
-                    quantity=qty_in_target, unit=unit
-                )
-            item.delete()
-
-        if target_item:
-            target_item.quantity += qty
-            target_item.save()
-        else:
-            UserFridge.objects.create(
-                user=user, ingredient=ingredient,
-                quantity=qty, unit=unit
-            )
-
+        get_or_create_fridge_item(request, ingredient, qty, unit)
         return redirect('manage_fridge')
 
 
@@ -114,10 +134,12 @@ GET MEAL SUGGESTIONS VIEWS (COOK FROM FRIDGE)
 
 
 def get_meal_suggestions(request):
-    user, _ = User.objects.get_or_create(username="default")
-    fridge_items = UserFridge.objects.filter(user=user)
-    recipes = Recipe.objects.all()
+    if request.user.is_authenticated:
+        fridge_items = UserFridge.objects.filter(user=request.user)
+    else:
+        fridge_items = UserFridge.objects.none()
 
+    recipes = Recipe.objects.all()
     suggestions = []
 
     for recipe in recipes:
@@ -158,13 +180,11 @@ def get_meal_suggestions(request):
         })
 
     suggestions.sort(key=lambda x: x["match_percent"], reverse=True)
-
-    paginator = Paginator(suggestions, 10)  # 10 suggestions per page
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    paginator = Paginator(suggestions, 10)
+    page_obj = paginator.get_page(request.GET.get('page'))
 
     return render(request, "planner/get_meal_suggestions.html", {
-        "suggestions": page_obj,  # page_obj for template
+        "suggestions": page_obj,
         "page_obj": page_obj,
     })
 
@@ -178,36 +198,33 @@ def make_recipe(request, id):
     if request.method != 'POST':
         return redirect('meal_suggestions')
 
-    recipe = get_object_or_404(Recipe, id=id)
-    user, _ = User.objects.get_or_create(username="default")
-    fridge_items = UserFridge.objects.filter(user=user)
+    if not request.user.is_authenticated:
+        messages.error(request, "You must be logged in to cook a recipe.")
+        return redirect('meal_suggestions')
 
-    # First, check if user has enough ingredients
+    recipe = get_object_or_404(Recipe, id=id)
+    fridge_items = UserFridge.objects.filter(user=request.user)
+
     for ri in recipe.recipe_ingredient.all():
         fridge_item = fridge_items.filter(ingredient=ri.ingredient).first()
-        required_qty = ri.quantity
-
         available_qty = 0
         if fridge_item:
             try:
                 fridge_unit_obj = IngredientMeasurementUnit.objects.get(
-                    ingredient=ri.ingredient,
-                    unit=fridge_item.unit
+                    ingredient=ri.ingredient, unit=fridge_item.unit
                 )
                 available_qty = (fridge_item.quantity * fridge_unit_obj.conversion_to_base) / ri.unit.conversion_to_base
             except IngredientMeasurementUnit.DoesNotExist:
                 available_qty = 0
 
-        if available_qty < required_qty:
+        if available_qty < ri.quantity:
             messages.error(request, f"Not enough ingredients: {ri.ingredient.name}")
             return redirect('meal_suggestions')
 
-    # Subtract ingredients from fridge
     for ri in recipe.recipe_ingredient.all():
         fridge_item = fridge_items.get(ingredient=ri.ingredient)
         fridge_unit_obj = IngredientMeasurementUnit.objects.get(
-            ingredient=ri.ingredient,
-            unit=fridge_item.unit
+            ingredient=ri.ingredient, unit=fridge_item.unit
         )
         qty_to_subtract = (ri.quantity * ri.unit.conversion_to_base) / fridge_unit_obj.conversion_to_base
         fridge_item.quantity -= qty_to_subtract
@@ -217,9 +234,7 @@ def make_recipe(request, id):
         else:
             fridge_item.save()
 
-    # Save to meal history
-    UserMealList.objects.create(user=user, recipe=recipe)
-
+    UserMealList.objects.create(user=request.user, recipe=recipe)
     messages.success(request, (
         f'<b>{recipe.name.title()}</b> made successfully! '
         f'<a href="{reverse("recipe_detail", kwargs={"pk": recipe.id})}">View recipe</a> · '
@@ -235,8 +250,9 @@ class MealListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        user, _ = User.objects.get_or_create(username="default")
-        return UserMealList.objects.filter(user=user).select_related('recipe')
+        if self.request.user.is_authenticated:
+            return UserMealList.objects.filter(user=self.request.user).select_related('recipe')
+        return UserMealList.objects.none()
 
 
 """
@@ -248,17 +264,19 @@ class GenerateGroceryListView(View):
     template_name = 'planner/generate_grocery_list.html'
 
     def get_recipes(self, user, show_favs):
-        recipes = Recipe.objects.annotate(
-            is_fav=Exists(
-                Recipe.favourited_by.through.objects.filter(
-                    recipe_id=OuterRef('pk'), user_id=user.id
-                )
-            )
-        ).prefetch_related(
+        recipes = Recipe.objects.prefetch_related(
             Prefetch('recipe_ingredient', queryset=RecipeIngredient.objects.select_related('unit', 'ingredient'))
         )
-        if show_favs:
-            recipes = recipes.filter(favourited_by=user)
+        if user and user.is_authenticated:
+            recipes = recipes.annotate(
+                is_fav=Exists(
+                    Recipe.favourited_by.through.objects.filter(
+                        recipe_id=OuterRef('pk'), user_id=user.id
+                    )
+                )
+            )
+            if show_favs:
+                recipes = recipes.filter(favourited_by=user)
         return recipes.order_by('name')
 
     def get_page_obj(self, request, recipes):
@@ -266,9 +284,8 @@ class GenerateGroceryListView(View):
         return paginator.get_page(request.GET.get('page'))
 
     def get(self, request):
-        user, _ = User.objects.get_or_create(username="default")
         show_favs = request.GET.get('favs') == '1'
-        recipes = self.get_recipes(user, show_favs)
+        recipes = self.get_recipes(request.user, show_favs)
         page_obj = self.get_page_obj(request, recipes)
         selected_recipes = list(dict.fromkeys(request.GET.getlist('recipes')))
 
@@ -280,11 +297,9 @@ class GenerateGroceryListView(View):
         })
 
     def post(self, request):
-        user, _ = User.objects.get_or_create(username="default")
         show_favs = request.GET.get('favs') == '1'
-        recipes = self.get_recipes(user, show_favs)
+        recipes = self.get_recipes(request.user, show_favs)
         page_obj = self.get_page_obj(request, recipes)
-
         recipe_ids = list(dict.fromkeys(request.POST.getlist('recipes')))
 
         if not recipe_ids:
@@ -300,7 +315,11 @@ class GenerateGroceryListView(View):
             'recipe_ingredient__ingredient', 'recipe_ingredient__unit'
         )
 
-        fridge_items = UserFridge.objects.filter(user=user).select_related('ingredient', 'unit')
+        if request.user.is_authenticated:
+            fridge_items = UserFridge.objects.filter(user=request.user).select_related('ingredient', 'unit')
+        else:
+            fridge_items = UserFridge.objects.none()
+
         needed = build_needed_dict(selected_recipes_qs, request)
         final_needed = subtract_fridge(needed, fridge_items, request)
 
@@ -308,10 +327,23 @@ class GenerateGroceryListView(View):
             messages.info(request, "You already have all the ingredients in your fridge!")
             return redirect('generate_grocery_list')
 
-        save_grocery_list(user, final_needed)
-        save_generation_history(user, final_needed)
+        if request.user.is_authenticated:
+            save_grocery_list(request.user, final_needed)
+            save_generation_history(request.user, final_needed)
+        else:
+            # store in session for anon
+            anon_grocery = request.session.get('anon_grocery', [])
+            for data in final_needed.values():
+                anon_grocery.append({
+                    'ingredient_id': data['ingredient'].id,
+                    'unit_id': data['unit'].id if data['unit'] else None,
+                    'quantity': data['quantity'],
+                })
+            request.session['anon_grocery'] = anon_grocery
+
         messages.success(request, build_preview_message(final_needed))
         return redirect('user_grocery_list')
+
 
 
 class UserGroceryListView(View):
@@ -336,18 +368,21 @@ class UserGroceryListView(View):
         return history_data
 
     def get(self, request):
-        user, _ = User.objects.get_or_create(username="default")
-        items = UserGroceryList.objects.filter(user=user).select_related('ingredient', 'unit')
-
-        history_page_obj = Paginator(self.get_history_data(user), 5).get_page(
-            request.GET.get('history_page')
-        )
+        if request.user.is_authenticated:
+            items = UserGroceryList.objects.filter(user=request.user).select_related('ingredient', 'unit')
+            history_page_obj = Paginator(self.get_history_data(request.user), 5).get_page(
+                request.GET.get('history_page')
+            )
+        else:
+            items = []
+            history_page_obj = None
 
         return render(request, self.template_name, {
             'items': items,
             'history': history_page_obj,
             'history_page_obj': history_page_obj,
         })
+
 
 
 class DeleteGroceryItemView(View):
@@ -371,11 +406,14 @@ class AddGroceryToFridgeView(View):
 
 class AddAllGroceryToFridgeView(View):
     def post(self, request):
-        user, _ = User.objects.get_or_create(username="default")
-        items = UserGroceryList.objects.filter(user=user)
+        if not request.user.is_authenticated:
+            messages.error(request, "You must be logged in to do this.")
+            return redirect('user_grocery_list')
+
+        items = UserGroceryList.objects.filter(user=request.user)
         for item in items:
             UserFridge.objects.update_or_create(
-                user=item.user,
+                user=request.user,
                 ingredient=item.ingredient,
                 defaults={'quantity': item.quantity, 'unit': item.unit}
             )

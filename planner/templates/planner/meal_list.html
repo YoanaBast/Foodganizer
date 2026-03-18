@@ -22,6 +22,7 @@ My Meal History
     {% endif %}
 
     <br>
+    {% include '_anon_warning.html' with section_name="meals list" %}
 
     {% if page_obj.object_list %}
         <table class="data-table">

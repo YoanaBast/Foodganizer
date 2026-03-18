@@ -16,6 +16,9 @@ Grocery List
             <div class="alert alert-{{ message.tags }}">{{ message }}</div>
         {% endfor %}
     {% endif %}
+    <br>
+
+    {% include '_anon_warning.html' with section_name="grocery list" %}
 
     {% if items %}
         <form method="POST" action="{% url 'add_all_grocery_to_fridge' %}">
@@ -59,8 +62,10 @@ Grocery List
 
     {% if history %}
     <div class="history-section">
-        <h3 style="margin-top: 2rem;">Generation History</h3>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">A log of each time you generated ingredients, grouped by recipe.</p>
+        <h3 style="margin-top: 2rem;">Generation History</h3>     <br>
+
+        <p style="color: var(--text-muted); font-size: 0.9rem;">A log of each time you generated ingredients, grouped by recipe.</p>     <br>
+
 
         {% for gen in history %}
         <div class="history-card">

@@ -26,6 +26,9 @@
         <!-- DELETE POPUP -->
         {% include 'planner/delete_fridge_item_modal.html' %}
 
+        {% include '_anon_warning.html' with section_name="fridge" %}
+
+
         <!-- Table with fridge items -->
         <table class="data-table">
             <thead>
@@ -37,53 +40,66 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for item in fridge %}
-                <tr>
+<tbody>
+    {% if request.user.is_authenticated %}
+        {% for item in fridge %}
+        <tr>
+            <td data-label="Ingredient">{{ item.ingredient.name|title_except }}</td>
+            <td data-label="Quantity">
+                {% with item.ingredient.measurement_units|get_unit:item.unit as ing_unit %}
+                    {{ item.quantity|smart_float }} {{ ing_unit|name_for_quantity:item.quantity|lower }}
+                {% endwith %}
+            </td>
+            <td data-label="Category">{{ item.ingredient.category|default:"-" }}</td>
+            <td data-label="Dietary Tags">{{ item.ingredient.dietary_info }}</td>
+            <td data-label="Actions">
+                <div class="action-buttons">
+                    <a href="{% url 'edit_fridge_item' item.id %}" class="btn btn-secondary btn-small">Edit</a>
+                    <a href="{% url 'ingredient_detail' item.ingredient.id %}" class="btn btn-secondary btn-small">Details</a>
+                    <button type="button" class="icon-delete-btn"
+                            onclick="openDeleteModal('fridge', {{ item.id }}, '{{ item.ingredient.name|escapejs }}')">
+                        <img src="{% static 'images/delete-trash.svg' %}" alt="Delete">
+                    </button>
+                </div>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align: center; padding: 2rem;">
+                <h2 style="margin: 0;">No items in your fridge yet...</h2>
+            </td>
+        </tr>
+        {% endfor %}
 
-
-                    <td data-label="Ingredient">{{ item.ingredient.name|title_except  }}</td>
-
-                    <td data-label="Quantity">
-                        {% with item.ingredient.measurement_units|get_unit:item.unit as ing_unit %}
-                            {{ item.quantity|smart_float }} {{ ing_unit|name_for_quantity:item.quantity|lower }}
-                            {% with merge_explanations|get:item.ingredient.id as expl_list %}
-                                {% if expl_list %}
-                                    <span title="{% for expl in expl_list %}{{ expl }}{% if not forloop.last %}\n{% endif %}{% endfor %}">🛈</span>
-                                {% endif %}
-                            {% endwith %}
-                        {% endwith %}
-                    </td>
-
-                    <td data-label="Category">{{ item.ingredient.category|default:"-"  }}</td>
-
-                    <td data-label="Dietary Tags">{{ item.ingredient.dietary_info }}</td>
-
-                    <td data-label="Actions">
-                        <div class="action-buttons">
-
-                            <a href="{% url 'edit_fridge_item' item.id %}" class="btn btn-secondary btn-small">Edit</a>
-
-                            <a href="{% url 'ingredient_detail' item.ingredient.id %}" class="btn btn-secondary btn-small">Details</a>
-                            <button type="button"
-                                    class="icon-delete-btn"
-                                    onclick="openDeleteModal('fridge', {{ item.id }}, '{{ item.ingredient.name|escapejs }}')">
-
-                                <img src="{% static 'images/delete-trash.svg' %}"
-                                     alt="Delete">
-                            </button>
-
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" style="text-align: center; padding: 2rem;">
-                        <h2 style="margin: 0;">No items in your fridge yet...</h2>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
+    {% else %}
+        {% for item in anon_fridge %}
+        <tr>
+            <td data-label="Ingredient">{{ item.ingredient.name }}</td>
+            <td data-label="Quantity">{{ item.quantity }} {{ item.unit }}</td>
+            <td data-label="Category">{{ item.ingredient.category|default:"-" }}</td>
+            <td data-label="Dietary Tags">{{ item.ingredient.dietary_info }}</td>
+            <td data-label="Actions">
+            <div class="action-buttons">
+                <a href="{% url 'edit_anon_fridge_item' item.index %}" class="btn btn-secondary btn-small">Edit</a>
+                <a href="{% url 'ingredient_detail' item.ingredient.id %}" class="btn btn-secondary btn-small">Details</a>
+                <form method="post" action="{% url 'delete_anon_fridge_item' item.index %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="icon-delete-btn">
+                        <img src="{% static 'images/delete-trash.svg' %}" alt="Delete">
+                    </button>
+                </form>
+            </div>
+        </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="text-align: center; padding: 2rem;">
+                <h2 style="margin: 0;">No items in your fridge yet...</h2>
+            </td>
+        </tr>
+        {% endfor %}
+    {% endif %}
+</tbody>
         </table>
 <!-- END OF Table -->
 {% if page_obj.has_other_pages %}

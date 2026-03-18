@@ -9,6 +9,8 @@ from django.views.generic import TemplateView
 
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse_lazy
+
+from planner.helpers import transfer_session_to_user
 from .forms import RegisterForm, ProfileEditForm
 from .models import Profile
 
@@ -17,6 +19,11 @@ class RegisterView(CreateView):
     form_class = RegisterForm
     template_name = 'users/register.html'
     success_url = reverse_lazy('login')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        transfer_session_to_user(self.object, self.request.session)
+        return response
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):

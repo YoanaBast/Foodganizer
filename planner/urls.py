@@ -44,4 +44,8 @@ urlpatterns = [
 
     # path('meals/', views.meal_list, name='meal_list'),
     path('meals/', views.MealListView.as_view(), name='meal_list'),
+
+    # urls.py
+    path('fridge/anon/delete/<int:index>/', views.DeleteAnonFridgeItemView.as_view(), name='delete_anon_fridge_item'),
+    path('fridge/anon/edit/<int:index>/', views.EditAnonFridgeItemView.as_view(), name='edit_anon_fridge_item'),
 ]

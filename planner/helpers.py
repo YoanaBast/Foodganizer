@@ -1,7 +1,7 @@
 from django.core.checks import messages
 
-from ingredients.models import IngredientMeasurementUnit
-from planner.models import GroceryListGeneration, GroceryListGenerationItem, UserGroceryList
+from ingredients.models import IngredientMeasurementUnit, Ingredient, MeasurementUnit
+from planner.models import GroceryListGeneration, GroceryListGenerationItem, UserGroceryList, UserFridge, UserMealList
 
 
 def convert_qty_to_unit(qty, from_unit, to_unit, ingredient):
@@ -104,6 +104,9 @@ def save_generation_history(user, final_needed):
             )
 
 
+"""
+the functions below are used for storing anon user data when they decide they want to register, allowing them to transfer their fridge and other things and keep them in DB
+"""
 def build_preview_message(final_needed):
     preview_items = list(final_needed.values())
     preview_parts = [
@@ -115,3 +118,55 @@ def build_preview_message(final_needed):
     if remaining > 0:
         preview_str += f" and {remaining} more"
     return preview_str + " added to your list!"
+
+
+
+def transfer_session_to_user(user, session):
+    for item in session.pop('anon_fridge', []):
+        UserFridge.objects.get_or_create(
+            user=user,
+            ingredient_id=item['ingredient_id'],
+            unit_id=item['unit_id'],
+            defaults={'quantity': item['quantity']}
+        )
+
+    for item in session.pop('anon_grocery', []):
+        UserGroceryList.objects.get_or_create(
+            user=user,
+            ingredient_id=item['ingredient_id'],
+            unit_id=item['unit_id'],
+            defaults={'quantity': item['quantity']}
+        )
+
+    for item in session.pop('anon_meals', []):
+        UserMealList.objects.create(
+            user=user,
+            recipe_id=item['recipe_id'],
+        )
+
+def get_user_fridge(request):
+    """Returns DB queryset for authenticated users, session list for anon"""
+    if request.user.is_authenticated:
+        return UserFridge.objects.filter(user=request.user).select_related('ingredient__category', 'unit')
+    return []  # session-based later, empty for now
+
+
+def get_or_create_fridge_item(request, ingredient, qty, unit):
+    """Add to DB fridge or session fridge depending on auth"""
+    if request.user.is_authenticated:
+        items = UserFridge.objects.filter(user=request.user, ingredient=ingredient)
+        target_item = items.filter(unit=unit).first()
+        if target_item:
+            target_item.quantity += qty
+            target_item.save()
+        else:
+            UserFridge.objects.create(user=request.user, ingredient=ingredient, quantity=qty, unit=unit)
+    else:
+        fridge = request.session.get('anon_fridge', [])
+        for item in fridge:
+            if item['ingredient_id'] == ingredient.id and item['unit_id'] == unit.id:
+                item['quantity'] += qty
+                request.session.modified = True
+                return
+        fridge.append({'ingredient_id': ingredient.id, 'unit_id': unit.id, 'quantity': qty})
+        request.session['anon_fridge'] = fridge
