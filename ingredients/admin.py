@@ -7,29 +7,34 @@ from .models import Ingredient, IngredientCategory, IngredientDietaryTag, Measur
 
 @admin.register(IngredientDietaryTag)
 class IngredientDietaryTagAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('id', 'name', 'created_by', 'updated_by', 'created_at', 'updated_at')
     search_fields = ('name',)
 
 
 @admin.register(IngredientCategory)
 class IngredientCategoryAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('id', 'name', 'created_by', 'updated_by', 'created_at', 'updated_at')
     search_fields = ('name',)
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = (
+        'id',
         'name',
         'category',
         'get_dietary_tags',
         'default_unit',
         'base_quantity',
-        'display_nutrients'
+        'created_by',
+        'updated_by',
+        'created_at',
+        'updated_at',
+        'display_nutrients',
+
     )
     list_filter = ('category', 'dietary_tag')
     search_fields = ('name',)
-
 
     def get_dietary_tags(self, obj):
         return ", ".join([tag.name for tag in obj.dietary_tag.all()])
@@ -43,8 +48,12 @@ class IngredientAdmin(admin.ModelAdmin):
 
 @admin.register(MeasurementUnit)
 class MeasurementUnitAdmin(admin.ModelAdmin):
-    list_display = ('code', 'name_singular', 'name_plural')
+    list_display = ('id', 'code', 'name_singular', 'name_plural', 'created_by', 'updated_by', 'created_at', 'updated_at')
+    search_fields = ('code', 'name_singular', 'name_plural')
+
 
 @admin.register(IngredientMeasurementUnit)
 class IngredientMeasurementUnitAdmin(admin.ModelAdmin):
-    list_display = ('ingredient', 'unit', 'conversion_to_base')
+    list_display = ('id', 'ingredient', 'unit', 'conversion_to_base')
+    search_fields = ('ingredient__name', 'unit__code')
+    list_filter = ('unit',)

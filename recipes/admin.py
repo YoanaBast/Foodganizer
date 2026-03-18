@@ -13,7 +13,22 @@ from .models import Recipe, RecipeIngredient, RecipeCategory
 class RecipeAdmin(admin.ModelAdmin):
     form = RecipeFormAdmin
 
-    list_display = ('name', 'category', 'cooking_duration', 'servings', 'display_ingredients', 'display_nutrients', 'instructions', 'display_favourites')
+    list_display = (
+        'id',
+        'name',
+        'category',
+        'cooking_duration',
+        'servings',
+        'display_ingredients',
+        'instructions',
+        'display_favourites',
+        'created_by',
+        'updated_by',
+        'created_at',
+        'updated_at',
+        'display_nutrients',
+
+    )
     search_fields = ('name',)
 
     def display_ingredients(self, obj):
@@ -29,11 +44,14 @@ class RecipeAdmin(admin.ModelAdmin):
         return ", ".join([user.username for user in obj.favourited_by.all()]) or "-"
     display_favourites.short_description = "Favourited By"
 
+
 @admin.register(RecipeCategory)
 class RecipeCategoryAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ('id', 'name', 'created_by', 'updated_by', 'created_at', 'updated_at')
+    search_fields = ('name',)
+
 
 @admin.register(RecipeIngredient)
 class RecipeIngredientAdmin(admin.ModelAdmin):
-    list_display = ['recipe', 'ingredient', 'quantity', 'unit']
-
+    list_display = ('id', 'recipe', 'ingredient', 'quantity', 'unit')
+    list_filter = ('unit',)

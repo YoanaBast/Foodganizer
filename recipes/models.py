@@ -4,12 +4,13 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
+from core.models import TrackingMixin
 from ingredients.models import IngredientMeasurementUnit, Ingredient, MeasurementUnit
 
 
 # Create your models here.
 
-class RecipeCategory(models.Model):
+class RecipeCategory(TrackingMixin, models.Model):
     name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
@@ -20,7 +21,7 @@ class RecipeCategory(models.Model):
         verbose_name_plural = "Recipe Categories"
 
 
-class Recipe(models.Model):
+class Recipe(TrackingMixin, models.Model):
     name = models.CharField(max_length=200, unique=True)
     cooking_time = models.TimeField(null=True, blank=True)
     servings = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(100_000)])
