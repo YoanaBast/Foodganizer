@@ -41,6 +41,7 @@ PROJECT_APPS = [
 ]
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -124,6 +125,18 @@ USE_I18N = True
 
 USE_TZ = True
 
+JAZZMIN_SETTINGS = {
+    "site_title": "Foodganizer Admin",
+    "site_header": "Foodganizer",
+    "site_brand": "Foodganizer",
+    "welcome_sign": "Welcome to Foodganizer Admin",
+    "show_sidebar": True,
+    "navigation_expanded": True,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "litera", #vapor, solar, lux, pulse, flatly, litera,
+}
 AUTHENTICATION_BACKENDS = [
     'users.backends.EmailOrUsernameBackend',
 ]
