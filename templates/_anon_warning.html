@@ -1,0 +1,6 @@
+{% if not request.user.is_authenticated %}
+    <div class="message" style="background:#2a2a00; color:#facc15; margin-bottom:1rem;">
+        ⚠️ You are not logged in. Your {{ section_name }} is temporary and will be lost when you close the browser.
+        <a href="{% url 'register' %}" style="color:#facc15; font-weight:bold;">Register now to save it.</a>
+    </div>
+{% endif %}

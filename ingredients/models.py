@@ -1,11 +1,15 @@
+from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from core.constants import NUTRIENTS, NUTRIENT_UNITS
+from core.models import TrackingMixin
+
+
 # Create your models here.
 
 
-class IngredientDietaryTag(models.Model):
+class IngredientDietaryTag(TrackingMixin, models.Model):
     name = models.CharField(max_length=60, unique=True)
 
     def __str__(self):
@@ -16,7 +20,7 @@ class IngredientDietaryTag(models.Model):
         verbose_name_plural = "Ingredient Dietary Tags"
 
 
-class IngredientCategory(models.Model):
+class IngredientCategory(TrackingMixin, models.Model):
     name = models.CharField(max_length=40, unique=True)
 
     def __str__(self):
@@ -27,7 +31,7 @@ class IngredientCategory(models.Model):
         verbose_name_plural = "Ingredient Categories"
 
 
-class MeasurementUnit(models.Model):
+class MeasurementUnit(TrackingMixin, models.Model):
     code = models.CharField(max_length=10, unique=True)
     name_singular = models.CharField(max_length=40)
     name_plural = models.CharField(max_length=40)
@@ -61,7 +65,7 @@ class IngredientMeasurementUnit(models.Model):
         return f"{self.ingredient.name} - {self.unit}"
 
 
-class Ingredient(models.Model):
+class Ingredient(TrackingMixin, models.Model):
     NUTRIENTS = NUTRIENTS
     NUTRIENT_UNITS = NUTRIENT_UNITS
     # init because will use in loop
