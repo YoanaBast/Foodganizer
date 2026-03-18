@@ -1,36 +1,50 @@
 {% load static %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+
 <header class="main-header">
     <div class="tab-nav">
 
         <div class="logo">
             <a href="{% url 'homepage' %}">
                 <img class="header-logo" src="{% static 'images/simple_logo.svg' %}" alt="logo"/>
+
             </a>
         </div>
 
 
         <div class="tab-buttons-container">
-            <a href="{% url 'generate_grocery_list' %}" class="tab-button {% if request.resolver_match.url_name == 'generate_grocery_list' %}active{% endif %}">Generate Grocery List</a>
-            <a href="{% url 'meal_suggestions' %}" class="tab-button {% if request.resolver_match.url_name == 'meal_suggestions' %}active{% endif %}">Get Meal Suggestions</a>
-            <a href="{% url 'manage_fridge' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_fridge' %}active{% endif %}">Fridge</a>
-            <a href="{% url 'manage_recipes' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_recipes' %}active{% endif %}">Recipes</a>
             <a href="{% url 'manage_ingredients' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_ingredients' %}active{% endif %}">Ingredients</a>
+            <a href="{% url 'manage_recipes' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_recipes' %}active{% endif %}">Recipes</a>
+            <a href="{% url 'manage_fridge' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_fridge' %}active{% endif %}">Fridge</a>
+            <a href="{% url 'meal_suggestions' %}" class="tab-button {% if request.resolver_match.url_name == 'meal_suggestions' %}active{% endif %}">Get Meal Suggestions</a>
+            <a href="{% url 'generate_grocery_list' %}" class="tab-button {% if request.resolver_match.url_name == 'generate_grocery_list' %}active{% endif %}">Generate Grocery List</a>
+
         </div>
 
-            <ul class="nav-links">
                 {% if request.user.is_authenticated %}
-                    <li><a href="{% url 'profile' %}">Profile</a></li>
-                    <li>
-                        <form method="post" action="{% url 'logout' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn">Logout</button>
-                        </form>
-                    </li>
+                    <div class="nav-top-links">
+
+                    <a href="{% url 'profile' %}">
+                    <img src="{% static 'images/profile.svg' %}" width="50" height="30">
+                    </a>
+
+
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-invisible">
+                            <img src="{% static 'images/logout.svg' %}" width="50" height="30">
+                        </button>
+                    </form>
+                </div>
+
                 {% else %}
-                    <li><a href="{% url 'login' %}">Login</a></li>
-                    <li><a href="{% url 'register' %}">Register</a></li>
+                    <div class="nav-links">
+
+                    <li><a href="{% url 'login' %}" class="nav-auth-link">Login</a></li>
+                    <li><a href="{% url 'register' %}" class="nav-auth-link">Register</a></li>
+                </div>
+
                 {% endif %}
-            </ul>
 
 
 

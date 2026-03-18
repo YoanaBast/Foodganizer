@@ -1,5 +1,6 @@
 input[type="email"],
-input[type="password"] {
+input[type="password"],
+input[type="text"] {          /* add text for username field */
     padding: 0.6rem 0.75rem;
     border: 1px solid var(--border);
     border-radius: 0.5rem;
@@ -8,11 +9,53 @@ input[type="password"] {
     font-size: 0.875rem;
     font-family: inherit;
     box-sizing: border-box;
-    width: 50%;
+    width: 100%;              /* changed: was 50%, now matches errorlist */
 }
 
-input[type="email"]:focus,
-input[type="password"]:focus {
-    outline: none;
-    border-color: var(--accent);
+ul.errorlist {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0;
+    color: #ff6b6b;
+    font-size: 0.875rem;
+    /* removed width: 100% — it inherits from .form-group naturally */
+}
+
+.form-group {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.btn-invisible,
+.btn-invisible:hover,
+.btn-invisible:focus {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+.btn-invisible:hover {
+    background: none;
+}
+
+.nav-links .nav-auth-link {
+        color: var(--accent);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.nav-links .nav-auth-link:hover {
+    color: #fff;
+}
+
+.nav-top-links a,
+.nav-top-links form {
+    display: flex;
+    align-items: center;
 }

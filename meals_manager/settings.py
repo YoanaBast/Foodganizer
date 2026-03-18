@@ -124,6 +124,12 @@ USE_I18N = True
 
 USE_TZ = True
 
+AUTHENTICATION_BACKENDS = [
+    'users.backends.EmailOrUsernameBackend',
+]
+CSRF_FAILURE_VIEW = 'users.views.csrf_failure'
+
+
 LOGIN_REDIRECT_URL = 'homepage'
 LOGOUT_REDIRECT_URL = 'homepage'
 LOGIN_URL = 'login'
