@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
 from ingredients.models import Ingredient, MeasurementUnit, IngredientMeasurementUnit
 from planner.helpers import convert_qty_to_unit, build_needed_dict, subtract_fridge, save_grocery_list, \
-    save_generation_history, build_preview_message, get_or_create_fridge_item
+    save_generation_history, build_preview_message, get_or_create_fridge_item, get_or_create_anon_fridge_item
 from planner.models import UserFridge, UserGroceryList, GroceryListGeneration, GroceryListGenerationItem, UserMealList
 from recipes.models import Recipe, RecipeIngredient
 
@@ -33,28 +33,56 @@ class DeleteAnonFridgeItemView(View):
 class EditAnonFridgeItemView(View):
     def get(self, request, index):
         fridge = request.session.get('anon_fridge', [])
+        print(f"[SESSION] full anon_fridge: {fridge}")
+        print(f"[SESSION] requested index: {index}")
+
         if not (0 <= index < len(fridge)):
+            print(f"[SESSION] index out of range, fridge length: {len(fridge)}")
             return redirect('manage_fridge')
+
         item = fridge[index]
+        print(f"[SESSION] item at index {index}: {item}")
+
         ingredient = get_object_or_404(Ingredient, id=item['ingredient_id'])
-        form = UserFridgeForm(initial={'quantity': item['quantity'], 'unit': item['unit_id']})
+        unit = MeasurementUnit.objects.get(id=item['unit_id'])
+        print(f"[SESSION] ingredient: {ingredient}, unit: {unit}")
+        print(f"[SESSION] passing initial_quantity: {item['quantity']}, initial_unit_id: {item['unit_id']}")
+
         return render(request, 'planner/edit_fridge.html', {
-            'form': form,
-            'item': {'ingredient': ingredient, 'quantity': item['quantity']},
+            'form': UserFridgeForm(),
+            'item': {
+                'ingredient': ingredient,
+                'quantity': item['quantity'],
+                'unit': unit,
+            },
             'ingredient_units': ingredient.measurement_units.select_related('unit').all(),
             'anon_index': index,
+            'initial_quantity': item['quantity'],
+            'initial_unit_id': item['unit_id'],
         })
 
     def post(self, request, index):
         fridge = request.session.get('anon_fridge', [])
+        print(f"[SESSION POST] full anon_fridge before edit: {fridge}")
+        print(f"[SESSION POST] POST data: {request.POST}")
+
         if not (0 <= index < len(fridge)):
+            print(f"[SESSION POST] index out of range")
             return redirect('manage_fridge')
+
         ingredient = get_object_or_404(Ingredient, id=fridge[index]['ingredient_id'])
         form = UserFridgeForm(request.POST)
+        print(f"[SESSION POST] form valid: {form.is_valid()}")
+        print(f"[SESSION POST] form errors: {form.errors}")
+
         if form.is_valid():
+            print(f"[SESSION POST] cleaned_data: {form.cleaned_data}")
             fridge[index]['quantity'] = form.cleaned_data['quantity']
             fridge[index]['unit_id'] = form.cleaned_data['unit'].id
             request.session['anon_fridge'] = fridge
+            request.session.modified = True
+            print(f"[SESSION POST] updated fridge: {fridge}")
+
         return redirect('manage_fridge')
 
 
@@ -124,7 +152,11 @@ class AddFridgeItemView(View):
         qty = form.cleaned_data['quantity']
         unit = form.cleaned_data['unit']
 
-        get_or_create_fridge_item(request, ingredient, qty, unit)
+        if request.user.is_authenticated:
+            get_or_create_fridge_item(request, ingredient, qty, unit)
+        else:
+            get_or_create_anon_fridge_item(request, ingredient, qty, unit)
+
         return redirect('manage_fridge')
 
 

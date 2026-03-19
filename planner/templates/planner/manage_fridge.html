@@ -84,9 +84,11 @@
                 <a href="{% url 'ingredient_detail' item.ingredient.id %}" class="btn btn-secondary btn-small">Details</a>
                 <form method="post" action="{% url 'delete_anon_fridge_item' item.index %}" style="display:inline;">
                     {% csrf_token %}
-                    <button type="submit" class="icon-delete-btn">
-                        <img src="{% static 'images/delete-trash.svg' %}" alt="Delete">
-                    </button>
+                <button type="button"
+                        class="icon-delete-btn"
+                        onclick="openDeleteModal('anon_fridge', {{ item.index }}, '{{ item.ingredient.name|escapejs }}')">
+                    <img src="{% static 'images/delete-trash.svg' %}" alt="Delete">
+                </button>
                 </form>
             </div>
         </td>
@@ -119,7 +121,13 @@
 </div>
 
 <script src="{% static 'js/zero_inputt_handler.js' %}"></script>
-<script src="{% static 'js/delete_popup.js' %}"></script>
+
+{% if request.user.is_authenticated %}
+    <script src="{% static 'js/delete_popup.js' %}"></script>
+{% else %}
+    <script src="{% static 'js/anon_delete_popup.js' %}"></script>
+{% endif %}
+
 <script src="{% static 'js/fridge_modal.js' %}"></script>
 <script src="{% static 'js/fridge_ingredient_loader.js' %}"></script>
 
