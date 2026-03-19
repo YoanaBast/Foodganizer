@@ -2,37 +2,37 @@
 
 
 <div class="floating-buttons">
-    <div class="bubble toggle" onclick="toggleBubbles()">
-        ☰
-    </div>
+<!--    <div class="bubble toggle" onclick="toggleBubbles()">-->
+<!--        <img src="{% static 'images/hamburger-menu.svg' %}" width="24" height="24">-->
+<!--    </div>-->
 
-    <div class="bubble tooltip menu-item">
-        <a href="{% url 'homepage' %}">
-            <img src="{% static 'images/home.svg' %}" width="24" height="24">
-        </a>
-        <span class="tooltip-text">Home</span>
-    </div>
+    <a href="{% url 'homepage' %}">
+        <div class="bubble tooltip menu-item">
+                <img src="{% static 'images/home.svg' %}" width="24" height="24">
+            <span class="tooltip-text">Home</span>
+        </div>
+    </a>
 
-    <div class="bubble tooltip menu-item">
-        <a href="{% url 'user_grocery_list' %}">
-            <img src="{% static 'images/grocery-cart.svg' %}" width="24" height="24">
-        </a>
-        <span class="tooltip-text">Groceries</span>
-    </div>
+    <a href="{% url 'user_grocery_list' %}">
+        <div class="bubble tooltip menu-item">
+                <img src="{% static 'images/grocery-cart.svg' %}" width="24" height="24">
+            <span class="tooltip-text">Groceries</span>
+        </div>
+    </a>
 
-    <div class="bubble tooltip menu-item">
-        <a href="{% url 'meal_list' %}">
-            <img src="{% static 'images/fork_knife.svg' %}" width="24" height="24">
-        </a>
-        <span class="tooltip-text">Meals</span>
-    </div>
+    <a href="{% url 'meal_list' %}">
+        <div class="bubble tooltip menu-item">
+                <img src="{% static 'images/fork_knife.svg' %}" width="24" height="24">
+            <span class="tooltip-text">Meals</span>
+        </div>
+    </a>
 
+    <a href="{% url 'calorie-tracker' %}">
       <div class="bubble tooltip menu-item">
-        <a href="{% url 'calorie-tracker' %}">
             <img src="{% static 'images/kcal.svg' %}"width="24" height="24">
-        </a>
         <span class="tooltip-text">Kcal</span>
-    </div>
+        </div>
+    </a>
 
 </div>
 

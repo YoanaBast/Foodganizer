@@ -1295,13 +1295,12 @@ body:has(.modal-overlay:target) {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    align-items: center;   /* important */
-
+    align-items: center;
     z-index: 1000;
 }
 
 .bubble{
-    width:50px;
+        width:50px;
     height:50px;
     background:#1e1e1e;
     border-radius:50%;
@@ -1322,12 +1321,9 @@ body:has(.modal-overlay:target) {
     transform: scale(1.05);
 }
 
-.bubble img{
-    width:22px;
-    height:22px;
-    display:block;
-}
+
 
 .menu-item{
     display:grid;
 }
+
