@@ -2,6 +2,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 
 # TO-DO
 ## PRIORITY 1 FIXES
+    - fix 100 converts to 99.6 
 
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too

@@ -152,21 +152,83 @@ def get_user_fridge(request):
 
 
 def get_or_create_fridge_item(request, ingredient, qty, unit):
-    """Add to DB fridge or session fridge depending on auth"""
-    if request.user.is_authenticated:
-        items = UserFridge.objects.filter(user=request.user, ingredient=ingredient)
-        target_item = items.filter(unit=unit).first()
+    user = request.user
+    items = UserFridge.objects.filter(user=user, ingredient=ingredient)
+    target_item = items.filter(unit=unit).first()
+
+    for item in items.exclude(id=getattr(target_item, "id", None)):
+        try:
+            item_unit_conv = IngredientMeasurementUnit.objects.get(ingredient=ingredient, unit=item.unit)
+            target_unit_conv = IngredientMeasurementUnit.objects.get(ingredient=ingredient, unit=unit)
+        except IngredientMeasurementUnit.DoesNotExist:
+            continue
+
+        qty_in_base = item.quantity * item_unit_conv.conversion_to_base
+        qty_in_target = qty_in_base / target_unit_conv.conversion_to_base
+
         if target_item:
-            target_item.quantity += qty
+            target_item.quantity += qty_in_target
             target_item.save()
         else:
-            UserFridge.objects.create(user=request.user, ingredient=ingredient, quantity=qty, unit=unit)
+            target_item = UserFridge.objects.create(
+                user=user, ingredient=ingredient,
+                quantity=qty_in_target, unit=unit
+            )
+        item.delete()
+
+    if target_item:
+        target_item.quantity += qty
+        target_item.save()
     else:
-        fridge = request.session.get('anon_fridge', [])
-        for item in fridge:
-            if item['ingredient_id'] == ingredient.id and item['unit_id'] == unit.id:
-                item['quantity'] += qty
-                request.session.modified = True
-                return
-        fridge.append({'ingredient_id': ingredient.id, 'unit_id': unit.id, 'quantity': qty})
-        request.session['anon_fridge'] = fridge
+        UserFridge.objects.create(
+            user=user, ingredient=ingredient,
+            quantity=qty, unit=unit
+        )
+
+
+def get_or_create_anon_fridge_item(request, ingredient, qty, unit):
+    fridge = request.session.get('anon_fridge', [])
+    target_index = None
+    target_unit_id = unit.id
+
+    # find if same ingredient+unit already exists
+    for i, item in enumerate(fridge):
+        if item['ingredient_id'] == ingredient.id and item['unit_id'] == target_unit_id:
+            target_index = i
+            break
+
+    # try to merge other units of same ingredient into target unit
+    new_fridge = []
+    merged_qty = qty
+
+    for i, item in enumerate(fridge):
+        if item['ingredient_id'] != ingredient.id:
+            new_fridge.append(item)
+            continue
+
+        if item['unit_id'] == target_unit_id:
+            merged_qty += item['quantity']
+            continue  # will be re-added at the end
+
+        # different unit — try to convert
+        try:
+            item_unit_conv = IngredientMeasurementUnit.objects.get(
+                ingredient=ingredient, unit_id=item['unit_id']
+            )
+            target_unit_conv = IngredientMeasurementUnit.objects.get(
+                ingredient=ingredient, unit=unit
+            )
+            qty_in_base = item['quantity'] * item_unit_conv.conversion_to_base
+            qty_in_target = qty_in_base / target_unit_conv.conversion_to_base
+            merged_qty += qty_in_target
+        except IngredientMeasurementUnit.DoesNotExist:
+            new_fridge.append(item)  # can't convert, keep as separate item
+
+    new_fridge.append({
+        'ingredient_id': ingredient.id,
+        'unit_id': target_unit_id,
+        'quantity': merged_qty,
+    })
+
+    request.session['anon_fridge'] = new_fridge
+    request.session.modified = True
