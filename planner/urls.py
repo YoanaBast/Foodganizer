@@ -48,4 +48,8 @@ urlpatterns = [
     # urls.py
     path('fridge/anon/delete/<int:index>/', views.DeleteAnonFridgeItemView.as_view(), name='delete_anon_fridge_item'),
     path('fridge/anon/edit/<int:index>/', views.EditAnonFridgeItemView.as_view(), name='edit_anon_fridge_item'),
+    path('grocery/anon/delete/<int:index>/', views.DeleteAnonGroceryItemView.as_view(), name='delete_anon_grocery_item'),
+    path('grocery/anon/add-to-fridge/<int:index>/', views.AddAnonGroceryToFridgeView.as_view(), name='add_anon_grocery_to_fridge'),
+    path('grocery/anon/add-all-to-fridge/', views.AddAllAnonGroceryToFridgeView.as_view(), name='add_all_anon_grocery_to_fridge'),
+
 ]

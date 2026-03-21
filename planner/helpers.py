@@ -232,3 +232,37 @@ def get_or_create_anon_fridge_item(request, ingredient, qty, unit):
 
     request.session['anon_fridge'] = new_fridge
     request.session.modified = True
+
+
+def subtract_anon_fridge(needed, request):
+    anon_fridge = request.session.get('anon_fridge', [])
+    final_needed = {}
+
+    for ing_id, data in needed.items():
+        ing = data['ingredient']
+        base_unit = data['unit']
+        needed_qty = data['total_qty']
+        available_in_base = 0
+
+        for fridge_item in anon_fridge:
+            if fridge_item['ingredient_id'] != ing.id:
+                continue
+            converted = convert_qty_to_unit(
+                fridge_item['quantity'],
+                MeasurementUnit.objects.get(id=fridge_item['unit_id']),
+                base_unit,
+                ing
+            )
+            if converted is not None:
+                available_in_base += converted
+
+        shortfall = needed_qty - available_in_base
+        if shortfall > 0:
+            final_needed[ing_id] = {
+                'ingredient': ing,
+                'quantity': round(shortfall, 4),
+                'unit': base_unit,
+                'by_recipe': data['by_recipe'],
+            }
+
+    return final_needed
