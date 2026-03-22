@@ -3,9 +3,6 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 # TO-DO
 ## PRIORITY 1 FIXES
     - fix 100 converts to 99.6 
-    - for create func i need to make them add created_by and same for updates
-    - favourited by to be removed for anon, function to be fixed to not use default
-    - add login required to add/edit 
 
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too

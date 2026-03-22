@@ -1,6 +1,7 @@
 import json
 
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.http import JsonResponse, HttpResponse
@@ -9,6 +10,8 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView
 
+from core.mixins import OwnerOrModeratorMixin
+from core.utils import is_moderator
 from .models import Ingredient, IngredientMeasurementUnit, IngredientCategory, IngredientDietaryTag, MeasurementUnit
 from .forms import IngredientAddForm, IngredientEditForm, IngredientDetailForm
 
@@ -34,7 +37,7 @@ class ManageIngredientsView(ListView):
         ).order_by('name')
 
 
-class AddIngredientView(CreateView):
+class AddIngredientView(LoginRequiredMixin, CreateView):
     model = Ingredient
     form_class = IngredientAddForm
     template_name = 'ingredients/add_ingredient.html'
@@ -42,6 +45,8 @@ class AddIngredientView(CreateView):
     def form_valid(self, form):
         ingredient = form.save(commit=False)
         ingredient.name = ingredient.name.strip().lower()
+        ingredient.created_by = self.request.user
+        ingredient.updated_by = self.request.user
         ingredient.save()
         form.save_m2m()
         return redirect('edit_ingredient', ingredient_id=ingredient.id)
@@ -50,7 +55,7 @@ class AddIngredientView(CreateView):
         return render(self.request, self.template_name, {'form': form})
 
 
-class EditIngredientView(UpdateView):
+class EditIngredientView(LoginRequiredMixin, OwnerOrModeratorMixin, UpdateView):
     model = Ingredient
     form_class = IngredientEditForm
     template_name = 'ingredients/edit_ingredient.html'
@@ -67,6 +72,7 @@ class EditIngredientView(UpdateView):
     def form_valid(self, form):
         ingredient = form.save(commit=False)
         ingredient.name = ingredient.name.strip().lower()
+        ingredient.updated_by = self.request.user
         ingredient.save()
         form.save_m2m()
         return redirect('edit_ingredient', ingredient_id=ingredient.id)
@@ -85,6 +91,17 @@ POST request
 
 get_context_data gives a dictionary to the template to render, like context = {} in FBV
 """
+
+class DeleteIngredientView(LoginRequiredMixin, OwnerOrModeratorMixin, View):
+    """
+    HTML delete button (trash bin) -> JS pop-up -> openDeleteModal (delete_popup.js)
+    -> Delete button in the pop-up posts to URL (/ingredients/7/delete/) -> URL calls DeleteIngredientView
+    """
+    def post(self, request, ingredient_id):
+        ing = get_object_or_404(Ingredient, pk=ingredient_id)
+        ing.delete()
+        return redirect('manage_ingredients')
+
 
 
 def ingredient_detail(request, ingredient_id):
@@ -107,16 +124,6 @@ def ingredient_detail(request, ingredient_id):
     }
     return render(request, 'ingredients/ingredient_detail.html', context)
 
-
-class DeleteIngredientView(View):
-    """
-    HTML delete button (trash bin) -> JS pop-up -> openDeleteModal (delete_popup.js)
-    -> Delete button in the pop-up posts to URL (/ingredients/7/delete/) -> URL calls DeleteIngredientView
-    """
-    def post(self, request, ingredient_id):
-        ing = get_object_or_404(Ingredient, pk=ingredient_id)
-        ing.delete()
-        return redirect('manage_ingredients')
 
 
 """
@@ -153,6 +160,10 @@ def add_category_ajax(request):
         obj, created = IngredientCategory.objects.get_or_create(name=name)
         if not created:
             return JsonResponse({'error': f'"{name}" already exists.'}, status=400)
+        if request.user.is_authenticated:
+            obj.created_by = request.user
+            obj.updated_by = request.user
+            obj.save()
         return JsonResponse({'id': obj.id, 'name': obj.name})
     return JsonResponse({'error': 'Invalid method.'}, status=405)
 
@@ -161,9 +172,15 @@ def edit_category_ajax(request, pk):
     if request.method == "POST":
         cat = IngredientCategory.objects.filter(pk=pk).first()
         if not cat: return JsonResponse({"error": "Not found"}, status=404)
+
+        if not is_moderator(request.user) and cat.created_by != request.user:
+            return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
+
         name = request.POST.get("name")
         if not name: return JsonResponse({"error": "Name required"}, status=400)
         cat.name = name
+        if request.user.is_authenticated:
+            cat.updated_by = request.user
         cat.save()
         return JsonResponse({"id": cat.id, "name": cat.name})
 
@@ -172,6 +189,9 @@ def delete_category_ajax(request, pk):
     if request.method == "POST":
         cat = IngredientCategory.objects.filter(pk=pk).first()
         if not cat: return JsonResponse({"error": "Not found"}, status=404)
+
+        if not is_moderator(request.user) and cat.created_by != request.user:
+            return JsonResponse({"error": "You do not have permission to delete this."}, status=403)
         cat.delete()
         return JsonResponse({"success": True})
 
@@ -190,6 +210,7 @@ def dietary_tags_fragment(request):
 
 def list_dietary_tags_ajax(request):
     tags = IngredientDietaryTag.objects.all().order_by('name')
+
     return JsonResponse({'items': [
         {
             'id': t.id,
@@ -213,6 +234,10 @@ def add_dietary_tag_ajax(request):
         obj, created = IngredientDietaryTag.objects.get_or_create(name=name)
         if not created:
             return JsonResponse({'error': f'"{name}" already exists.'}, status=400)
+        if request.user.is_authenticated:
+            obj.created_by = request.user
+            obj.updated_by = request.user
+            obj.save()
         return JsonResponse({'id': obj.id, 'name': obj.name})
     return JsonResponse({'error': 'Invalid method.'}, status=405)
 
@@ -222,10 +247,16 @@ def edit_dietary_tag_ajax(request, pk):
         tag = IngredientDietaryTag.objects.filter(pk=pk).first()
         if not tag:
             return JsonResponse({"error": "Not found"}, status=404)
+
+        if not is_moderator(request.user) and tag.created_by != request.user:
+            return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
+
         name = request.POST.get("name")
         if not name:
             return JsonResponse({"error": "Name required"}, status=400)
         tag.name = name
+        if request.user.is_authenticated:
+            tag.updated_by = request.user
         tag.save()
         return JsonResponse({"id": tag.id, "name": tag.name})
 
@@ -235,6 +266,9 @@ def delete_dietary_tag_ajax(request, pk):
         tag = IngredientDietaryTag.objects.filter(pk=pk).first()
         if not tag:
             return JsonResponse({"error": "Not found"}, status=404)
+
+        if not is_moderator(request.user) and tag.created_by != request.user:
+            return JsonResponse({"error": "You do not have permission to delete this."}, status=403)
         tag.delete()
         return JsonResponse({"success": True})
 
@@ -291,8 +325,13 @@ def add_measurement_unit_ajax(request):
             code=code,
             defaults={'name_singular': name_singular, 'name_plural': name_plural}
         )
+
         if not created:
             return JsonResponse({'error': f'Unit with code "{code}" already exists.'}, status=400)
+        if request.user.is_authenticated:
+            obj.created_by = request.user
+            obj.updated_by = request.user
+            obj.save()
         return JsonResponse({'id': obj.id, 'name': f'{obj.name_singular} ({obj.code})'})
     return JsonResponse({'error': 'Invalid method.'}, status=405)
 
@@ -329,9 +368,14 @@ def edit_measurement_unit_ajax(request, pk):
         name_plural = request.POST.get('name_plural', '').strip()
         if not name_singular:
             return JsonResponse({'error': 'Name is required.'}, status=400)
+        if not is_moderator(request.user) and unit.created_by != request.user:
+            return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
+
         unit.name_singular = name_singular
         if name_plural:
             unit.name_plural = name_plural
+        if request.user.is_authenticated:
+            unit.updated_by = request.user
         unit.save()
         return JsonResponse({'id': unit.id, 'name': f'{unit.name_singular} ({unit.code})'})
     return JsonResponse({'error': 'Invalid method.'}, status=405)
@@ -340,6 +384,8 @@ def edit_measurement_unit_ajax(request, pk):
 def delete_measurement_unit_ajax(request, pk):
     if request.method == 'POST':
         unit = get_object_or_404(MeasurementUnit, pk=pk)
+        if not is_moderator(request.user) and unit.created_by != request.user:
+            return JsonResponse({"error": "You do not have permission to delete this."}, status=403)
         unit.delete()
         return JsonResponse({'success': True})
     return JsonResponse({'error': 'Invalid method.'}, status=405)

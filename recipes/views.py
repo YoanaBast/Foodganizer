@@ -1,7 +1,10 @@
 import json
 
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.http import JsonResponse
@@ -10,6 +13,7 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView
 
+from core.utils import is_moderator
 from ingredients.models import Ingredient, IngredientMeasurementUnit
 from .forms import RecipeForm, RecipeIngredientForm, RecipeIngredientFormSet
 from .models import Recipe, RecipeCategory, RecipeIngredient
@@ -35,10 +39,12 @@ class ManageRecipesView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user, _ = User.objects.get_or_create(username="default")
 
         for rec in context['recipes']:
-            rec.is_fav = rec.favourited_by.filter(id=user.id).exists()
+            if self.request.user.is_authenticated:
+                rec.is_fav = rec.favourited_by.filter(id=self.request.user.id).exists()
+            else:
+                rec.is_fav = False
 
         context['recipe_form'] = RecipeForm()
         context['ingredient_form'] = RecipeIngredientForm()
@@ -51,7 +57,7 @@ class RecipeDetailView(DetailView):
     context_object_name = 'recipe'
 
 
-class AddRecipeView(View):
+class AddRecipeView(LoginRequiredMixin, View):
     template_name = 'recipes/add_recipe.html'
 
     def get_ingredients(self):
@@ -69,7 +75,11 @@ class AddRecipeView(View):
         ingredient_formset = RecipeIngredientFormSet(request.POST)
 
         if recipe_form.is_valid() and ingredient_formset.is_valid():
-            recipe = recipe_form.save()
+            recipe = recipe_form.save(commit=False)
+            recipe.created_by = request.user
+            recipe.updated_by = request.user
+            recipe.save()
+
             ingredient_formset.instance = recipe
             ingredient_formset.save()
             return redirect('recipe_detail', pk=recipe.pk)
@@ -81,18 +91,22 @@ class AddRecipeView(View):
         })
 
 
-class DeleteRecipeView(View):
+class DeleteRecipeView(LoginRequiredMixin, View):
     """
     HTML delete button (trash bin) -> JS pop-up -> openDeleteModal (delete_popup.js)
     -> Delete button in the pop-up posts to URL (/recipes/pk/delete/) -> URL calls DeleteRecipeView
     """
     def post(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
+
+        if not is_moderator(request.user) and recipe.created_by != request.user:
+            raise PermissionDenied
+
         recipe.delete()
         return redirect('manage_recipes')
 
 
-class EditRecipeView(View):
+class EditRecipeView(LoginRequiredMixin, View):
     template_name = 'recipes/edit_recipe.html'
 
     def get_forms(self, request, recipe):
@@ -122,15 +136,24 @@ class EditRecipeView(View):
 
     def get(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
+        if not is_moderator(request.user) and recipe.created_by != request.user:
+            raise PermissionDenied
         recipe_form, ingredient_formset = self.get_forms(request, recipe)
         return render(request, self.template_name, self.get_context(recipe, recipe_form, ingredient_formset))
 
     def post(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
+        if not is_moderator(request.user) and recipe.created_by != request.user:
+            raise PermissionDenied
+
         recipe_form, ingredient_formset = self.get_forms(request, recipe)
 
         if recipe_form.is_valid() and ingredient_formset.is_valid():
-            recipe_form.save()
+            recipe = recipe_form.save(commit=False)
+            recipe.updated_by = request.user
+            if not recipe.created_by:
+                recipe.created_by = Recipe.objects.get(pk=pk).created_by
+            recipe.save()
             ingredient_formset.save()
             return redirect('recipe_detail', pk=pk)
 
@@ -139,22 +162,31 @@ class EditRecipeView(View):
 
 """
 Note:
+Because OwnerOrModeratorMixin works by overriding get_object() which is a method on Django's SingleObjectMixin — it's designed for CBVs that use get_object() like UpdateView, DetailView, DeleteView.
+EditRecipeView and DeleteRecipeView are plain View subclasses that manually call get_object_or_404 — so get_object() is never called and the mixin does nothing.
+
+Note:
 AJAX views will be kept as FBV as they just return a JSON response. CBV would add nothing to them. 
 """
+
 
 """
 FAVOURITE HEART
 """
 
+
+@login_required
 def toggle_favourite(request, pk):
-    user = get_object_or_404(User, username="default")
+    if request.method != 'POST':
+        return JsonResponse({'error': 'method not allowed'}, status=405)
+
     recipe = get_object_or_404(Recipe, pk=pk)
 
-    if recipe.favourited_by.filter(id=user.id).exists():
-        recipe.favourited_by.remove(user)
+    if recipe.favourited_by.filter(id=request.user.id).exists():
+        recipe.favourited_by.remove(request.user)
         status = False
     else:
-        recipe.favourited_by.add(user)
+        recipe.favourited_by.add(request.user)
         status = True
 
     return JsonResponse({"favourited": status})
@@ -168,6 +200,10 @@ def add_ingredient(request, pk):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
+            recipe = Recipe.objects.get(pk=pk)
+
+            if not is_moderator(request.user) and recipe.created_by != request.user:
+                return JsonResponse({"success": False, "error": "You do not have permission to edit this recipe."})
 
             ingredient_id = data.get("ingredient_id")
             quantity = data.get("quantity")
@@ -180,7 +216,8 @@ def add_ingredient(request, pk):
             except (ValueError, TypeError):
                 return JsonResponse({"success": False, "error": "Please enter a valid quantity."})
 
-            recipe = Recipe.objects.get(pk=pk)
+
+
             ingredient = Ingredient.objects.get(pk=ingredient_id)
             unit = IngredientMeasurementUnit.objects.get(pk=unit_id)
 
@@ -219,6 +256,11 @@ def add_recipe_category_ajax(request):
         obj, created = RecipeCategory.objects.get_or_create(name=name)
         if not created:
             return JsonResponse({'error': f'"{name}" already exists.'}, status=400)
+        if request.user.is_authenticated:
+            obj.created_by = request.user
+            obj.updated_by = request.user
+            obj.save()
+
         return JsonResponse({'id': obj.id, 'name': obj.name})
     return JsonResponse({'error': 'Invalid method.'}, status=405)
 
@@ -254,7 +296,12 @@ def edit_category_ajax(request, pk=None):
         if not cat:
             return JsonResponse({"error": "Not found"}, status=404)
 
+        if not is_moderator(request.user) and cat.created_by != request.user:
+            return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
+
         cat.name = name
+        if request.user.is_authenticated:
+            cat.updated_by = request.user
         cat.save()
 
         return JsonResponse({"id": cat.id, "name": cat.name})
@@ -272,6 +319,9 @@ def delete_category_ajax(request, pk=None):
 
         if not cat:
             return JsonResponse({"error": "Not found"}, status=404)
+
+        if not is_moderator(request.user) and cat.created_by != request.user:
+            return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
 
         cat.delete()
         return JsonResponse({"success": True})

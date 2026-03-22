@@ -132,6 +132,14 @@ JAZZMIN_SETTINGS = {
     "welcome_sign": "Welcome to Foodganizer Admin",
     "show_sidebar": True,
     "navigation_expanded": True,
+    'order_with_respect_to': [
+        'auth',
+        'users',
+        'ingredients',
+        'recipes',
+        'planner',
+        'core',
+    ],
 }
 
 JAZZMIN_UI_TWEAKS = {

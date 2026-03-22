@@ -30,3 +30,17 @@ class ErrorMessagesMixin:
                 self.fields[field_name].error_messages.update(
                     self.default_error_messages[field_name]
                 )
+
+
+from django.core.exceptions import PermissionDenied
+
+class OwnerOrModeratorMixin:
+    owner_field = 'created_by'
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        if self.request.user.groups.filter(name='Moderator').exists():
+            return obj
+        if getattr(obj, self.owner_field) != self.request.user:
+            raise PermissionDenied
+        return obj

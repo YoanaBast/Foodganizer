@@ -6,8 +6,15 @@ function toggleFav(recipeId, btn) {
             'Content-Type': 'application/json'
         }
     })
-    .then(res => res.json())
+    .then(res => {
+        if (res.redirected || res.status === 302) {
+            window.location.href = '/users/login/';
+            return;
+        }
+        return res.json();
+    })
     .then(data => {
+        if (!data) return;
         const src = data.favourited ? btn.dataset.fullHeart : btn.dataset.emptyHeart;
         btn.innerHTML = `<img src="${src}" alt="fav" class="heart-icon" />`;
     });
