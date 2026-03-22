@@ -1,7 +1,8 @@
 from django.urls import path, include
 
 from planner import views
-
+from planner.views import CalendarView, CalendarDataView, CalendarAddEntryView, CalendarEditEntryView, \
+    CalendarDeleteEntryView, CalendarSearchView, CalendarDeficitView
 
 fridge_patterns = [
     # path('', views.manage_fridge, name='manage_fridge'),
@@ -51,5 +52,13 @@ urlpatterns = [
     path('grocery/anon/delete/<int:index>/', views.DeleteAnonGroceryItemView.as_view(), name='delete_anon_grocery_item'),
     path('grocery/anon/add-to-fridge/<int:index>/', views.AddAnonGroceryToFridgeView.as_view(), name='add_anon_grocery_to_fridge'),
     path('grocery/anon/add-all-to-fridge/', views.AddAllAnonGroceryToFridgeView.as_view(), name='add_all_anon_grocery_to_fridge'),
+    path('biometrics/', views.BiometricsView.as_view(), name='biometrics'),
+    path('calendar/', CalendarView.as_view(), name='calendar'),
+    path('calendar/data/', CalendarDataView.as_view(), name='calendar_data'),
+    path('calendar/add/', CalendarAddEntryView.as_view(), name='calendar_add'),
+    path('calendar/edit/<int:entry_id>/', CalendarEditEntryView.as_view(), name='calendar_edit'),
+    path('calendar/delete/<int:entry_id>/', CalendarDeleteEntryView.as_view(), name='calendar_delete'),
+    path('calendar/search/', CalendarSearchView.as_view(), name='calendar_search'),
+    path('calendar/deficit/', CalendarDeficitView.as_view(), name='calendar_deficit'),
 
 ]

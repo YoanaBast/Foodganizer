@@ -1,0 +1,502 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Meal Calendar{% endblock %}
+
+{% block content %}
+<div class="container-home" style="padding-top: 2rem; padding-bottom: 2rem;">
+
+    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+        <div>
+            <h2 class="section-title">Meal Calendar</h2>
+            <p class="section-description">Track your daily calories and meals.</p>
+        </div>
+        <a href="{% url 'biometrics' %}" class="btn btn-secondary">
+            {% if request.user.is_authenticated %}Edit Targets{% else %}Set Targets{% endif %}
+        </a>
+    </div>
+
+    {% if not request.user.is_authenticated %}
+    <div style="position: relative;">
+        <div style="filter: blur(3px); pointer-events: none; opacity: 0.4;">
+            <div id="cal-placeholder" style="display:grid; grid-template-columns: repeat(7,1fr); gap:4px;">
+                {% for i in "SMTWTFS" %}
+                    <div style="text-align:center; font-size:11px; color:var(--text-secondary); padding:6px 0; text-transform:uppercase; letter-spacing:0.05em;">{{ i }}</div>
+                {% endfor %}
+                {% for i in "1234567890123456789012345678901234" %}
+                    <div style="min-height:80px; border:0.5px solid var(--border); border-radius:0.5rem; padding:6px; background:var(--bg-secondary);"></div>
+                {% endfor %}
+            </div>
+        </div>
+        <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
+            <p style="font-size:1.1rem; font-weight:500; color:var(--text-primary);">Sign in to track your meals</p>
+            <div style="display:flex; gap:0.75rem;">
+                <a href="{% url 'register' %}" class="btn">Register</a>
+                <a href="{% url 'login' %}" class="btn btn-secondary">Login</a>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+
+    <div id="cal-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
+        <div id="cal-title" style="font-size:1.25rem; font-weight:500; color:var(--text-primary);"></div>
+        <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary btn-small" onclick="changeMonth(-1)">&#8592; Prev</button>
+            <button class="btn btn-secondary btn-small" onclick="goToday()">Today</button>
+            <button class="btn btn-secondary btn-small" onclick="changeMonth(1)">Next &#8594;</button>
+        </div>
+    </div>
+
+    <div id="cal-grid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px;">
+        {% for dow in "SMTWTFS" %}
+            <div style="text-align:center; font-size:11px; color:var(--text-secondary); padding:6px 0; text-transform:uppercase; letter-spacing:0.05em;">{{ dow }}</div>
+        {% endfor %}
+    </div>
+
+    <div style="display:flex; gap:1.5rem; margin-top:1rem; font-size:0.8rem; color:var(--text-secondary);">
+        <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#22c55e; margin-right:4px;"></span>On target</span>
+        <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#f59e0b; margin-right:4px;"></span>Surplus</span>
+        <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#3b82f6; margin-right:4px;"></span>Deficit</span>
+        <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--bg-tertiary); margin-right:4px;"></span>No data</span>
+    </div>
+
+    {% endif %}
+</div>
+
+<!-- DAY MODAL -->
+<div id="day-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center;">
+    <div style="background:var(--bg-secondary); border-radius:0.75rem; padding:1.5rem; width:480px; max-width:95vw; max-height:85vh; overflow-y:auto;">
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <h3 id="modal-date-title" style="font-size:1.1rem; font-weight:500; margin:0;"></h3>
+            <button onclick="closeModal()" class="btn-invisible" style="font-size:1.5rem; color:var(--text-secondary);">&#215;</button>
+        </div>
+
+        <div id="modal-summary" style="margin-bottom:1rem;"></div>
+
+        <div id="modal-entries" style="margin-bottom:1.25rem;"></div>
+
+        <div style="border-top:1px solid var(--border); padding-top:1rem;">
+            <p style="font-size:0.875rem; font-weight:500; margin-bottom:0.75rem;">Add entry</p>
+
+            <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
+                <button class="btn btn-secondary btn-small" onclick="setType('recipe')" id="btn-recipe">Recipe</button>
+                <button class="btn btn-secondary btn-small" onclick="setType('ingredient')" id="btn-ingredient">Ingredient</button>
+            </div>
+
+            <input type="text" id="search-input" placeholder="Search..." oninput="doSearch(this.value)" style="width:100%; margin-bottom:0.5rem;">
+            <div id="search-results" style="margin-bottom:0.75rem; max-height:150px; overflow-y:auto;"></div>
+
+            <div id="add-form" style="display:none;">
+                <p id="selected-name" style="font-size:0.875rem; font-weight:500; margin-bottom:0.5rem;"></p>
+                <div id="recipe-fields">
+                    <label style="font-size:0.8rem;">Servings</label>
+                    <input type="number" id="input-servings" min="0.1" step="0.1" value="1" style="width:100%; margin-bottom:0.5rem;">
+                </div>
+                <div id="ingredient-fields" style="display:none;">
+                    <label style="font-size:0.8rem;">Quantity</label>
+                    <input type="number" id="input-quantity" min="0.01" step="0.01" value="100" style="width:100%; margin-bottom:0.5rem;">
+                    <label style="font-size:0.8rem;">Unit</label>
+                    <select id="input-unit" style="width:100%; margin-bottom:0.5rem;"></select>
+                </div>
+                <button class="btn" onclick="submitAdd()">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="edit-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2100; align-items:center; justify-content:center;">
+    <div style="background:var(--bg-secondary); border-radius:0.75rem; padding:1.5rem; width:320px; max-width:95vw;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <h3 id="edit-title" style="font-size:1rem; font-weight:500; margin:0;"></h3>
+            <button onclick="closeEdit()" class="btn-invisible" style="font-size:1.5rem; color:var(--text-secondary);">&#215;</button>
+        </div>
+        <div id="edit-fields"></div>
+        <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+            <button class="btn" onclick="submitEdit()">Save</button>
+            <button class="btn btn-danger" onclick="submitDelete()">Delete</button>
+            <button class="btn btn-secondary" onclick="closeEdit()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+{% if request.user.is_authenticated %}
+<div class="container-home" style="padding-top: 2rem; padding-bottom: 2rem;">
+
+<div style="margin-top: 2rem; background: var(--bg-secondary); border-radius: 0.75rem; padding: 1.5rem;">
+    <h3 style="font-size: 1rem; font-weight: 500; margin-bottom: 1rem;">Deficit Calculator</h3>
+
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1rem;">
+    <div>
+        <label style="font-size: 0.8rem; display:block; margin-bottom:4px;">Start date</label>
+        <input type="date" id="deficit-start" style="width: auto;">
+    </div>
+    <div>
+        <label style="font-size: 0.8rem; display:block; margin-bottom:4px;">End date</label>
+        <input type="date" id="deficit-end" style="width: auto;">
+    </div>
+    <button class="btn" onclick="calculateDeficit()">Calculate</button>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
+        <input type="checkbox" id="fill-empty" style="width:auto; height:auto;" checked>
+        <label for="fill-empty" style="font-size:0.875rem; margin:0;">Fill empty days with maintenance calories</label>
+    </div>
+
+    <div id="deficit-result" style="display:none; padding: 1rem; background: var(--bg-tertiary); border-radius: 0.5rem;">
+        <p id="deficit-text" style="font-size: 0.875rem; margin-bottom: 1rem; color: var(--text-secondary);"></p>
+        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">Days tracked</div>
+                <div style="font-size: 1.25rem; font-weight: 500;" id="deficit-days"></div>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">Total consumed</div>
+                <div style="font-size: 1.25rem; font-weight: 500;" id="deficit-consumed"></div>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">Total maintenance</div>
+                <div style="font-size: 1.25rem; font-weight: 500;" id="deficit-maintenance"></div>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; color: var(--text-secondary);">Net deficit</div>
+                <div style="font-size: 1.25rem; font-weight: 500;" id="deficit-net"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="deficit-error" style="display:none; color: #ff6b6b; font-size: 0.875rem;"></div>
+</div>
+ </div>
+
+<script>
+async function calculateDeficit() {
+    const start = document.getElementById('deficit-start').value;
+    const end = document.getElementById('deficit-end').value;
+    const fillEmpty = document.getElementById('fill-empty').checked;
+    const resultDiv = document.getElementById('deficit-result');
+    const errorDiv = document.getElementById('deficit-error');
+
+    errorDiv.style.display = 'none';
+    resultDiv.style.display = 'none';
+
+    if (!start || !end) {
+        errorDiv.textContent = 'Please select both dates.';
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    const res = await fetch(`/planner/calendar/deficit/?start=${start}&end=${end}&fill_empty=${fillEmpty}`);
+    const data = await res.json();
+
+    if (data.error === 'no_biometrics') {
+        errorDiv.innerHTML = 'No biometrics found. <a href="{% url "biometrics" %}">Set your TDEE first</a>.';
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    if (data.error) {
+        errorDiv.textContent = data.error;
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    document.getElementById('deficit-text').textContent = data.result;
+    document.getElementById('deficit-days').textContent = data.days;
+    document.getElementById('deficit-consumed').textContent = `${Math.round(data.total_consumed)} kcal`;
+    document.getElementById('deficit-maintenance').textContent = `${Math.round(data.total_maintenance)} kcal`;
+
+    const net = Math.round(data.deficit);
+    const netEl = document.getElementById('deficit-net');
+    netEl.textContent = net > 0 ? `-${net} kcal` : net < 0 ? `+${Math.abs(net)} kcal` : `0 kcal`;
+    netEl.style.color = net > 0 ? '#22c55e' : net < 0 ? '#ff6b6b' : '#f59e0b';
+
+    resultDiv.style.display = 'block';
+}
+
+// default dates to current month
+const now = new Date();
+const y = now.getFullYear();
+const m = String(now.getMonth()+1).padStart(2,'0');
+const firstDay = `${y}-${m}-01`;
+const lastDay = `${y}-${m}-${String(new Date(y, now.getMonth()+1, 0).getDate()).padStart(2,'0')}`;
+document.getElementById('deficit-start').value = firstDay;
+document.getElementById('deficit-end').value = lastDay;
+</script>
+
+<script>
+const CSRF = '{{ csrf_token }}';
+let current = new Date();
+let today = new Date();
+let monthData = {};
+let tdee = null;
+let selectedDate = null;
+let addType = 'recipe';
+let selectedItem = null;
+let editingEntry = null;
+
+function fmt(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+
+async function loadMonth() {
+    const res = await fetch(`/planner/calendar/data/?year=${current.getFullYear()}&month=${current.getMonth()+1}`);
+    const data = await res.json();
+    monthData = data.days || {};
+    tdee = data.tdee;
+    renderCalendar();
+}
+
+function renderCalendar() {
+    const grid = document.getElementById('cal-grid');
+    grid.querySelectorAll('.cal-day').forEach(d => d.remove());
+
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('cal-title').textContent = `${months[current.getMonth()]} ${current.getFullYear()}`;
+
+    const first = new Date(current.getFullYear(), current.getMonth(), 1);
+    const last = new Date(current.getFullYear(), current.getMonth()+1, 0);
+    const startDay = first.getDay();
+
+    for (let i = 0; i < startDay; i++) {
+        const d = new Date(first); d.setDate(d.getDate() - (startDay - i));
+        grid.appendChild(makeDay(d, true));
+    }
+    for (let i = 1; i <= last.getDate(); i++) {
+        grid.appendChild(makeDay(new Date(current.getFullYear(), current.getMonth(), i), false));
+    }
+    const remaining = 7 - ((startDay + last.getDate()) % 7);
+    if (remaining < 7) {
+        for (let i = 1; i <= remaining; i++) {
+            const d = new Date(last); d.setDate(d.getDate() + i);
+            grid.appendChild(makeDay(d, true));
+        }
+    }
+}
+
+function makeDay(d, other) {
+    const div = document.createElement('div');
+    div.className = 'cal-day';
+    const key = fmt(d);
+    const isToday = d.toDateString() === today.toDateString();
+    const dayData = monthData[key];
+    const kcal = dayData ? dayData.kcal : 0;
+
+    let bg = 'var(--bg-secondary)';
+    let borderColor = 'var(--border)';
+    if (!other && dayData) {
+        if (tdee) {
+            const ratio = kcal / tdee;
+            if (ratio >= 0.9 && ratio <= 1.1) { bg = '#1f3d2b'; borderColor = '#22c55e'; }
+            else if (ratio > 1.1) { bg = '#3d2f1f'; borderColor = '#f59e0b'; }
+            else { bg = '#1f2d3d'; borderColor = '#3b82f6'; }
+        } else {
+            bg = '#2a2a2a';
+        }
+    }
+    if (other) bg = 'var(--bg-tertiary)';
+
+    div.style.cssText = `min-height:80px; border:1px solid ${borderColor}; border-radius:0.5rem; padding:6px; cursor:pointer; background:${bg}; transition:opacity 0.1s;`;
+    if (isToday) div.style.borderWidth = '2px';
+
+    const numDiv = document.createElement('div');
+    numDiv.style.cssText = `font-size:13px; font-weight:500; color:${other ? 'var(--text-secondary)' : 'var(--text-primary)'}; margin-bottom:4px;`;
+    numDiv.textContent = d.getDate();
+    div.appendChild(numDiv);
+
+    if (!other && dayData) {
+        const kcalDiv = document.createElement('div');
+        kcalDiv.style.cssText = 'font-size:11px; color:var(--text-secondary);';
+        kcalDiv.textContent = `${Math.round(kcal)} kcal`;
+        div.appendChild(kcalDiv);
+
+        if (tdee) {
+            const bar = document.createElement('div');
+            bar.style.cssText = 'height:4px; background:var(--border); border-radius:2px; margin-top:4px; overflow:hidden;';
+            const fill = document.createElement('div');
+            const pct = Math.min(100, Math.round((kcal/tdee)*100));
+            fill.style.cssText = `height:100%; width:${pct}%; background:${borderColor}; border-radius:2px;`;
+            bar.appendChild(fill);
+            div.appendChild(bar);
+
+            const defDiv = document.createElement('div');
+            defDiv.style.cssText = 'font-size:10px; color:var(--text-secondary); margin-top:2px;';
+            const diff = Math.round(kcal - tdee);
+            defDiv.textContent = diff >= 0 ? `+${diff} surplus` : `${diff} deficit`;
+            div.appendChild(defDiv);
+        }
+    }
+
+    if (!other) div.onclick = () => openModal(d);
+    return div;
+}
+
+function openModal(d) {
+    selectedDate = fmt(d);
+    document.getElementById('modal-date-title').textContent = d.toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+    renderModalEntries();
+    document.getElementById('add-form').style.display = 'none';
+    document.getElementById('search-results').innerHTML = '';
+    document.getElementById('search-input').value = '';
+    setType('recipe');
+    document.getElementById('day-modal').style.display = 'flex';
+}
+
+function renderModalEntries() {
+    const dayData = monthData[selectedDate];
+    const summary = document.getElementById('modal-summary');
+    const entriesDiv = document.getElementById('modal-entries');
+
+    if (dayData && dayData.kcal) {
+        let html = `<div style="display:flex; gap:1rem; align-items:center; background:var(--bg-tertiary); border-radius:0.5rem; padding:0.75rem;">`;
+        html += `<div><div style="font-size:0.75rem; color:var(--text-secondary);">Consumed</div><div style="font-size:1.25rem; font-weight:500;">${Math.round(dayData.kcal)} kcal</div></div>`;
+        if (tdee) {
+            const diff = Math.round(dayData.kcal - tdee);
+            const color = diff > 0 ? '#f59e0b' : diff < 0 ? '#3b82f6' : '#22c55e';
+            html += `<div><div style="font-size:0.75rem; color:var(--text-secondary);">Target</div><div style="font-size:1.25rem; font-weight:500;">${Math.round(tdee)} kcal</div></div>`;
+            html += `<div><div style="font-size:0.75rem; color:var(--text-secondary);">Difference</div><div style="font-size:1.25rem; font-weight:500; color:${color};">${diff >= 0 ? '+' : ''}${diff} kcal</div></div>`;
+        }
+        html += '</div>';
+        summary.innerHTML = html;
+    } else {
+        summary.innerHTML = `<p style="font-size:0.875rem; color:var(--text-secondary);">No entries yet.</p>`;
+    }
+
+    if (dayData && dayData.entries && dayData.entries.length) {
+        let html = '<div style="display:flex; flex-direction:column; gap:0.5rem;">';
+        dayData.entries.forEach(e => {
+            const detail = e.servings ? `${e.servings} serving(s)` : e.quantity ? `${e.quantity} ${e.unit || ''}` : '';
+            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; background:var(--bg-tertiary); border-radius:0.5rem;">
+                <div>
+                    <div style="font-size:0.875rem; font-weight:500;">${e.name}</div>
+                    <div style="font-size:0.75rem; color:var(--text-secondary);">${detail} · ${Math.round(e.kcal)} kcal</div>
+                </div>
+                <button class="btn btn-secondary btn-small" onclick="openEdit(${JSON.stringify(e).replace(/"/g,'&quot;')})">Edit</button>
+            </div>`;
+        });
+        html += '</div>';
+        entriesDiv.innerHTML = html;
+    } else {
+        entriesDiv.innerHTML = '';
+    }
+}
+
+function closeModal() {
+    document.getElementById('day-modal').style.display = 'none';
+    selectedDate = null;
+}
+
+function setType(type) {
+    addType = type;
+    selectedItem = null;
+    document.getElementById('add-form').style.display = 'none';
+    document.getElementById('search-results').innerHTML = '';
+    document.getElementById('search-input').value = '';
+    document.getElementById('btn-recipe').style.background = type === 'recipe' ? 'var(--accent)' : '';
+    document.getElementById('btn-ingredient').style.background = type === 'ingredient' ? 'var(--accent)' : '';
+}
+
+let searchTimeout;
+function doSearch(q) {
+    clearTimeout(searchTimeout);
+    if (!q) { document.getElementById('search-results').innerHTML = ''; return; }
+    searchTimeout = setTimeout(async () => {
+        const res = await fetch(`/planner/calendar/search/?kind=${addType}&q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        const div = document.getElementById('search-results');
+        if (!data.results.length) { div.innerHTML = '<p style="font-size:0.8rem; color:var(--text-secondary);">No results</p>'; return; }
+        div.innerHTML = data.results.map(r =>
+            `<div onclick='selectItem(${JSON.stringify(r).replace(/'/g,"&#39;")})' style="padding:6px 8px; cursor:pointer; border-radius:4px; font-size:0.875rem;" onmouseover="this.style.background='var(--bg-tertiary)'" onmouseout="this.style.background=''">${r.name}</div>`
+        ).join('');
+    }, 300);
+}
+
+function selectItem(item) {
+    selectedItem = item;
+    document.getElementById('selected-name').textContent = item.name;
+    document.getElementById('search-results').innerHTML = '';
+    document.getElementById('search-input').value = item.name;
+
+    if (addType === 'recipe') {
+        document.getElementById('recipe-fields').style.display = 'block';
+        document.getElementById('ingredient-fields').style.display = 'none';
+        document.getElementById('input-servings').value = item.servings || 1;
+    } else {
+        document.getElementById('recipe-fields').style.display = 'none';
+        document.getElementById('ingredient-fields').style.display = 'block';
+        const select = document.getElementById('input-unit');
+        select.innerHTML = item.units.map(u => `<option value="${u['unit__id']}">${u['unit__name_singular']}</option>`).join('');
+    }
+    document.getElementById('add-form').style.display = 'block';
+}
+
+async function submitAdd() {
+    if (!selectedItem) return;
+    const body = { date: selectedDate, type: addType };
+    if (addType === 'recipe') {
+        body.recipe_id = selectedItem.id;
+        body.servings = parseFloat(document.getElementById('input-servings').value);
+    } else {
+        body.ingredient_id = selectedItem.id;
+        body.quantity = parseFloat(document.getElementById('input-quantity').value);
+        body.unit_id = parseInt(document.getElementById('input-unit').value);
+    }
+    await fetch('/planner/calendar/add/', { method:'POST', headers:{'X-CSRFToken':CSRF,'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    await loadMonth();
+    renderModalEntries();
+    document.getElementById('add-form').style.display = 'none';
+    document.getElementById('search-input').value = '';
+    selectedItem = null;
+}
+
+function openEdit(entry) {
+    editingEntry = entry;
+    document.getElementById('edit-title').textContent = entry.name;
+    const fields = document.getElementById('edit-fields');
+    if (entry.servings !== null) {
+        fields.innerHTML = `<label style="font-size:0.8rem;">Servings</label><input type="number" id="edit-val" min="0.1" step="0.1" value="${entry.servings}" style="width:100%; margin-top:4px;">`;
+    } else {
+        fields.innerHTML = `<label style="font-size:0.8rem;">Quantity</label><input type="number" id="edit-val" min="0.01" step="0.01" value="${entry.quantity}" style="width:100%; margin-top:4px;">`;
+    }
+    document.getElementById('edit-modal').style.display = 'flex';
+}
+
+function closeEdit() {
+    document.getElementById('edit-modal').style.display = 'none';
+    editingEntry = null;
+}
+
+async function submitEdit() {
+    const val = parseFloat(document.getElementById('edit-val').value);
+    const body = editingEntry.servings !== null ? { servings: val } : { quantity: val };
+    await fetch(`/planner/calendar/edit/${editingEntry.id}/`, { method:'POST', headers:{'X-CSRFToken':CSRF,'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    closeEdit();
+    await loadMonth();
+    renderModalEntries();
+}
+
+async function submitDelete() {
+    await fetch(`/planner/calendar/delete/${editingEntry.id}/`, { method:'POST', headers:{'X-CSRFToken':CSRF,'Content-Type':'application/json'}, body:'{}' });
+    closeEdit();
+    await loadMonth();
+    renderModalEntries();
+}
+
+function changeMonth(dir) {
+    current.setMonth(current.getMonth() + dir);
+    loadMonth();
+}
+
+function goToday() {
+    current = new Date();
+    loadMonth();
+}
+
+document.getElementById('day-modal').addEventListener('click', e => { if (e.target === document.getElementById('day-modal')) closeModal(); });
+document.getElementById('edit-modal').addEventListener('click', e => { if (e.target === document.getElementById('edit-modal')) closeEdit(); });
+
+loadMonth();
+</script>
+{% endif %}
+
+{% endblock %}
