@@ -1,5 +1,5 @@
 from django import forms
-from .models import UserFridge
+from .models import UserFridge, UserBiometrics
 from core.mixins import ErrorMessagesMixin
 
 class UserFridgeForm(ErrorMessagesMixin, forms.ModelForm):
@@ -16,3 +16,16 @@ class UserFridgeForm(ErrorMessagesMixin, forms.ModelForm):
     class Meta:
         model = UserFridge
         exclude = ['user', 'ingredient']
+
+
+class BiometricsForm(forms.ModelForm):
+    class Meta:
+        model = UserBiometrics
+        fields = ['gender', 'age', 'weight_kg', 'height_cm', 'activity_level']
+        widgets = {
+            'gender': forms.Select(attrs={'class': 'form-input'}),
+            'age': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Age'}),
+            'weight_kg': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Weight (kg)'}),
+            'height_cm': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Height (cm)'}),
+            'activity_level': forms.Select(attrs={'class': 'form-input'}),
+        }

@@ -121,28 +121,6 @@ def build_preview_message(final_needed):
 
 
 
-def transfer_session_to_user(user, session):
-    for item in session.pop('anon_fridge', []):
-        UserFridge.objects.get_or_create(
-            user=user,
-            ingredient_id=item['ingredient_id'],
-            unit_id=item['unit_id'],
-            defaults={'quantity': item['quantity']}
-        )
-
-    for item in session.pop('anon_grocery', []):
-        UserGroceryList.objects.get_or_create(
-            user=user,
-            ingredient_id=item['ingredient_id'],
-            unit_id=item['unit_id'],
-            defaults={'quantity': item['quantity']}
-        )
-
-    for item in session.pop('anon_meals', []):
-        UserMealList.objects.create(
-            user=user,
-            recipe_id=item['recipe_id'],
-        )
 
 def get_user_fridge(request):
     """Returns DB queryset for authenticated users, session list for anon"""
