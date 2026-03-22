@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django import forms
 from .models import Profile
 
@@ -22,8 +22,9 @@ class RegisterForm(UserCreationForm):
         user = super().save(commit=commit)
         if commit:
             Profile.objects.create(user=user)
+            group = Group.objects.get_or_create(name='User')[0]
+            user.groups.add(group)
         return user
-
 
 
 class LoginForm(AuthenticationForm):
