@@ -16,19 +16,29 @@ Foodganizer Home
 
 <div class="container-home-head">
     <h2>Ready to get ahead of your meal planning?</h2>
-    <p>Start your journey below:</p>
+    <p>The Foodganizer lets you access an extendable database of highly customizable ingredients and recipes.</p>
+    <ul style="text-align: left;">
+      <li>Generate a grocery list from your favourite recipes</li>
+      <li>Keep a digital fridge and get meal suggestions from the ingredients you already have!</li>
+      <li>Calculate your TDEE and BMR and track your meals and nutrients.</li>
+    </ul>
+
 </div>
 
 
 <div class="cards">
 
-  <a href="{% url 'generate_grocery_list' %}" class="card">
+<img src="/static/images/title_line.svg" alt="" style="width: 400px; height: auto;">
+
+<!-- GROCERY-->
+
+    <a href="{% url 'generate_grocery_list' %}" class="card">
     <div class="card-inner">
       <div class="card-img">
-        <img src="/static/images/generate_grocery.jpg" alt="">
+        <img src="/static/images/generate_gorcery.png" alt="">
       </div>
       <div class="card-content">
-        <p>Generate a grocery list from the recipes you like! If you have items in your fridge, the Foodganizer will only add what you don't have. </p>
+        <p>Save yourself the cognitive load and hours wondering in the store, generate a grocery list from your favourite recipes!  </p>
       </div>
       <div class="card-wave">
         <p class="title">Generate Grocery List</p>
@@ -50,6 +60,10 @@ Foodganizer Home
     </div>
   </a>
 
+<img src="/static/images/title_line.svg" alt="" style="width: 400px; height: auto;">
+
+<!-- MEALS-->
+
   <a href="{% url 'meal_suggestions' %}" class="card">
     <div class="card-inner">
       <div class="card-img">
@@ -67,10 +81,10 @@ Foodganizer Home
   <a href="{% url 'meal_list' %}" class="card">
     <div class="card-inner">
       <div class="card-img">
-        <img src="/static/images/ingredients_card.png" alt="">
+        <img src="/static/images/meals_list.png" alt="">
       </div>
       <div class="card-content">
-        <p>Your saved meals</p>
+        <p>A list of your generated meal suggestions. Just open it and start cooking!</p>
       </div>
       <div class="card-wave">
         <p class="title">Your Meals</p>
@@ -78,19 +92,41 @@ Foodganizer Home
     </div>
   </a>
 
-  <a href="{% url 'manage_recipes' %}" class="card">
+
+<img src="/static/images/title_line.svg" alt="" style="width: 400px; height: auto;">
+<!-- TOOLS -->
+
+  <a href="{% url 'calorie-tracker' %}" class="card">
     <div class="card-inner">
       <div class="card-img">
-        <img src="/static/images/recipes_card.png" alt="">
+        <img src="/static/images/kcal_tracker.png" alt="">
       </div>
       <div class="card-content">
-        <p>Check out our recipes and add your own! </p>
+        <p>Track your meals amd nutrients in the calendar! See detailed information about your progress.</p>
       </div>
       <div class="card-wave">
-        <p class="title">Manage Recipes</p>
+        <p class="title">Calorie Tracker Calendar</p>
       </div>
     </div>
   </a>
+
+  <a href="{% url 'biometrics' %}" class="card">
+  <div class="card-inner">
+    <div class="card-img">
+      <img src="/static/images/bmi_calc.png" alt="">
+    </div>
+    <div class="card-content">
+      <p>BMR (Basal Metabolic Rate) and TDEE (Total Daily Energy Expenditure) calculator here. Set your data and start tracking! </p>
+    </div>
+    <div class="card-wave">
+      <p class="title">BMI + TDEE Calculator</p>
+    </div>
+  </div>
+</a>
+
+
+<img src="/static/images/title_line.svg" alt="" style="width: 400px; height: auto;">
+<!-- DATA -->
 
   <a href="{% url 'manage_fridge' %}" class="card">
     <div class="card-inner">
@@ -106,13 +142,14 @@ Foodganizer Home
     </div>
   </a>
 
+
   <a href="{% url 'manage_ingredients' %}" class="card">
     <div class="card-inner">
       <div class="card-img">
         <img src="/static/images/ingredients_card.png" alt="">
       </div>
       <div class="card-content">
-        <p>Browse ingredients, or introduce new flavours to the Foodganizer!</p>
+        <p>Browse ingredients, or introduce the Foodganizer to new flavours!</p>
       </div>
       <div class="card-wave">
         <p class="title">Manage Ingredients</p>
@@ -120,21 +157,29 @@ Foodganizer Home
     </div>
   </a>
 
-  <a href="{% url 'calorie-tracker' %}" class="card">
+    <a href="{% url 'manage_recipes' %}" class="card">
     <div class="card-inner">
       <div class="card-img">
-        <img src="/static/images/ingredients_card.png" alt="">
+        <img src="/static/images/recipes_card.png" alt="">
       </div>
       <div class="card-content">
-        <p>Coming soon</p>
+        <p>Check out our recipes and add your own! </p>
       </div>
       <div class="card-wave">
-        <p class="title">Calorie Tracker</p>
+        <p class="title">Manage Recipes</p>
       </div>
     </div>
   </a>
 
 </div>
 
+<div style="text-align: center; margin: 2rem 0;">
+    <div class="tooltip" style="display: inline-block;">
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Back to top" class="btn-invisible" style="display: inline-flex;">
+            <img src="{% static 'images/top_arr.svg' %}" width="30" height="30" alt="Back to top">
+        </button>
+        <span class="tooltip-text">Back to top</span>
+    </div>
+</div>
 
 {% endblock %}
