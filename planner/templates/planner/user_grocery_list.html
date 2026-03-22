@@ -20,45 +20,63 @@ Grocery List
 
     {% include '_anon_warning.html' with section_name="grocery list" %}
 
-    {% if items %}
-        <form method="POST" action="{% url 'add_all_grocery_to_fridge' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn" style="margin-bottom: 1rem;">Add All to Fridge</button>
-        </form>
+{% if items %}
+        {% if request.user.is_authenticated %}
+            <form method="POST" action="{% url 'add_all_grocery_to_fridge' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn" style="margin-bottom: 1rem;">Add All to Fridge</button>
+            </form>
+        {% else %}
+            <form method="POST" action="{% url 'add_all_anon_grocery_to_fridge' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn" style="margin-bottom: 1rem;">Add All to Fridge</button>
+            </form>
+        {% endif %}
 
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Ingredient</th>
-                    <th>Quantity</th>
-                    <th>Unit</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in items %}
-                <tr>
-                    <td>{{ item.ingredient.name|title_except }}</td>
-                    <td>{{ item.quantity|floatformat:2 }}</td>
-                    <td>{{ item.unit }}</td>
-<td style="display: flex; gap: 0.5rem;">
-    <form method="POST" action="{% url 'add_grocery_to_fridge' item.id %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-sm">→ Fridge</button>
-    </form>
-    <button type="button"
-            class="btn btn-sm btn-danger"
-            onclick="openGroceryDeleteModal({{ item.id }}, '{{ item.ingredient.name }}')">
-        Delete
-    </button>
-</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>Your grocery list is empty. <a href="{% url 'generate_grocery_list' %}">Generate one</a> from your favourite recipes.</p>
-    {% endif %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Ingredient</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.ingredient.name|title_except }}</td>
+                <td>{{ item.quantity|floatformat:2 }}</td>
+                <td>{{ item.unit }}</td>
+                <td style="display: flex; gap: 0.5rem;">
+                    {% if request.user.is_authenticated %}
+                        <form method="POST" action="{% url 'add_grocery_to_fridge' item.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm">→ Fridge</button>
+                        </form>
+                        <button type="button"
+                                class="btn btn-sm btn-danger"
+                                onclick="openGroceryDeleteModal({{ item.id }}, '{{ item.ingredient.name }}')">
+                            Delete
+                        </button>
+                    {% else %}
+                        <form method="POST" action="{% url 'add_anon_grocery_to_fridge' item.index %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm">→ Fridge</button>
+                        </form>
+                        <form method="POST" action="{% url 'delete_anon_grocery_item' item.index %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Your grocery list is empty. <a href="{% url 'generate_grocery_list' %}">Generate one</a> from your favourite recipes.</p>
+{% endif %}
 
     {% if history %}
     <div class="history-section">

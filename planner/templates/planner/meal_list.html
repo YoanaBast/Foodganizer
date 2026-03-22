@@ -24,59 +24,82 @@ My Meal History
     <br>
     {% include '_anon_warning.html' with section_name="meals list" %}
 
-    {% if page_obj.object_list %}
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Recipe</th>
-                    <th>Made At</th>
-                    <th>Kcal</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for entry in page_obj %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>
-                        {% if entry.recipe %}
-                            {{ entry.recipe.name|title_except  }}
-                        {% else %}
-                            <em style="color: #aaa;">Recipe deleted</em>
-                        {% endif %}
-                    </td>
-                    <td>{{ entry.made_at|date:"Y-m-d H:i" }}</td>
-                    <td>{{  entry.recipe.nutrients_with_units.kcal }}</td>
-
-                    <td>
-                        {% if entry.recipe %}
-                            <a href="{% url 'recipe_detail' entry.recipe.id %}" class="btn btn-secondary btn-small">View</a>
-                        {% else %}
-                            <span style="color:#aaa;">—</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        {% if page_obj.has_other_pages %}
-        <div class="pagination" style="margin-top:1rem; text-align:center;">
-            {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}">« Prev</a>
+    {% if request.user.is_authenticated %}
+        {% if meals %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Recipe</th>
+                        <th>Made At</th>
+                        <th>Kcal</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in meals %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            {% if entry.recipe %}{{ entry.recipe.name|title_except }}
+                            {% else %}<em style="color:#aaa;">Recipe deleted</em>{% endif %}
+                        </td>
+                        <td>{{ entry.made_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ entry.recipe.nutrients_with_units.kcal }}</td>
+                        <td>
+                            {% if entry.recipe %}
+                                <a href="{% url 'recipe_detail' entry.recipe.id %}" class="btn btn-secondary btn-small">View</a>
+                            {% else %}<span style="color:#aaa;">—</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if page_obj.has_other_pages %}
+            <div class="pagination" style="margin-top:1rem; text-align:center;">
+                {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">« Prev</a>{% endif %}
+                <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Next »</a>{% endif %}
+            </div>
             {% endif %}
-
-            <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">Next »</a>
-            {% endif %}
-        </div>
+        {% else %}
+            <p>You haven't made any recipes yet. Head to <a href="{% url 'meal_suggestions' %}">Meal Suggestions</a> to get started!</p>
         {% endif %}
 
     {% else %}
-        <p>You haven't made any recipes yet. Head to <a href="{% url 'meal_suggestions' %}">Meal Suggestions</a> to get started!</p>
+        {% if anon_meals %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Recipe</th>
+                        <th>Made At</th>
+                        <th>Kcal</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in anon_meals %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            {% if entry.recipe %}{{ entry.recipe.name|title_except }}
+                            {% else %}<em style="color:#aaa;">Recipe deleted</em>{% endif %}
+                        </td>
+                        <td>{{ entry.made_at }}</td>
+                        <td>{% if entry.recipe %}{{ entry.recipe.nutrients_with_units.kcal }}{% endif %}</td>
+                        <td>
+                            {% if entry.recipe %}
+                                <a href="{% url 'recipe_detail' entry.recipe.id %}" class="btn btn-secondary btn-small">View</a>
+                            {% else %}<span style="color:#aaa;">—</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>You haven't made any recipes yet. Head to <a href="{% url 'meal_suggestions' %}">Meal Suggestions</a> to get started!</p>
+        {% endif %}
     {% endif %}
 
 </div>

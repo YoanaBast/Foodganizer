@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from django.utils import timezone
 
 from django.core.paginator import Paginator
 from django.db.models import Prefetch, Exists, OuterRef
@@ -12,7 +13,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
 from ingredients.models import Ingredient, MeasurementUnit, IngredientMeasurementUnit
 from planner.helpers import convert_qty_to_unit, build_needed_dict, subtract_fridge, save_grocery_list, \
-    save_generation_history, build_preview_message, get_or_create_fridge_item, get_or_create_anon_fridge_item
+    save_generation_history, build_preview_message, get_or_create_fridge_item, get_or_create_anon_fridge_item, \
+    subtract_anon_fridge
 from planner.models import UserFridge, UserGroceryList, GroceryListGeneration, GroceryListGenerationItem, UserMealList
 from recipes.models import Recipe, RecipeIngredient
 
@@ -167,9 +169,11 @@ GET MEAL SUGGESTIONS VIEWS (COOK FROM FRIDGE)
 
 def get_meal_suggestions(request):
     if request.user.is_authenticated:
-        fridge_items = UserFridge.objects.filter(user=request.user)
+        fridge_items = list(UserFridge.objects.filter(user=request.user).select_related('ingredient', 'unit'))
+        use_session = False
     else:
-        fridge_items = UserFridge.objects.none()
+        fridge_items = request.session.get('anon_fridge', [])
+        use_session = True
 
     recipes = Recipe.objects.all()
     suggestions = []
@@ -181,21 +185,38 @@ def get_meal_suggestions(request):
         missing = []
 
         for ri in recipe_ingredients:
-            fridge_item = fridge_items.filter(ingredient=ri.ingredient).first()
             fridge_qty = 0
 
-            if fridge_item:
-                if fridge_item.unit == ri.unit.unit:
-                    fridge_qty = fridge_item.quantity
-                else:
+            if use_session:
+                for fridge_item in fridge_items:
+                    if fridge_item['ingredient_id'] != ri.ingredient.id:
+                        continue
                     try:
-                        conv_fridge = IngredientMeasurementUnit.objects.get(
-                            ingredient=ri.ingredient, unit=fridge_item.unit
-                        )
-                        qty_in_base = fridge_item.quantity * conv_fridge.conversion_to_base
-                        fridge_qty = qty_in_base / ri.unit.conversion_to_base
-                    except IngredientMeasurementUnit.DoesNotExist:
+                        fridge_unit = MeasurementUnit.objects.get(id=fridge_item['unit_id'])
+                        if fridge_unit == ri.unit.unit:
+                            fridge_qty = fridge_item['quantity']
+                        else:
+                            conv_fridge = IngredientMeasurementUnit.objects.get(
+                                ingredient=ri.ingredient, unit=fridge_unit
+                            )
+                            qty_in_base = fridge_item['quantity'] * conv_fridge.conversion_to_base
+                            fridge_qty = qty_in_base / ri.unit.conversion_to_base
+                    except (MeasurementUnit.DoesNotExist, IngredientMeasurementUnit.DoesNotExist):
                         fridge_qty = 0
+            else:
+                fridge_item = next((f for f in fridge_items if f.ingredient == ri.ingredient), None)
+                if fridge_item:
+                    if fridge_item.unit == ri.unit.unit:
+                        fridge_qty = fridge_item.quantity
+                    else:
+                        try:
+                            conv_fridge = IngredientMeasurementUnit.objects.get(
+                                ingredient=ri.ingredient, unit=fridge_item.unit
+                            )
+                            qty_in_base = fridge_item.quantity * conv_fridge.conversion_to_base
+                            fridge_qty = qty_in_base / ri.unit.conversion_to_base
+                        except IngredientMeasurementUnit.DoesNotExist:
+                            fridge_qty = 0
 
             if fridge_qty >= ri.quantity:
                 matched += 1
@@ -230,43 +251,92 @@ def make_recipe(request, id):
     if request.method != 'POST':
         return redirect('meal_suggestions')
 
+    recipe = get_object_or_404(Recipe, id=id)
+
     if not request.user.is_authenticated:
-        messages.error(request, "You must be logged in to cook a recipe.")
+        anon_fridge = request.session.get('anon_fridge', [])
+
+        # check ingredients
+        for ri in recipe.recipe_ingredient.all():
+            fridge_qty = 0
+            for item in anon_fridge:
+                if item['ingredient_id'] != ri.ingredient.id:
+                    continue
+                try:
+                    fridge_unit = MeasurementUnit.objects.get(id=item['unit_id'])
+                    conv = IngredientMeasurementUnit.objects.get(ingredient=ri.ingredient, unit=fridge_unit)
+                    fridge_qty = (item['quantity'] * conv.conversion_to_base) / ri.unit.conversion_to_base
+                except (MeasurementUnit.DoesNotExist, IngredientMeasurementUnit.DoesNotExist):
+                    fridge_qty = 0
+
+            if fridge_qty < ri.quantity:
+                messages.error(request, f"Not enough ingredients: {ri.ingredient.name}")
+                return redirect('meal_suggestions')
+
+        # subtract from session fridge
+        new_fridge = []
+        recipe_ingredients = {ri.ingredient.id: ri for ri in recipe.recipe_ingredient.all()}
+
+        for item in anon_fridge:
+            ri = recipe_ingredients.get(item['ingredient_id'])
+            if not ri:
+                new_fridge.append(item)
+                continue
+            try:
+                fridge_unit = MeasurementUnit.objects.get(id=item['unit_id'])
+                conv = IngredientMeasurementUnit.objects.get(ingredient=ri.ingredient, unit=fridge_unit)
+                qty_to_subtract = (ri.quantity * ri.unit.conversion_to_base) / conv.conversion_to_base
+                remaining = item['quantity'] - qty_to_subtract
+                if remaining > 0:
+                    new_fridge.append({**item, 'quantity': remaining})
+            except (MeasurementUnit.DoesNotExist, IngredientMeasurementUnit.DoesNotExist):
+                new_fridge.append(item)
+
+        request.session['anon_fridge'] = new_fridge
+
+        # save to session meals
+        anon_meals = request.session.get('anon_meals', [])
+        anon_meals.append({
+            'recipe_id': recipe.id,
+            'recipe_name': recipe.name,
+            'made_at': timezone.now().isoformat(),
+        })
+        request.session['anon_meals'] = anon_meals
+        request.session.modified = True
+
+        messages.success(request, f'<b>{recipe.name.title()}</b> made successfully!')
         return redirect('meal_suggestions')
 
-    recipe = get_object_or_404(Recipe, id=id)
+
     fridge_items = UserFridge.objects.filter(user=request.user)
+    print(f"[MAKE] recipe={recipe}, fridge_items={list(fridge_items)}")
 
     for ri in recipe.recipe_ingredient.all():
         fridge_item = fridge_items.filter(ingredient=ri.ingredient).first()
         available_qty = 0
+        print(f"[MAKE] checking ri={ri.ingredient}, required={ri.quantity}, fridge_item={fridge_item}")
+
         if fridge_item:
             try:
                 fridge_unit_obj = IngredientMeasurementUnit.objects.get(
                     ingredient=ri.ingredient, unit=fridge_item.unit
                 )
                 available_qty = (fridge_item.quantity * fridge_unit_obj.conversion_to_base) / ri.unit.conversion_to_base
+                print(f"[MAKE] available_qty={available_qty}, fridge_unit={fridge_unit_obj}, conversion={fridge_unit_obj.conversion_to_base}")
             except IngredientMeasurementUnit.DoesNotExist:
+                print(f"[MAKE] IngredientMeasurementUnit not found for {ri.ingredient} unit={fridge_item.unit}")
                 available_qty = 0
+
+        print(f"[MAKE] available_qty={available_qty} vs required={ri.quantity} → {'OK' if available_qty >= ri.quantity else 'FAIL'}")
 
         if available_qty < ri.quantity:
             messages.error(request, f"Not enough ingredients: {ri.ingredient.name}")
+            print(f"[MAKE] returning early — not enough {ri.ingredient.name}")
             return redirect('meal_suggestions')
 
-    for ri in recipe.recipe_ingredient.all():
-        fridge_item = fridge_items.get(ingredient=ri.ingredient)
-        fridge_unit_obj = IngredientMeasurementUnit.objects.get(
-            ingredient=ri.ingredient, unit=fridge_item.unit
-        )
-        qty_to_subtract = (ri.quantity * ri.unit.conversion_to_base) / fridge_unit_obj.conversion_to_base
-        fridge_item.quantity -= qty_to_subtract
-
-        if fridge_item.quantity <= 0:
-            fridge_item.delete()
-        else:
-            fridge_item.save()
-
+    print(f"[MAKE] all checks passed, saving meal")
     UserMealList.objects.create(user=request.user, recipe=recipe)
+    print(f"[MAKE] meal saved successfully")
     messages.success(request, (
         f'<b>{recipe.name.title()}</b> made successfully! '
         f'<a href="{reverse("recipe_detail", kwargs={"pk": recipe.id})}">View recipe</a> · '
@@ -278,13 +348,32 @@ def make_recipe(request, id):
 
 class MealListView(ListView):
     template_name = 'planner/meal_list.html'
-    context_object_name = 'page_obj'
+    context_object_name = 'meals'
     paginate_by = 10
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
             return UserMealList.objects.filter(user=self.request.user).select_related('recipe')
         return UserMealList.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not self.request.user.is_authenticated:
+            anon_meals = self.request.session.get('anon_meals', [])
+            resolved = []
+            for item in anon_meals:
+                try:
+                    resolved.append({
+                        'recipe': Recipe.objects.get(id=item['recipe_id']),
+                        'made_at': item['made_at'],
+                    })
+                except Recipe.DoesNotExist:
+                    resolved.append({
+                        'recipe': None,
+                        'made_at': item['made_at'],
+                    })
+            context['anon_meals'] = resolved
+        return context
 
 
 """
@@ -349,11 +438,12 @@ class GenerateGroceryListView(View):
 
         if request.user.is_authenticated:
             fridge_items = UserFridge.objects.filter(user=request.user).select_related('ingredient', 'unit')
+            needed = build_needed_dict(selected_recipes_qs, request)
+            final_needed = subtract_fridge(needed, fridge_items, request)
         else:
             fridge_items = UserFridge.objects.none()
-
-        needed = build_needed_dict(selected_recipes_qs, request)
-        final_needed = subtract_fridge(needed, fridge_items, request)
+            needed = build_needed_dict(selected_recipes_qs, request)
+            final_needed = subtract_anon_fridge(needed, request)  # ← new helper
 
         if not final_needed:
             messages.info(request, "You already have all the ingredients in your fridge!")
@@ -375,7 +465,6 @@ class GenerateGroceryListView(View):
 
         messages.success(request, build_preview_message(final_needed))
         return redirect('user_grocery_list')
-
 
 
 class UserGroceryListView(View):
@@ -406,7 +495,19 @@ class UserGroceryListView(View):
                 request.GET.get('history_page')
             )
         else:
-            items = []
+            anon_grocery = request.session.get('anon_grocery', [])
+            resolved = []
+            for index, item in enumerate(anon_grocery):
+                try:
+                    resolved.append({
+                        'index': index,
+                        'ingredient': Ingredient.objects.get(id=item['ingredient_id']),
+                        'unit': MeasurementUnit.objects.get(id=item['unit_id']) if item['unit_id'] else None,
+                        'quantity': item['quantity'],
+                    })
+                except (Ingredient.DoesNotExist, MeasurementUnit.DoesNotExist):
+                    continue
+            items = resolved
             history_page_obj = None
 
         return render(request, self.template_name, {
@@ -416,11 +517,20 @@ class UserGroceryListView(View):
         })
 
 
-
 class DeleteGroceryItemView(View):
     def post(self, request, item_id):
         item = get_object_or_404(UserGroceryList, id=item_id)
         item.delete()
+        return redirect('user_grocery_list')
+
+
+class DeleteAnonGroceryItemView(View):
+    def post(self, request, index):
+        grocery = request.session.get('anon_grocery', [])
+        if 0 <= index < len(grocery):
+            grocery.pop(index)
+            request.session['anon_grocery'] = grocery
+            request.session.modified = True
         return redirect('user_grocery_list')
 
 
@@ -433,6 +543,20 @@ class AddGroceryToFridgeView(View):
             defaults={'quantity': item.quantity, 'unit': item.unit}
         )
         item.delete()
+        return redirect('user_grocery_list')
+
+
+class AddAnonGroceryToFridgeView(View):
+    def post(self, request, index):
+        grocery = request.session.get('anon_grocery', [])
+        if 0 <= index < len(grocery):
+            item = grocery[index]
+            ingredient = get_object_or_404(Ingredient, id=item['ingredient_id'])
+            unit = MeasurementUnit.objects.get(id=item['unit_id'])
+            get_or_create_anon_fridge_item(request, ingredient, item['quantity'], unit)
+            grocery.pop(index)
+            request.session['anon_grocery'] = grocery
+            request.session.modified = True
         return redirect('user_grocery_list')
 
 
@@ -450,6 +574,21 @@ class AddAllGroceryToFridgeView(View):
                 defaults={'quantity': item.quantity, 'unit': item.unit}
             )
         items.delete()
+        return redirect('user_grocery_list')
+
+
+class AddAllAnonGroceryToFridgeView(View):
+    def post(self, request):
+        grocery = request.session.get('anon_grocery', [])
+        for item in grocery:
+            try:
+                ingredient = Ingredient.objects.get(id=item['ingredient_id'])
+                unit = MeasurementUnit.objects.get(id=item['unit_id'])
+                get_or_create_anon_fridge_item(request, ingredient, item['quantity'], unit)
+            except (Ingredient.DoesNotExist, MeasurementUnit.DoesNotExist):
+                continue
+        request.session['anon_grocery'] = []
+        request.session.modified = True
         return redirect('user_grocery_list')
 
 
