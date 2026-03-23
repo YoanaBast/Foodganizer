@@ -2,7 +2,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 
 # TO-DO
 ## PRIORITY 1 FIXES
-    - cust 403
+    - cust 403, 405
     - calendar num val
     - meal suggest not subtracting fridge for authu
     - generate grocery list not adding if already exists
