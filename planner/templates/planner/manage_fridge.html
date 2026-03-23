@@ -75,7 +75,7 @@
         {% for item in anon_fridge %}
         <tr>
             <td data-label="Ingredient">{{ item.ingredient.name }}</td>
-            <td data-label="Quantity">{{ item.quantity }} {{ item.unit }}</td>
+            <td data-label="Quantity">{{ item.quantity|floatformat:2 }} {{ item.unit }}</td>
             <td data-label="Category">{{ item.ingredient.category|default:"-" }}</td>
             <td data-label="Dietary Tags">{{ item.ingredient.dietary_info }}</td>
             <td data-label="Actions">

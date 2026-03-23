@@ -1,4 +1,6 @@
+import json
 
+from django.http import JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import ListView, UpdateView
@@ -14,71 +16,6 @@ from planner.models import UserFridge, UserGroceryList, GroceryListGeneration, G
 from recipes.models import Recipe, RecipeIngredient
 
 # Create your views here.
-
-
-class DeleteAnonFridgeItemView(View):
-    def post(self, request, index):
-        fridge = request.session.get('anon_fridge', [])
-        if 0 <= index < len(fridge):
-            fridge.pop(index)
-            request.session['anon_fridge'] = fridge
-        return redirect('manage_fridge')
-
-
-class EditAnonFridgeItemView(View):
-    def get(self, request, index):
-        fridge = request.session.get('anon_fridge', [])
-        print(f"[SESSION] full anon_fridge: {fridge}")
-        print(f"[SESSION] requested index: {index}")
-
-        if not (0 <= index < len(fridge)):
-            print(f"[SESSION] index out of range, fridge length: {len(fridge)}")
-            return redirect('manage_fridge')
-
-        item = fridge[index]
-        print(f"[SESSION] item at index {index}: {item}")
-
-        ingredient = get_object_or_404(Ingredient, id=item['ingredient_id'])
-        unit = MeasurementUnit.objects.get(id=item['unit_id'])
-        print(f"[SESSION] ingredient: {ingredient}, unit: {unit}")
-        print(f"[SESSION] passing initial_quantity: {item['quantity']}, initial_unit_id: {item['unit_id']}")
-
-        return render(request, 'planner/edit_fridge.html', {
-            'form': UserFridgeForm(),
-            'item': {
-                'ingredient': ingredient,
-                'quantity': item['quantity'],
-                'unit': unit,
-            },
-            'ingredient_units': ingredient.measurement_units.select_related('unit').all(),
-            'anon_index': index,
-            'initial_quantity': item['quantity'],
-            'initial_unit_id': item['unit_id'],
-        })
-
-    def post(self, request, index):
-        fridge = request.session.get('anon_fridge', [])
-        print(f"[SESSION POST] full anon_fridge before edit: {fridge}")
-        print(f"[SESSION POST] POST data: {request.POST}")
-
-        if not (0 <= index < len(fridge)):
-            print(f"[SESSION POST] index out of range")
-            return redirect('manage_fridge')
-
-        ingredient = get_object_or_404(Ingredient, id=fridge[index]['ingredient_id'])
-        form = UserFridgeForm(request.POST)
-        print(f"[SESSION POST] form valid: {form.is_valid()}")
-        print(f"[SESSION POST] form errors: {form.errors}")
-
-        if form.is_valid():
-            print(f"[SESSION POST] cleaned_data: {form.cleaned_data}")
-            fridge[index]['quantity'] = form.cleaned_data['quantity']
-            fridge[index]['unit_id'] = form.cleaned_data['unit'].id
-            request.session['anon_fridge'] = fridge
-            request.session.modified = True
-            print(f"[SESSION POST] updated fridge: {fridge}")
-
-        return redirect('manage_fridge')
 
 
 class ManageFridgeView(ListView):
@@ -111,29 +48,6 @@ class ManageFridgeView(ListView):
         return context
 
 
-
-class EditFridgeItemView(UpdateView):
-    model = UserFridge
-    form_class = UserFridgeForm
-    template_name = 'planner/edit_fridge.html'
-    pk_url_kwarg = 'item_id'
-    success_url = reverse_lazy('manage_fridge')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['item'] = self.object
-        context['ingredient_units'] = self.object.ingredient.measurement_units.select_related('unit').all()
-        return context
-
-
-class DeleteFridgeItemView(View):
-    def post(self, request, fridge_id):
-        if request.user.is_authenticated:
-            item = get_object_or_404(UserFridge, id=fridge_id, user=request.user)
-            item.delete()
-        return redirect('manage_fridge')
-
-
 class AddFridgeItemView(View):
     def post(self, request):
         ing_id = request.POST.get("ingredient_id")
@@ -153,6 +67,97 @@ class AddFridgeItemView(View):
             get_or_create_anon_fridge_item(request, ingredient, qty, unit)
 
         return redirect('manage_fridge')
+
+
+class EditFridgeItemView(UpdateView):
+    model = UserFridge
+    form_class = UserFridgeForm
+    template_name = 'planner/edit_fridge.html'
+    pk_url_kwarg = 'item_id'
+    success_url = reverse_lazy('manage_fridge')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item'] = self.object
+        context['ingredient_units'] = self.object.ingredient.measurement_units.select_related('unit').all()
+        return context
+
+
+class EditAnonFridgeItemView(View):
+
+    def get(self, request, index):
+        fridge = request.session.get('anon_fridge', [])
+        print(fridge)
+        if not (0 <= index < len(fridge)):
+            return redirect('manage_fridge')
+
+        item = fridge[index]
+
+        ingredient = get_object_or_404(Ingredient, id=item['ingredient_id'])
+
+        ingredient_units = (
+            ingredient.measurement_units
+            .select_related('unit')
+            .all()
+        )
+
+        context = {
+            'ingredient': ingredient,
+            'quantity': item['quantity'],
+            'unit_id': item['unit_id'],
+            'ingredient_units': ingredient_units,
+            'anon_index': index,
+        }
+
+        return render(request, 'planner/edit_fridge.html', context)
+
+    def post(self, request, index):
+        fridge = request.session.get('anon_fridge', [])
+
+        if not (0 <= index < len(fridge)):
+            return JsonResponse({'error': 'Invalid index'}, status=400)
+
+        #  detect AJAX
+        if request.headers.get('Content-Type') == 'application/json':
+            data = json.loads(request.body)
+
+            fridge[index]['quantity'] = float(data.get('quantity'))
+            fridge[index]['unit_id'] = int(data.get('unit_id'))
+
+            request.session['anon_fridge'] = fridge
+            request.session.modified = True
+
+            return JsonResponse({'status': 'ok'})
+
+        # fallback: normal form submit
+        form = UserFridgeForm(request.POST)
+
+        if form.is_valid():
+            fridge[index]['quantity'] = form.cleaned_data['quantity']
+            fridge[index]['unit_id'] = form.cleaned_data['unit'].id
+
+            request.session['anon_fridge'] = fridge
+            request.session.modified = True
+
+        return redirect('manage_fridge')
+
+
+class DeleteFridgeItemView(View):
+    def post(self, request, fridge_id):
+        if request.user.is_authenticated:
+            item = get_object_or_404(UserFridge, id=fridge_id, user=request.user)
+            item.delete()
+        return redirect('manage_fridge')
+
+
+class DeleteAnonFridgeItemView(View):
+    def post(self, request, index):
+        fridge = request.session.get('anon_fridge', [])
+        if 0 <= index < len(fridge):
+            fridge.pop(index)
+            request.session['anon_fridge'] = fridge
+        return redirect('manage_fridge')
+
 
 
 
