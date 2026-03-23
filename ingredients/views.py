@@ -2,6 +2,7 @@ import json
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.http import JsonResponse, HttpResponse
@@ -105,9 +106,20 @@ class DeleteIngredientView(LoginRequiredMixin, OwnerOrModeratorMixin, View):
     """
     HTML delete button (trash bin) -> JS pop-up -> openDeleteModal (delete_popup.js)
     -> Delete button in the pop-up posts to URL (/ingredients/7/delete/) -> URL calls DeleteIngredientView
+
+    OwnerOrModeratorMixin relies on get_object(), which is a method from Django's SingleObjectMixin — used by UpdateView, DetailView etc. But your DeleteIngredientView extends plain View, which has no get_object() at all, so the mixin's permission check never runs.
+    Checking manually in the post
     """
+
     def post(self, request, ingredient_id):
         ing = get_object_or_404(Ingredient, pk=ingredient_id)
+
+        is_moderator = request.user.groups.filter(name='Moderator').exists()
+        is_owner = ing.created_by == request.user
+
+        if not is_moderator and not is_owner:
+            raise PermissionDenied
+
         ing.delete()
         return redirect('manage_ingredients')
 
