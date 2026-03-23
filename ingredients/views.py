@@ -49,6 +49,15 @@ class AddIngredientView(LoginRequiredMixin, CreateView):
         ingredient.updated_by = self.request.user
         ingredient.save()
         form.save_m2m()
+
+        # Auto-create the base IngredientMeasurementUnit for the default unit
+        if ingredient.default_unit:
+            IngredientMeasurementUnit.objects.get_or_create(
+                ingredient=ingredient,
+                unit=ingredient.default_unit,
+                defaults={'conversion_to_base': 1}
+            )
+
         return redirect('edit_ingredient', ingredient_id=ingredient.id)
 
     def form_invalid(self, form):

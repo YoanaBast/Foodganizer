@@ -4,7 +4,6 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 ## PRIORITY 1 FIXES
     - cust 403
     - del ingr perms
-    - http://127.0.0.1:8000/ingredients/13/ details fridge testche
     - calendar num val
     - meal suggest not subtracting fridge for authu
     - generate grocery list not adding if already exists
