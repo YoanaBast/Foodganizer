@@ -174,6 +174,8 @@ def get_or_create_fridge_item(request, ingredient, qty, unit):
 
 
 def get_or_create_anon_fridge_item(request, ingredient, qty, unit):
+    """ a session-based fridge for anon users"""
+
     fridge = request.session.get('anon_fridge', [])
     target_index = None
     target_unit_id = unit.id

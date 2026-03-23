@@ -12,6 +12,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too
     - {{ item.unit }} for anon in the fridge, can it get the name for property recreated
+    - hide the bubble menu on mobile or move it somewhere
 
 ## FEATURES
     - add search boxes

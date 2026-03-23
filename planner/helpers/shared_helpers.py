@@ -7,7 +7,9 @@ def transfer_session_to_user(user, session):
             user=user,
             ingredient_id=item['ingredient_id'],
             unit_id=item['unit_id'],
-            defaults={'quantity': item['quantity']}
+            defaults={
+                'quantity': item['quantity'],
+            }
         )
 
     for item in session.pop('anon_grocery', []):

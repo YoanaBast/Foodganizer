@@ -1,4 +1,6 @@
+import json
 
+from django.http import JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import ListView, UpdateView
@@ -82,42 +84,58 @@ class EditFridgeItemView(UpdateView):
 
 
 class EditAnonFridgeItemView(View):
+
     def get(self, request, index):
         fridge = request.session.get('anon_fridge', [])
-
+        print(fridge)
         if not (0 <= index < len(fridge)):
             return redirect('manage_fridge')
 
         item = fridge[index]
 
         ingredient = get_object_or_404(Ingredient, id=item['ingredient_id'])
-        unit = MeasurementUnit.objects.get(id=item['unit_id'])
 
-        return render(request, 'planner/edit_fridge.html', {
-            'form': UserFridgeForm(),
-            'item': {
-                'ingredient': ingredient,
-                'quantity': item['quantity'],
-                'unit': unit,
-            },
-            'ingredient_units': ingredient.measurement_units.select_related('unit').all(),
+        ingredient_units = (
+            ingredient.measurement_units
+            .select_related('unit')
+            .all()
+        )
+
+        context = {
+            'ingredient': ingredient,
+            'quantity': item['quantity'],
+            'unit_id': item['unit_id'],
+            'ingredient_units': ingredient_units,
             'anon_index': index,
-            'initial_quantity': item['quantity'],
-            'initial_unit_id': item['unit_id'],
-        })
+        }
+
+        return render(request, 'planner/edit_fridge.html', context)
 
     def post(self, request, index):
         fridge = request.session.get('anon_fridge', [])
 
         if not (0 <= index < len(fridge)):
-            return redirect('manage_fridge')
+            return JsonResponse({'error': 'Invalid index'}, status=400)
 
-        ingredient = get_object_or_404(Ingredient, id=fridge[index]['ingredient_id'])
+        #  detect AJAX
+        if request.headers.get('Content-Type') == 'application/json':
+            data = json.loads(request.body)
+
+            fridge[index]['quantity'] = float(data.get('quantity'))
+            fridge[index]['unit_id'] = int(data.get('unit_id'))
+
+            request.session['anon_fridge'] = fridge
+            request.session.modified = True
+
+            return JsonResponse({'status': 'ok'})
+
+        # fallback: normal form submit
         form = UserFridgeForm(request.POST)
 
         if form.is_valid():
             fridge[index]['quantity'] = form.cleaned_data['quantity']
             fridge[index]['unit_id'] = form.cleaned_data['unit'].id
+
             request.session['anon_fridge'] = fridge
             request.session.modified = True
 
