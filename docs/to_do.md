@@ -2,7 +2,6 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 
 # TO-DO
 ## PRIORITY 1 FIXES
-    - fix 100 converts to 99.6 
     - cust 403
     - del ingr perms
     - http://127.0.0.1:8000/ingredients/13/ details fridge testche
@@ -12,6 +11,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too
+    - {{ item.unit }} for anon in the fridge, can it get the name for property recreated
 
 ## FEATURES
     - add search boxes

@@ -7,4 +7,4 @@
 - Git: forgot to change my branch so many times, I am now a pro at git stashing :)
 - PR workflow: merging too early can leave unfinished tasks; always double-check before closing a branch. Resolved multiple conflicts and survived! 
 - JS is essential for dynamic UX (e.g., pop-ups) to avoid losing user input during CRUD operations on related entities like categories, units, or tags.
-
+- novalidate

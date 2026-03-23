@@ -22,6 +22,10 @@ def convert_qty_to_unit(qty, from_unit, to_unit, ingredient):
 
 
 def build_needed_dict(selected_recipes_qs, request):
+    """
+    for the GenerateGroceryListView
+
+    """
     needed = {}
     for rec in selected_recipes_qs:
         for ri in rec.recipe_ingredient.all():
@@ -107,6 +111,8 @@ def save_generation_history(user, final_needed):
 """
 the functions below are used for storing anon user data when they decide they want to register, allowing them to transfer their fridge and other things and keep them in DB
 """
+
+
 def build_preview_message(final_needed):
     preview_items = list(final_needed.values())
     preview_parts = [
@@ -130,6 +136,9 @@ def get_user_fridge(request):
 
 
 def get_or_create_fridge_item(request, ingredient, qty, unit):
+    """
+    adds fridge item to user fridge or does the math to combine it if already exists
+    """
     user = request.user
     items = UserFridge.objects.filter(user=user, ingredient=ingredient)
     target_item = items.filter(unit=unit).first()

@@ -1,18 +1,33 @@
+const displayInput = document.getElementById('quantityInput');
+const trueInput = document.getElementById('quantityTrue');
+
 let previousConversion = parseFloat(
     document.getElementById('unitSelect').selectedOptions[0].dataset.conversion
 );
 
+//  initialize base from TRUE value (not rounded)
+let baseQuantity = parseFloat(trueInput.value) * previousConversion;
+
+// when user types → update BOTH
+displayInput.addEventListener('input', () => {
+    const val = parseFloat(displayInput.value);
+    if (!isNaN(val)) {
+        baseQuantity = val * previousConversion;
+        trueInput.value = val; // keep true in sync
+    }
+});
+
 function convertQuantity(select) {
     const newConversion = parseFloat(select.selectedOptions[0].dataset.conversion);
-    const quantityInput = document.getElementById('quantityInput');
-    const currentQty = parseFloat(quantityInput.value);
 
-    if (!isNaN(currentQty) && previousConversion && newConversion) {
-        // convert to base, then to new unit
-        const inBase = currentQty * previousConversion;
-        const converted = inBase / newConversion;
-        // round to 2 decimals and format as string with 2 decimal places
-        quantityInput.value = (converted).toFixed(2);
+    if (!isNaN(baseQuantity) && newConversion) {
+        const converted = baseQuantity / newConversion;
+
+        // show rounded
+        displayInput.value = converted.toFixed(2);
+
+        // store full precision
+        trueInput.value = converted;
     }
 
     previousConversion = newConversion;
