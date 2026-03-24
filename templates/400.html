@@ -1,19 +1,17 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 - Not Found</title>
+  <title>400 - Bad Request</title>
   <link rel="stylesheet" href="{% static 'css/404.css' %}">
 </head>
 <body>
 <div class="scanlines"></div>
-
   <div class="container">
-    <div class="error-code">404</div>
-    <p class="message">Oops, somebody ate this resource...</p>
+    <div class="error-code">400</div>
+    <p class="message">That request tasted off... we couldn't digest it.</p>
     <a href="/" style="
     padding: 0.5rem 1rem;
     font-size: 1rem;
@@ -25,13 +23,9 @@
     display: inline-block;
     margin-top: 1rem;
 ">Home</a>
-
-<div class="scene">
-  <img src="{% static 'images/fridge.svg' %}" alt="fridge" class="fridge">
-</div>
+    <div class="scene">
+      <img src="{% static 'images/full_cat.svg' %}" alt="cat">
+    </div>
   </div>
-
 </body>
-
 </html>
-

@@ -10,3 +10,4 @@ urlpatterns = [
     path('', views.HomepageView.as_view(), name='homepage'),
     path('how-it-works/', views.HowItWorksView.as_view(), name='how_it_works'),
 ]
+
