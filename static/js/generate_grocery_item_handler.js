@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
     form.querySelectorAll('.recipe-checkbox:checked').forEach(cb => {
         ensureHidden(cb.value);
     });
+    updatePaginationLinks();
 });
 
 function ensureHidden(value) {

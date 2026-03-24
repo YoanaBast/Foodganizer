@@ -5,7 +5,6 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - cust 403, 405
     - calendar num val
     - meal suggest not subtracting fridge for authu
-    - generate grocery list not adding if already exists
 
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too

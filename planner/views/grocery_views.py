@@ -67,8 +67,14 @@ class GenerateGroceryListView(View):
             })
 
         selected_recipes_qs = Recipe.objects.filter(id__in=recipe_ids).prefetch_related(
-            'recipe_ingredient__ingredient', 'recipe_ingredient__unit'
+            Prefetch(
+                'recipe_ingredient',
+                queryset=RecipeIngredient.objects.select_related('ingredient', 'unit__unit', 'ingredient__default_unit')
+            )
         )
+
+        for r in selected_recipes_qs:
+            print(f"Recipe: {r.name}, ingredients: {list(r.recipe_ingredient.all())}")
 
         if request.user.is_authenticated:
             fridge_items = UserFridge.objects.filter(user=request.user).select_related('ingredient', 'unit')
@@ -78,8 +84,10 @@ class GenerateGroceryListView(View):
             fridge_items = UserFridge.objects.none()
             needed = build_needed_dict(selected_recipes_qs, request)
             final_needed = subtract_anon_fridge(needed, request)  # ← new helper
-
+        print("NEEDED:", {k: v['total_qty'] for k, v in needed.items()})
         if not final_needed:
+            print("FINAL:", {k: v['quantity'] for k, v in final_needed.items()})
+
             messages.info(request, "You already have all the ingredients in your fridge!")
             return redirect('generate_grocery_list')
 
@@ -89,15 +97,32 @@ class GenerateGroceryListView(View):
         else:
             # store in session for anon
             anon_grocery = request.session.get('anon_grocery', [])
+
             for data in final_needed.values():
-                anon_grocery.append({
-                    'ingredient_id': data['ingredient'].id,
-                    'unit_id': data['unit'].id if data['unit'] else None,
-                    'quantity': data['quantity'],
-                })
+                ing_id = data['ingredient'].id
+                unit_id = data['unit'].id if data['unit'] else None
+                qty = data['quantity']
+
+                # find existing entry with same ingredient + unit
+                existing = next(
+                    (item for item in anon_grocery
+                     if item['ingredient_id'] == ing_id and item['unit_id'] == unit_id),
+                    None
+                )
+                if existing:
+                    existing['quantity'] += qty
+                else:
+                    anon_grocery.append({
+                        'ingredient_id': ing_id,
+                        'unit_id': unit_id,
+                        'quantity': qty,
+                    })
+
             request.session['anon_grocery'] = anon_grocery
+            request.session.modified = True
 
         messages.success(request, build_preview_message(final_needed))
+
         return redirect('user_grocery_list')
 
 
