@@ -5,27 +5,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>500 - Server Error</title>
+
+  <!-- Keep your CSS -->
   <link rel="stylesheet" href="{% static 'css/404.css' %}">
 </head>
+
 <body>
-<div class="scanlines"></div>
+
+  <div class="scanlines"></div>
+
   <div class="container">
+
     <div class="error-code">500</div>
-    <p class="message">The kitchen is on fire. We're working on it.</p>
+
+    <p class="message">
+      The kitchen is on fire. We're working on it.
+    </p>
+
     <a href="/" style="
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    color: #00ff6a;
-    background: transparent;
-    border: 2px solid #00ff6a;
-    border-radius: 5px;
-    text-decoration: none;
-    display: inline-block;
-    margin-top: 1rem;
-">Home</a>
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      color: #00ff6a;
+      background: transparent;
+      border: 2px solid #00ff6a;
+      border-radius: 5px;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 1rem;
+    ">
+      Home
+    </a>
+
     <div class="scene">
-      <img src="{% static 'images/fridge.svg' %}" alt="fridge">
+<img src="{% static 'images/burning_kitchen.svg' %}"
+     alt="fridge"
+     style="width: 1200px; max-width: 100%; height: auto;">
     </div>
+
   </div>
+
 </body>
 </html>

@@ -11,7 +11,7 @@
 <div class="scanlines"></div>
   <div class="container">
     <div class="error-code">403</div>
-    <p class="message">This fridge is locked. You're not on the meal plan.</p>
+    <p class="message">You don't have permission to touch this. This fridge is locked.</p>
     <a href="/" style="
     padding: 0.5rem 1rem;
     font-size: 1rem;
@@ -24,8 +24,12 @@
     margin-top: 1rem;
 ">Home</a>
     <div class="scene">
-      <img src="{% static 'images/fridge.svg' %}" alt="fridge">
+      <img src="{% static 'images/fridge_chain.svg' %}" alt="fridge">
     </div>
+
+  <p class="message">This error usually means you tried to edit/delete a record that was created by someone else.</p>
+  <br>
   </div>
+
 </body>
 </html>
