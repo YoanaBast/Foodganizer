@@ -21,35 +21,6 @@ def convert_qty_to_unit(qty, from_unit, to_unit, ingredient):
         return None
 
 
-def build_needed_dict(selected_recipes_qs, request):
-    """
-    for the GenerateGroceryListView
-
-    """
-    needed = {}
-    for rec in selected_recipes_qs:
-        for ri in rec.recipe_ingredient.all():
-            ing = ri.ingredient
-            base_unit = ing.default_unit
-            if ing.id not in needed:
-                needed[ing.id] = {
-                    'ingredient': ing,
-                    'unit': base_unit,
-                    'total_qty': 0,
-                    'by_recipe': {},
-                }
-            try:
-                converted_qty = convert_qty_to_unit(ri.quantity, ri.unit.unit, base_unit, ing)
-                if converted_qty is None:
-                    messages.warning(request, f"Cannot convert {ri.unit.unit.code} for {ing.name}")
-                    converted_qty = ri.quantity
-            except Exception:
-                messages.warning(request, f"Cannot convert unit for {ing.name}")
-                converted_qty = ri.quantity
-
-            needed[ing.id]['total_qty'] += converted_qty
-            needed[ing.id]['by_recipe'][rec] = needed[ing.id]['by_recipe'].get(rec, 0) + converted_qty
-    return needed
 
 
 def subtract_fridge(needed, fridge_items, request):
@@ -78,21 +49,6 @@ def subtract_fridge(needed, fridge_items, request):
     return final_needed
 
 
-def save_grocery_list(user, final_needed):
-    for ing_data in final_needed.values():
-        existing = UserGroceryList.objects.filter(
-            user=user, ingredient=ing_data['ingredient'], unit=ing_data['unit']
-        ).first()
-        if existing:
-            existing.quantity += ing_data['quantity']
-            existing.save()
-        else:
-            UserGroceryList.objects.create(
-                user=user,
-                ingredient=ing_data['ingredient'],
-                quantity=ing_data['quantity'],
-                unit=ing_data['unit']
-            )
 
 
 def save_generation_history(user, final_needed):

@@ -1,4 +1,9 @@
+from django.db.models import Prefetch
 from django.utils import timezone
+from django.views import View
+
+from planner.helpers import check_anon_fridge_for_recipe, subtract_anon_fridge_for_recipe, subtract_fridge_for_recipe, \
+    check_fridge_for_recipe
 from planner.models import CalendarEntry
 from django.core.paginator import Paginator
 from django.urls import reverse, reverse_lazy
@@ -92,54 +97,55 @@ MEALS/RECIPES MADE VIEWS
 """
 
 
-def make_recipe(request, id):
-    if request.method != 'POST':
+class MakeRecipeView(View):
+    def post(self, request, id):
+        recipe = get_object_or_404(
+            Recipe.objects.prefetch_related(
+                Prefetch('recipe_ingredient',
+                    queryset=RecipeIngredient.objects.select_related('ingredient', 'unit__unit'))
+            ), id=id
+        )
+
+        if request.user.is_authenticated:
+            return self._handle_auth(request, recipe)
+        return self._handle_anon(request, recipe)
+
+    def _handle_auth(self, request, recipe):
+        fridge_items = UserFridge.objects.filter(user=request.user)
+
+        missing = check_fridge_for_recipe(recipe, fridge_items)
+        if missing:
+            messages.error(request, f"Not enough ingredients: {missing}")
+            return redirect('meal_suggestions')
+
+        subtract_fridge_for_recipe(recipe, fridge_items)
+
+        UserMealList.objects.create(user=request.user, recipe=recipe)
+        CalendarEntry.objects.create(
+            user=request.user,
+            date=timezone.now().date(),
+            recipe=recipe,
+            servings=recipe.servings,
+            source='meal_suggestion',
+        )
+        messages.success(request, (
+            f'<b>{recipe.name.title()}</b> made successfully! '
+            f'<a href="{reverse("recipe_detail", kwargs={"pk": recipe.id})}">View recipe</a> · '
+            f'<a href="{reverse("meal_list")}">Meal history</a> · '
+            f'<a href="{reverse("manage_fridge")}">Check your fridge</a>'
+        ))
         return redirect('meal_suggestions')
 
-    recipe = get_object_or_404(Recipe, id=id)
-
-    if not request.user.is_authenticated:
+    def _handle_anon(self, request, recipe):
         anon_fridge = request.session.get('anon_fridge', [])
 
-        # check ingredients
-        for ri in recipe.recipe_ingredient.all():
-            fridge_qty = 0
-            for item in anon_fridge:
-                if item['ingredient_id'] != ri.ingredient.id:
-                    continue
-                try:
-                    fridge_unit = MeasurementUnit.objects.get(id=item['unit_id'])
-                    conv = IngredientMeasurementUnit.objects.get(ingredient=ri.ingredient, unit=fridge_unit)
-                    fridge_qty = (item['quantity'] * conv.conversion_to_base) / ri.unit.conversion_to_base
-                except (MeasurementUnit.DoesNotExist, IngredientMeasurementUnit.DoesNotExist):
-                    fridge_qty = 0
+        missing = check_anon_fridge_for_recipe(recipe, anon_fridge)
+        if missing:
+            messages.error(request, f"Not enough ingredients: {missing}")
+            return redirect('meal_suggestions')
 
-            if fridge_qty < ri.quantity:
-                messages.error(request, f"Not enough ingredients: {ri.ingredient.name}")
-                return redirect('meal_suggestions')
+        subtract_anon_fridge_for_recipe(recipe, request)
 
-        # subtract from session fridge
-        new_fridge = []
-        recipe_ingredients = {ri.ingredient.id: ri for ri in recipe.recipe_ingredient.all()}
-
-        for item in anon_fridge:
-            ri = recipe_ingredients.get(item['ingredient_id'])
-            if not ri:
-                new_fridge.append(item)
-                continue
-            try:
-                fridge_unit = MeasurementUnit.objects.get(id=item['unit_id'])
-                conv = IngredientMeasurementUnit.objects.get(ingredient=ri.ingredient, unit=fridge_unit)
-                qty_to_subtract = (ri.quantity * ri.unit.conversion_to_base) / conv.conversion_to_base
-                remaining = item['quantity'] - qty_to_subtract
-                if remaining > 0:
-                    new_fridge.append({**item, 'quantity': remaining})
-            except (MeasurementUnit.DoesNotExist, IngredientMeasurementUnit.DoesNotExist):
-                new_fridge.append(item)
-
-        request.session['anon_fridge'] = new_fridge
-
-        # save to session meals
         anon_meals = request.session.get('anon_meals', [])
         anon_meals.append({
             'recipe_id': recipe.id,
@@ -151,44 +157,6 @@ def make_recipe(request, id):
 
         messages.success(request, f'<b>{recipe.name.title()}</b> made successfully!')
         return redirect('meal_suggestions')
-
-
-    fridge_items = UserFridge.objects.filter(user=request.user)
-
-    for ri in recipe.recipe_ingredient.all():
-        fridge_item = fridge_items.filter(ingredient=ri.ingredient).first()
-        available_qty = 0
-
-        if fridge_item:
-            try:
-                fridge_unit_obj = IngredientMeasurementUnit.objects.get(
-                    ingredient=ri.ingredient, unit=fridge_item.unit
-                )
-                available_qty = (fridge_item.quantity * fridge_unit_obj.conversion_to_base) / ri.unit.conversion_to_base
-            except IngredientMeasurementUnit.DoesNotExist:
-                available_qty = 0
-
-
-        if available_qty < ri.quantity:
-            messages.error(request, f"Not enough ingredients: {ri.ingredient.name}")
-            return redirect('meal_suggestions')
-
-    UserMealList.objects.create(user=request.user, recipe=recipe)
-    messages.success(request, (
-        f'<b>{recipe.name.title()}</b> made successfully! '
-        f'<a href="{reverse("recipe_detail", kwargs={"pk": recipe.id})}">View recipe</a> · '
-        f'<a href="{reverse("meal_list")}">Meal history</a> · '
-        f'<a href="{reverse("manage_fridge")}">Check your fridge</a>'
-    ))
-
-    CalendarEntry.objects.create(
-        user=request.user,
-        date=timezone.now().date(),
-        recipe=recipe,
-        servings=recipe.servings,
-        source='meal_suggestion',
-    )
-    return redirect('meal_suggestions')
 
 
 class MealListView(ListView):
