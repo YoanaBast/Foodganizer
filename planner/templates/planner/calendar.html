@@ -441,7 +441,18 @@ async function submitAdd() {
         body.quantity = parseFloat(document.getElementById('input-quantity').value);
         body.unit_id = parseInt(document.getElementById('input-unit').value);
     }
-    await fetch('/planner/calendar/add/', { method:'POST', headers:{'X-CSRFToken':CSRF,'Content-Type':'application/json'}, body:JSON.stringify(body) });
+
+    const res = await fetch('/planner/calendar/add/', {
+        method: 'POST',
+        headers: {'X-CSRFToken': CSRF, 'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+    });
+    const result = await res.json();
+    if (result.error) {
+        alert(result.error); // or swap for a nicer inline message
+        return;
+    }
+
     await loadMonth();
     renderModalEntries();
     document.getElementById('add-form').style.display = 'none';
@@ -469,7 +480,18 @@ function closeEdit() {
 async function submitEdit() {
     const val = parseFloat(document.getElementById('edit-val').value);
     const body = editingEntry.servings !== null ? { servings: val } : { quantity: val };
-    await fetch(`/planner/calendar/edit/${editingEntry.id}/`, { method:'POST', headers:{'X-CSRFToken':CSRF,'Content-Type':'application/json'}, body:JSON.stringify(body) });
+
+    const res = await fetch(`/planner/calendar/edit/${editingEntry.id}/`, {
+        method: 'POST',
+        headers: {'X-CSRFToken': CSRF, 'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+    });
+    const result = await res.json();
+    if (result.error) {
+        alert(result.error);
+        return;
+    }
+
     closeEdit();
     await loadMonth();
     renderModalEntries();

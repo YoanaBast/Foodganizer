@@ -62,3 +62,18 @@ def calculate_from_session(data):
     obj.tdee = tdee
     obj.updated_at = None
     return obj
+
+
+
+
+def validate_calendar_quantity(value, field_name="Value"):
+    """Returns (cleaned_float, error_string_or_None)"""
+    try:
+        val = float(value)
+    except (TypeError, ValueError):
+        return None, f"{field_name} must be a number."
+    if val <= 0:
+        return None, f"{field_name} must be greater than 0."
+    if val > 100_000:
+        return None, f"{field_name} must be 100,000 or less."
+    return val, None

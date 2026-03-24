@@ -3,12 +3,13 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 # TO-DO
 ## PRIORITY 1 FIXES
     - cust 403, 405
-    - calendar num val
+    - amdin not wokring on debug false 
 
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too
     - {{ item.unit }} for anon in the fridge, can it get the name for property recreated
     - hide the bubble menu on mobile or move it somewhere
+    - tests
 
 ## FEATURES
     - add search boxes

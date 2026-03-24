@@ -8,11 +8,14 @@ import json
 from datetime import date, datetime
 from collections import defaultdict
 
-from planner.forms import BiometricsForm
-from planner.helpers.calories_helpers import calculate_from_session, Tracker
 from planner.models import CalendarEntry, UserBiometrics
 from recipes.models import Recipe
 from ingredients.models import Ingredient, MeasurementUnit, IngredientMeasurementUnit
+
+from planner.forms import BiometricsForm
+
+from planner.helpers.calories_helpers import calculate_from_session, Tracker
+from planner.helpers.calories_helpers import validate_calendar_quantity
 
 
 class BiometricsView(View):
@@ -136,6 +139,7 @@ class CalendarDataView(View):
         return JsonResponse({'days': days, 'tdee': tdee})
 
 
+
 class CalendarAddEntryView(View):
     def post(self, request):
         if not request.user.is_authenticated:
@@ -143,18 +147,25 @@ class CalendarAddEntryView(View):
 
         data = json.loads(request.body)
         entry_date = data.get('date')
-        entry_type = data.get('type')  # 'recipe' or 'ingredient'
+        entry_type = data.get('type')
 
         if entry_type == 'recipe':
+            servings, error = validate_calendar_quantity(data.get('servings'), 'Servings')
+            if error:
+                return JsonResponse({'error': error}, status=400)
             recipe = Recipe.objects.get(id=data['recipe_id'])
             CalendarEntry.objects.create(
                 user=request.user,
                 date=entry_date,
                 recipe=recipe,
-                servings=float(data['servings']),
+                servings=servings,
                 source='manual_recipe',
             )
+
         elif entry_type == 'ingredient':
+            quantity, error = validate_calendar_quantity(data.get('quantity'), 'Quantity')
+            if error:
+                return JsonResponse({'error': error}, status=400)
             ingredient = Ingredient.objects.get(id=data['ingredient_id'])
             unit = MeasurementUnit.objects.get(id=data['unit_id'])
             CalendarEntry.objects.create(
@@ -162,7 +173,7 @@ class CalendarAddEntryView(View):
                 date=entry_date,
                 ingredient=ingredient,
                 ingredient_unit=unit,
-                quantity=float(data['quantity']),
+                quantity=quantity,
                 source='manual_ingredient',
             )
 
@@ -178,9 +189,15 @@ class CalendarEditEntryView(View):
         entry = CalendarEntry.objects.get(id=entry_id, user=request.user)
 
         if entry.recipe:
-            entry.servings = float(data['servings'])
+            servings, error = validate_calendar_quantity(data.get('servings'), 'Servings')
+            if error:
+                return JsonResponse({'error': error}, status=400)
+            entry.servings = servings
         elif entry.ingredient:
-            entry.quantity = float(data['quantity'])
+            quantity, error = validate_calendar_quantity(data.get('quantity'), 'Quantity')
+            if error:
+                return JsonResponse({'error': error}, status=400)
+            entry.quantity = quantity
             if data.get('unit_id'):
                 entry.ingredient_unit = MeasurementUnit.objects.get(id=data['unit_id'])
 
