@@ -26,7 +26,7 @@ load_dotenv()
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-default-for-local')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -150,6 +150,26 @@ AUTHENTICATION_BACKENDS = [
 ]
 CSRF_FAILURE_VIEW = 'users.views.csrf_failure'
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'DEBUG',  # catches the full traceback
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
+    },
+}
 
 LOGIN_REDIRECT_URL = 'homepage'
 LOGOUT_REDIRECT_URL = 'homepage'
@@ -170,6 +190,11 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",  # no "Manifest"
     },
 }
+
+print("DB CONFIG:")
+print("NAME:", os.getenv("DB_NAME"))
+print("USER:", os.getenv("DB_USER"))
+print("HOST:", os.getenv("DB_HOST"))
