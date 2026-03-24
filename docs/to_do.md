@@ -3,7 +3,6 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 # TO-DO
 ## PRIORITY 1 FIXES
     - cust 403, 405
-    - amdin not wokring on debug false 
 
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too
