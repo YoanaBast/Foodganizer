@@ -4,7 +4,6 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 ## PRIORITY 1 FIXES
     - cust 403, 405
     - calendar num val
-    - meal suggest not subtracting fridge for authu
 
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too
