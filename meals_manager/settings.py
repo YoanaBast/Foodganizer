@@ -26,7 +26,7 @@ load_dotenv()
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-default-for-local')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -37,7 +37,8 @@ PROJECT_APPS = [
     'ingredients',
     'planner',
     'core',
-    'users'
+    'users.apps.UsersConfig'
+
 ]
 
 INSTALLED_APPS = [
@@ -48,6 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'simple_history',
+
 ] + PROJECT_APPS
 
 MIDDLEWARE = [
