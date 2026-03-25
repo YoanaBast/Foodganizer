@@ -13,11 +13,12 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 ## FEATURES
     - add search boxes
     - add more dummy data
-    - add calorie tracker
     - add select boxes and select all with option to delete all ? bulk actions
+    - add count of favoutited by and sort by popularity for recipes
 
 ## TEST
-    
+    - math 
+
 ## UI
     - + button on categories, tags and unit is not obvious, maybe add a label
     - default should not be 0.01 for quantity, more work if the user chooses to use the arrows 
