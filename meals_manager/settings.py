@@ -38,6 +38,7 @@ PROJECT_APPS = [
     'planner',
     'core',
     'users.apps.UsersConfig'
+
 ]
 
 INSTALLED_APPS = [
@@ -48,6 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'simple_history',
+
 ] + PROJECT_APPS
 
 MIDDLEWARE = [
