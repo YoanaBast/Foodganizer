@@ -8,19 +8,18 @@
 
     <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
         <div>
-            <h2 class="section-title">KCALendar (Calorie Tracker Calendar)</h2>
-            <p class="section-description">Track your daily calories and meals.</p>
+            <h2 class="section-title">Deficit Calculator</h2>
+            <p class="section-description">See the actual % of fat that you have lost/gained over a period of time.</p>
         </div>
         <a href="{% url 'biometrics' %}" class="btn btn-secondary">
             {% if request.user.is_authenticated %}Edit Targets{% else %}Set Targets{% endif %}
         </a>
     </div>
 
-    {% if request.user.is_authenticated %}
-<div class="container-home" style="padding-top: 2rem; padding-bottom: 2rem;">
+{% if request.user.is_authenticated %}
+<div class="container-home" style="padding-bottom: 2rem;">
 
-<div style="margin-top: 2rem; background: var(--bg-secondary); border-radius: 0.75rem; padding: 1.5rem;">
-    <h3 style="font-size: 1rem; font-weight: 500; margin-bottom: 1rem;">Deficit Calculator</h3>
+<div style=" background: var(--bg-secondary); border-radius: 0.75rem; padding: 1.5rem;">
 
     <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1rem;">
     <div>
@@ -64,6 +63,15 @@
     <div id="deficit-error" style="display:none; color: #ff6b6b; font-size: 0.875rem;"></div>
 </div>
  </div>
+
+<div class="container-home" style="padding-top: 2rem; padding-bottom: 2rem;">
+
+<div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+    <div>
+        <h2 class="section-title">KCALendar (Calorie Tracker Calendar)</h2>
+        <p class="section-description">Track your daily calories and meals.</p>
+    </div>
+</div>
 
     {% if not request.user.is_authenticated %}
     <div style="position: relative;">

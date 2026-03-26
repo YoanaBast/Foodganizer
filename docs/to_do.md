@@ -12,6 +12,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - {{ item.unit }} for anon in the fridge, can it get the name for property recreated
     - hide the bubble menu on mobile or move it somewhere
     - tests
+    - change <br> to margin 
 
 ## FEATURES
     - add search boxes
@@ -19,6 +20,8 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - add select boxes and select all with option to delete all ? bulk actions
     - add count of favoutited by and sort by popularity for recipes
     - add sort by kcal, filter by tags/category
+    - rara: Real deficit of 2914.6 kcal. That is 37.2% from 1kg of fat lost in 31 days. add also how many kg for bigger nums
+
 
 ## TEST
     - math 
