@@ -17,6 +17,7 @@ class CustomUserAdmin(SimpleHistoryAdmin, UserAdmin):
         if not change:  # only on creation
             self.message_user(request, "User created successfully. A profile has been automatically generated.")
 
+
 @admin.register(Profile)
 class ProfileAdmin(SimpleHistoryAdmin):
     list_display = ('user', 'bio', 'profile_picture')
