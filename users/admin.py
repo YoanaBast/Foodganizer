@@ -12,6 +12,10 @@ class CustomUserAdmin(SimpleHistoryAdmin, UserAdmin):
         return ", ".join([g.name for g in obj.groups.all()]) or "-"
     get_groups.short_description = 'Groups'
 
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if not change:  # only on creation
+            self.message_user(request, "User created successfully. A profile has been automatically generated.")
 
 @admin.register(Profile)
 class ProfileAdmin(SimpleHistoryAdmin):
