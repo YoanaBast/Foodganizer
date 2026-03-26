@@ -10,6 +10,7 @@ Grocery List
 <link rel="stylesheet" href="{% static 'css/planner_styles.css' %}">
 
 <div class="container-home">
+    <br>
     <h2>My Grocery List</h2>
     <p>Enjoy a personalized grocery list from the <a href="{% url 'generate_grocery_list' %}">grocery list generator</a>.</p>    {% if messages %}
         {% for message in messages %}
