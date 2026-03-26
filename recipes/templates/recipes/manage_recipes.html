@@ -25,9 +25,18 @@
         </div>
 
 
-        <!-- DELETE POPUP -->
-        {% include 'recipes/delete_recipe_modal.html' %}
 
+        <!-- Search & Filter -->
+        <div style="margin-bottom: 1rem;">
+        <form method="GET" style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+            <input type="text" name="search" value="{{ search }}"
+                   placeholder="Search by name..." style="max-width:250px;">
+            <button type="submit" class="btn btn-small">Search</button>
+            {% if search %}
+                <a href="{% url 'manage_recipes' %}" class="btn btn-small btn-secondary">Clear</a>
+            {% endif %}
+        </form>
+        </div>
 
         <!-- Table with all ingredients -->
                 <table class="data-table">
@@ -97,16 +106,16 @@
                         </tbody>
                 </table>
 <!-- Pagination -->
-{% if recipes.has_other_pages %}
+{% if page_obj.has_other_pages %}
 <div class="pagination" style="margin-top:1rem; text-align:center;">
-    {% if recipes.has_previous %}
-        <a href="?page={{ recipes.previous_page_number }}">« Previous</a>
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&search={{ search }}">« Previous</a>
     {% endif %}
 
-    <span>Page {{ recipes.number }} of {{ recipes.paginator.num_pages }}</span>
+    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
 
-    {% if recipes.has_next %}
-        <a href="?page={{ recipes.next_page_number }}">Next »</a>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&search={{ search }}">Next »</a>
     {% endif %}
 </div>
 {% endif %}
@@ -114,7 +123,9 @@
     </div>
 </div>
 
-<!-- Script for quick save on popup -->
+
+<!-- DELETE POPUP -->
+{% include 'recipes/delete_recipe_modal.html' %}
 
 <script src="{% static 'js/zero_inputt_handler.js' %}"></script>
 <script src="{% static 'js/delete_popup.js' %}"></script>

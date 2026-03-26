@@ -2,7 +2,11 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 
 # TO-DO
 ## PRIORITY 1 FIXES
+    
+    - test pagination w search
     - When DEBUG=True, Django serves media files itself via django.views.static.serve. When DEBUG=False, it stops doing that — you're supposed to have a real server (nginx, etc.) handle it.
+
+
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too
     - {{ item.unit }} for anon in the fridge, can it get the name for property recreated
@@ -14,6 +18,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - add more dummy data
     - add select boxes and select all with option to delete all ? bulk actions
     - add count of favoutited by and sort by popularity for recipes
+    - add sort by kcal, filter by tags/category
 
 ## TEST
     - math 
