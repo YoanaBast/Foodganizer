@@ -26,10 +26,11 @@
         </div>
 
 
-
-        <!-- DELETE POPUP -->
-        {% include 'ingredients/delete_ingredient_modal.html' %}
-
+        <!-- Search & Filter -->
+        <div style="margin-bottom: 1rem;">
+        <input type="text" id="search-box" placeholder="Search by name..."
+               oninput="filterTable('search-box', '.data-table')" style="max-width: 250px;">
+        </div>
 
         <!-- Table with all ingredients -->
                 <table class="data-table">
@@ -91,9 +92,13 @@
     </div>
 </div>
 
+        <!-- DELETE POPUP -->
+        {% include 'ingredients/delete_ingredient_modal.html' %}
+
 <!-- Script for quick save on popup -->
 
 <script src="{% static 'js/zero_inputt_handler.js' %}"></script>
 <script src="{% static 'js/delete_popup.js' %}"></script>
+<script src="{% static 'js/search_bar.js' %}"></script>
 
 {% endblock %}

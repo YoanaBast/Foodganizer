@@ -35,10 +35,16 @@ class ManageRecipesView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Recipe.objects.all().order_by('name')
+        search = self.request.GET.get('search', '')
+        qs = Recipe.objects.all().order_by('name')
+        if search:
+            qs = qs.filter(name__icontains=search)
+        return qs
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['search'] = self.request.GET.get('search', '')
 
         for rec in context['recipes']:
             if self.request.user.is_authenticated:

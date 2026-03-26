@@ -1327,3 +1327,7 @@ body:has(.modal-overlay:target) {
     display:grid;
 }
 
+
+#search-box {
+    max-width: 250px;
+}
