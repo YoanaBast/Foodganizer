@@ -55,4 +55,4 @@ I want to disclose all tools used. Special thanks to everyone, who have develope
 - https://readme-typing-svg.herokuapp.com/demo/
 - https://uiverse.io/kamehame-ha/chilly-snake-91
 - https://bootswatch.com/
-- 
+- https://www.freepik.com/

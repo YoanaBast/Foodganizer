@@ -15,10 +15,10 @@
             <img src="{{ request.user.profile.profile_picture.url }}"
                  alt="Profile Picture"
                  style="width:150px; height:150px; border-radius:50%; object-fit:cover; border: 3px solid var(--accent);">
-        {% else %}
-            <div style="width:150px; height:150px; border-radius:50%; background:var(--bg-tertiary); border: 3px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:3rem;">
-                👤
-            </div>
+                {% else %}
+            <img src="{% static 'images/default_pfp_cat.png' %}"
+                 alt="Default Profile Picture"
+                 style="width:150px; height:150px; border-radius:50%; object-fit:cover; border: 3px solid var(--border);">
             <p class="small-gray">No profile picture uploaded</p>
         {% endif %}
     </div>

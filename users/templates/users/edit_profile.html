@@ -48,9 +48,9 @@
                          alt="Profile Picture"
                          style="width:150px; height:150px; border-radius:50%; object-fit:cover; border: 3px solid var(--accent);">
                 {% else %}
-                    <div style="width:150px; height:150px; border-radius:50%; background:var(--bg-tertiary); border: 3px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:3rem;">
-                        👤
-                    </div>
+                    <img src="{% static 'images/default_pfp_cat.png' %}"
+                         alt="Default Profile Picture"
+                         style="width:150px; height:150px; border-radius:50%; object-fit:cover; border: 3px solid var(--border);">
                 {% endif %}
                 <div class="form-group" style="width:100%;">
                     {{ form.profile_picture.label_tag }}
