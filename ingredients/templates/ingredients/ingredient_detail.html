@@ -78,12 +78,14 @@
 
 <!-- Unit Selection  -->
         <div class="grid-item info">
+        <h1 class="section-title">View Settings </h1>
+
             <div class="nutrients-section" style="display: flex; flex-direction: column; gap: 1.5rem;">
                 <form method="post" class="styled-form" novalidate>
                     {% csrf_token %}
                     <div class="form-group">
+                        <p class="small-gray">Choose the amount (quantity in units) to represent the nutritional values. Select 'Show' and check the updated table!</p>
 
-                        <p class="small-gray">This is the reference amount all nutrient values are calculated for. For example, if base quantity is 100g, all nutrients below represent what's in 100g of this ingredient.</p>
                         <br>
                         <label>Measurement unit:</label>
 
@@ -104,7 +106,7 @@
                             <input type="number" name="quantity" step="0.01" min="0.01" required placeholder="Quantity" value="{{ quantity }}">
                         </div>
 
-                    <button type="submit" class="btn btn-secondary btn-small">Update</button>
+                    <button type="submit" class="btn btn-secondary btn-small">Show</button>
 
                 </form>
             </div>
@@ -112,7 +114,10 @@
 
 <!-- nutrients table -->
     <div class="nutrients-tables">
-        <h2 style="font-size: 18px;">Nutrients for {{ quantity }} {{ unit_name }}:</h2>
+        <br>
+        <h1 class="section-title">Nutrients for {{ quantity }} {{ unit_name }}:</h1>
+
+<!--        <h2 style="font-size: 18px;">Nutrients for {{ quantity }} {{ unit_name }}:</h2>-->
 
             <table class="nutrients-table">
                 <thead>
