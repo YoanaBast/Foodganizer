@@ -567,8 +567,11 @@ nav {
 }
 
 .btn-round {
-    border: 50%;
+    border-radius: 999px;
+    margin-right: 0rem;
+
 }
+
 /* Heart button */
 .btn-heart {
     background: none;

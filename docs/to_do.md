@@ -13,6 +13,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - hide the bubble menu on mobile or move it somewhere
     - tests
     - change <br> to margin 
+    - add a better rash can in the category/tag menu
 
 ## FEATURES
     - add search boxes
