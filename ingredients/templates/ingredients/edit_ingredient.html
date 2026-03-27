@@ -44,17 +44,17 @@
                 {{ form.category.label_tag }}
                 <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.5rem;">
                     {{ form.category }}
-                    <button type="button" class="btn btn-small"
+                    <button type="button" style="margin-bottom: 1rem;" class="btn btn-small btn-round"
                         onclick="openQuickModal('Add Category', '{% url "add_category_ajax" %}', 'id_category')">+</button>
-                    <button type="button" class="btn btn-small" title="Manage categories"
+                    <button type="button" style="margin-bottom: 1rem;" class="btn btn-small btn-round" title="Manage categories"
                         onclick="fetchAndManage('{% url "list_categories_ajax" %}', 'Manage Categories')">⋯</button>
                 </div>
 
                 <div style="display:flex; align-items:center; gap:0.4rem; margin-top:0.75rem; margin-bottom:0.25rem;">
                     {{ form.dietary_tag.label_tag }}
-                    <button type="button" class="btn btn-small"
+                    <button type="button" class="btn btn-small btn-round"
                         onclick="openQuickModal('Add Dietary Tag', '{% url "add_dietary_tag_ajax" %}', 'id_dietary_tag')">+</button>
-                    <button type="button" class="btn btn-small" title="Manage dietary tags"
+                    <button type="button" class="btn btn-small btn-round" title="Manage dietary tags"
                         onclick="fetchAndManage('{% url "list_dietary_tags_ajax" %}', 'Manage Dietary Tags')">⋯</button>
                 </div>
                 <div id="dietary-tag-widget">
@@ -74,7 +74,7 @@
                 {{ form.default_unit.label_tag }}
                 <div style="display:flex; align-items:center; gap:0.4rem;">
                     {{ form.default_unit }}
-                    <button type="button" class="btn btn-small"
+                    <button type="button" class="btn btn-small btn-round"
                         onclick="openQuickModal(
                             'Create Measurement Unit',
                             '{% url "add_measurement_unit_ajax" %}',
@@ -83,7 +83,7 @@
                              {key:'name_singular', placeholder:'Singular (e.g. gram)'},
                              {key:'name_plural', placeholder:'Plural (e.g. grams)'}]
                         )">+</button>
-                    <button type="button" class="btn btn-small" title="Manage units"
+                    <button type="button" class="btn btn-small btn-round" title="Manage units"
                         onclick="fetchAndManage('{% url "list_measurement_units_ajax" %}', 'Manage Units', 'id_default_unit')">⋯</button>
                 </div>
                 <br>

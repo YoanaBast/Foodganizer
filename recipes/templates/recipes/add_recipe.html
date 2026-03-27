@@ -35,9 +35,9 @@ Add Recipe
     {{ recipe_form.category.label_tag }}
     <div style="display:flex; align-items:center; gap:0.4rem;">
         {{ recipe_form.category }}
-        <button type="button" class="btn btn-small" title="Add new category"
+        <button type="button" style="margin-bottom: 1rem;" class="btn btn-small btn-round" title="Add new category"
             onclick="openQuickModal('Add Recipe Category', '{% url "add_recipe_category_ajax" %}', 'id_category')">+</button>
-        <button type="button" class="btn btn-small" title="Manage categories"
+        <button type="button" style="margin-bottom: 1rem;" class="btn btn-small btn-round" title="Manage categories"
             onclick="fetchAndManage('{% url "list_recipe_categories_ajax" %}', 'Manage Categories')">⋯</button>
     </div>
 </p>

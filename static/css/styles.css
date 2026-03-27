@@ -563,6 +563,13 @@ nav {
 .btn-small {
     padding: 0.5rem 0.875rem;
     font-size: 0.75rem;
+
+}
+
+.btn-round {
+    border-radius: 999px;
+    margin-right: 0rem;
+
 }
 
 /* Heart button */
@@ -651,6 +658,7 @@ nav {
 
 /* Text inputs */
 input[type="text"],
+input[type="date"],
 input[type="search"] {
     padding: 0.6rem 0.75rem;
     border: 1px solid var(--border);
@@ -663,6 +671,7 @@ input[type="search"] {
 }
 
 input[type="text"]:focus,
+input[type="date"]:focus,
 input[type="search"]:focus {
     outline: none;
     border-color: var(--accent);
