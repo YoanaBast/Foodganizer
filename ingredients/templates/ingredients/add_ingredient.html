@@ -27,13 +27,13 @@
                 {{ form.category.label_tag }}
                 <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.5rem;">
                     {{ form.category }}
-                    <button type="button" class="btn btn-small" title="Add new category"
+                    <button type="button" style="margin-bottom: 1rem;" class="btn btn-small" title="Add new category"
                         onclick="openQuickModal('Add Category', '{% url "add_category_ajax" %}', 'id_category')">+</button>
-                    <button type="button" class="btn btn-small" title="Manage categories"
+                    <button type="button" style="margin-bottom: 1rem;" class="btn btn-small" title="Manage categories"
                         onclick="fetchAndManage('{% url "list_categories_ajax" %}', 'Manage Categories')">⋯</button>
                 </div>
 
-                <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.25rem;">
+                <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.5rem;">
                     {{ form.dietary_tag.label_tag }}
                     <button type="button" class="btn btn-small" title="Add new dietary tag"
                         onclick="openQuickModal('Add Dietary Tag', '{% url "add_dietary_tag_ajax" %}', 'id_dietary_tag')">+</button>

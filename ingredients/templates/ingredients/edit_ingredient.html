@@ -44,9 +44,9 @@
                 {{ form.category.label_tag }}
                 <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.5rem;">
                     {{ form.category }}
-                    <button type="button" class="btn btn-small"
+                    <button type="button" style="margin-bottom: 1rem;" class="btn btn-small"
                         onclick="openQuickModal('Add Category', '{% url "add_category_ajax" %}', 'id_category')">+</button>
-                    <button type="button" class="btn btn-small" title="Manage categories"
+                    <button type="button" style="margin-bottom: 1rem;" class="btn btn-small" title="Manage categories"
                         onclick="fetchAndManage('{% url "list_categories_ajax" %}', 'Manage Categories')">⋯</button>
                 </div>
 

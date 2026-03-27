@@ -563,8 +563,12 @@ nav {
 .btn-small {
     padding: 0.5rem 0.875rem;
     font-size: 0.75rem;
+
 }
 
+.btn-round {
+    border: 50%;
+}
 /* Heart button */
 .btn-heart {
     background: none;
