@@ -4,6 +4,8 @@
 {% block title %}KCALendar {% endblock %}
 
 {% block content %}
+
+<!-- TITLE + EDIT -->
 <div class="container-home" style="padding-top: 2rem; padding-bottom: 2rem;">
 
     <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
@@ -14,50 +16,56 @@
         <a href="{% url 'biometrics' %}" class="btn btn-secondary">
             {% if request.user.is_authenticated %}Edit Targets{% else %}Set Targets{% endif %}
         </a>
+
     </div>
 
+<!-- Deficit Calculator DIV-->
 {% if request.user.is_authenticated %}
 <div class="container-home" style="padding-bottom: 2rem;">
 
-<div style=" background: var(--bg-secondary); border-radius: 0.75rem; padding: 1.5rem;">
+    <div style=" background: var(--bg-secondary); border-radius: 0.75rem; padding: 1.5rem;">
 
-    <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1rem;">
-    <div>
-        <label style="font-size: 0.8rem; display:block; margin-bottom:4px;">Start date</label>
-        <input type="date" id="deficit-start" style="width: auto;">
-    </div>
-    <div>
-        <label style="font-size: 0.8rem; display:block; margin-bottom:4px;">End date</label>
-        <input type="date" id="deficit-end" style="width: auto;">
-    </div>
-    <button class="btn" onclick="calculateDeficit()">Calculate</button>
-    </div>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1rem;">
+            <div>
+                <label style="font-size: 0.8rem; display:block; margin-bottom:4px;">Start date</label>
+                <input type="date" id="deficit-start" style="width: auto;">
+            </div>
+            <div>
+                <label style="font-size: 0.8rem; display:block; margin-bottom:4px;">End date</label>
+                <input type="date" id="deficit-end" style="width: auto;">
+            </div>
+            <button class="btn" onclick="calculateDeficit()">Calculate</button>
 
-    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
-        <input type="checkbox" id="fill-empty" style="width:auto; height:auto;" checked>
-        <label for="fill-empty" style="font-size:0.875rem; margin:0;">Fill empty days with maintenance calories</label>
-    </div>
-
-    <div id="deficit-result" style="display:none; padding: 1rem; background: var(--bg-tertiary); border-radius: 0.5rem;">
-        <p id="deficit-text" style="font-size: 0.875rem; margin-bottom: 1rem; color: var(--text-secondary);"></p>
-        <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
-            <div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary);">Days tracked</div>
-                <div style="font-size: 1.25rem; font-weight: 500;" id="deficit-days"></div>
-            </div>
-            <div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary);">Total consumed</div>
-                <div style="font-size: 1.25rem; font-weight: 500;" id="deficit-consumed"></div>
-            </div>
-            <div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary);">Total maintenance</div>
-                <div style="font-size: 1.25rem; font-weight: 500;" id="deficit-maintenance"></div>
-            </div>
-            <div>
-                <div style="font-size: 0.75rem; color: var(--text-secondary);">Net deficit</div>
-                <div style="font-size: 1.25rem; font-weight: 500;" id="deficit-net"></div>
-            </div>
         </div>
+
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
+                <input type="checkbox" id="fill-empty" style="width:auto; height:auto;" checked>
+                <label for="fill-empty" style="font-size:0.875rem; margin:0;">Fill empty days with maintenance calories</label>
+            </div>
+
+            <p class="small-gray">Note that this calculation is for fat weight only. Your actual weight on the scale will vary based on multiple factors, such as water retention, new muscle mass from heavy exercise, and food being metabolized. </p>
+
+
+        <div id="deficit-result" style="display:none; padding: 1rem; background: var(--bg-tertiary); border-radius: 0.5rem;">
+            <p id="deficit-text" style="font-size: 0.875rem; margin-bottom: 1rem; color: var(--text-secondary);"></p>
+            <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Days tracked</div>
+                    <div style="font-size: 1.25rem; font-weight: 500;" id="deficit-days"></div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Total consumed</div>
+                    <div style="font-size: 1.25rem; font-weight: 500;" id="deficit-consumed"></div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Total maintenance</div>
+                    <div style="font-size: 1.25rem; font-weight: 500;" id="deficit-maintenance"></div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Net deficit</div>
+                    <div style="font-size: 1.25rem; font-weight: 500;" id="deficit-net"></div>
+                </div>
+            </div>
     </div>
 
     <div id="deficit-error" style="display:none; color: #ff6b6b; font-size: 0.875rem;"></div>
