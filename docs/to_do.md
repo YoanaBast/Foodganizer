@@ -5,7 +5,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     
     - test pagination w search
     - When DEBUG=True, Django serves media files itself via django.views.static.serve. When DEBUG=False, it stops doing that — you're supposed to have a real server (nginx, etc.) handle it.
-
+    - check favourites table 
 
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too
@@ -16,7 +16,6 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - add a better rash can in the category/tag menu
 
 ## FEATURES
-    - add search boxes
     - add more dummy data
     - add select boxes and select all with option to delete all ? bulk actions
     - add count of favoutited by and sort by popularity for recipes

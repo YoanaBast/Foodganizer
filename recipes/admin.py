@@ -30,6 +30,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     )
     search_fields = ('name',)
+    filter_horizontal = ('favourited_by',)
 
     def display_ingredients(self, obj):
         return ", ".join([ri.ingredient.name for ri in obj.recipe_ingredient.all()])
@@ -55,3 +56,4 @@ class RecipeCategoryAdmin(admin.ModelAdmin):
 class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = ('id', 'recipe', 'ingredient', 'quantity', 'unit')
     list_filter = ('unit',)
+
