@@ -130,6 +130,16 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Mailjet Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'in-v3.mailjet.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('MAIL_API')
+EMAIL_HOST_PASSWORD = os.getenv('MAIL_SECRET')
+DEFAULT_FROM_EMAIL = 'foodganizer@outlook.com'
+
+
 JAZZMIN_SETTINGS = {
     "site_title": "Foodganizer Admin",
     "site_header": "Foodganizer",
