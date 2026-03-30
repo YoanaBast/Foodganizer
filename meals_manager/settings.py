@@ -70,11 +70,10 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',
     'django.contrib.staticfiles',
     'cloudinary',
+    'cloudinary_storage',  # AFTER staticfiles because i only want it to serve media
     'simple_history',
-
 ] + PROJECT_APPS
 
 MIDDLEWARE = [
@@ -198,25 +197,41 @@ CSRF_FAILURE_VIEW = 'users.views.csrf_failure'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{levelname}] {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': '/app/logs/django.log',  # persisted via volume
+            'formatter': 'verbose',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
-            'level': 'ERROR',  # only errors in production
-            'propagate': False,
-        },
-        'django.request': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'level': 'ERROR',
             'propagate': False,
         },
-        # your app logger
+        'django.request': {
+            'handlers': ['console', 'file'],
+            'level': 'WARNING',  # logs 404, 403, 500 etc
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['console', 'file'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
         'meals_manager': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
             'level': 'WARNING',
             'propagate': False,
         },
@@ -253,7 +268,7 @@ STORAGES = {
     },
     "staticfiles": {
         # "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage", # for local
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
