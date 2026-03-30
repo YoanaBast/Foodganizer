@@ -1,0 +1,32 @@
+services:
+  # The Django application service
+  web:
+    build: .  # Build the image from the Dockerfile in the current directory
+    command: gunicorn meals_manager.wsgi:application --bind 0.0.0.0:8000  # Start Gunicorn instead of the Django dev server
+    volumes:
+      - .:/app  # Mount the entire project into the container so code changes reflect
+      - ./staticfiles:/app/staticfiles  # Share the staticfiles folder with nginx
+    expose:
+      - "8000"  # Expose port 8000 to other containers (NOT to your browser, only nginx talks to this)
+    env_file:
+      - .env  # Load environment variables from .env (DB credentials, SECRET_KEY, etc.)
+    depends_on:
+      - db  # Don't start web until the database container is up
+
+  # The PostgreSQL database service
+  db:
+    image: postgres:15  # Use the official PostgreSQL image, no Dockerfile needed
+    env_file:
+      - .env  # Postgres reads POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD from here
+
+  # The Nginx reverse proxy service
+  nginx:
+    image: nginx  # Use the official Nginx image, no Dockerfile needed
+    ports:
+      - "81:80"  # Map port 81 on your machine to port 80 inside the container (visit localhost:81)
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # Use your custom nginx config instead of the default
+      - ./staticfiles:/usr/share/nginx/html/static_files  # Give nginx access to static files to serve directly
+      - ./media:/usr/share/nginx/html/media  # Give nginx access to media files (user uploads)
+    depends_on:
+      - web  # Don't start nginx until the Django/Gunicorn container is up
