@@ -44,7 +44,22 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 
 
 
+Critical
 
+Set DEBUG=False in your .env
+Make sure SECRET_KEY is a strong random key, not the default
+Add your actual domain to ALLOWED_HOSTS and CSRF_TRUSTED_ORIGINS
+Switch SECURE_PROXY_SSL_HEADER value from http to https
+
+Important
+
+Add the named volume for the DB (as discussed earlier) so data persists
+Make sure your .env is in .gitignore — never commit it
+Set up SSL/HTTPS on your server (usually via Certbot + Nginx)
+
+Nice to have
+
+Add a health check to your db service so the web container waits for Postgres to be actually ready (not just started):
 
 
 
