@@ -1,6 +1,6 @@
 from django.utils import timezone
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render
 from django.core.signing import Signer, BadSignature
 from django.utils.deprecation import MiddlewareMixin
@@ -60,3 +60,14 @@ class IPRateLimitMiddleware(MiddlewareMixin):
         recent_timestamps.append(now)
         request.session[session_key] = recent_timestamps
         request.session.modified = True
+
+
+class SuspiciousActivityMiddleware(MiddlewareMixin):
+    blocked_params = {'is_admin', 'is_staff', 'is_superuser'}
+
+    def process_request(self, request):
+        if self._has_suspicious_params(request.GET) or self._has_suspicious_params(request.POST):
+            return HttpResponseForbidden("Suspicious activity detected!")
+
+    def _has_suspicious_params(self, querydict):
+        return any(key in self.blocked_params for key in querydict)

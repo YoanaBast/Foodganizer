@@ -72,7 +72,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.Custom405Middleware', # render custom 405 page
     'core.middleware.SignedCookieMiddleware', # extra security
-    'core.middleware.IPRateLimitMiddleware' # limit requests per IP
+    'core.middleware.IPRateLimitMiddleware', # limit requests per IP
+    'core.middleware.SuspiciousActivityMiddleware'  # protect from tampering
+
 ]
 
 ROOT_URLCONF = 'meals_manager.urls'
