@@ -64,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.Custom405Middleware',
+    'core.middleware.SignedCookieMiddleware',
 ]
 
 ROOT_URLCONF = 'meals_manager.urls'
