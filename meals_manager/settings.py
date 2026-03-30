@@ -70,7 +70,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
     'simple_history',
 
 ] + PROJECT_APPS
@@ -202,14 +204,21 @@ LOGGING = {
         },
     },
     'loggers': {
-        'django.request': {
-            'handlers': ['console'],
-            'level': 'DEBUG',  # catches the full traceback
-            'propagate': False,
-        },
         'django': {
             'handlers': ['console'],
+            'level': 'ERROR',  # only errors in production
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
             'level': 'ERROR',
+            'propagate': False,
+        },
+        # your app logger
+        'meals_manager': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
         },
     },
 }
@@ -225,15 +234,26 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']  #  dev static folder
 STATIC_ROOT = BASE_DIR / 'staticfiles'    #  collectstatic
 
+# Compatibility fix for django-cloudinary-storage with Django 4.2+
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        # "BACKEND": "django.core.files.storage.FileSystemStorage", # for local
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        # "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage", # for local
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
     },
 }
 

@@ -2,7 +2,13 @@ services:
   # The Django application service
   web:
     build: .  # Build the image from the Dockerfile in the current directory
-    command: gunicorn meals_manager.wsgi:application --bind 0.0.0.0:8000  # Start Gunicorn instead of the Django dev server
+    command: >
+      sh -c "python manage.py makemigrations &&
+           python manage.py collectstatic --noinput &&
+           python manage.py migrate &&
+           gunicorn meals_manager.wsgi:application --bind 0.0.0.0:8000"
+    # collectstatic, make+run migrations, Start Gunicorn instead of the Django dev server
+
     volumes:
       - .:/app  # Mount the entire project into the container so code changes reflect
       - ./staticfiles:/app/staticfiles  # Share the staticfiles folder with nginx

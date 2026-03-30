@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>413 - Too Large</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: #0a0a0a;
+      color: #00ff6a;
+      font-family: monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container { text-align: center; }
+    .error-code {
+      font-size: 8rem;
+      font-weight: bold;
+      color: #00ff6a;
+      text-shadow: 0 0 20px #00ff6a;
+    }
+    .message {
+      font-size: 1.2rem;
+      margin: 1rem 0;
+      color: #ccc;
+    }
+    .home-btn {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      color: #00ff6a;
+      background: transparent;
+      border: 2px solid #00ff6a;
+      border-radius: 5px;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 1rem;
+    }
+    .scanlines {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.1) 2px,
+        rgba(0,0,0,0.1) 4px
+      );
+      pointer-events: none;
+      z-index: 999;
+    }
+    .fridge {
+      width: 200px;
+      margin-top: 2rem;
+      filter: drop-shadow(0 0 10px #00ff6a);
+    }
+  </style>
+</head>
+<body>
+<div class="scanlines"></div>
+
+<div class="container">
+  <div class="error-code">413</div>
+  <p class="message">Whoa, that file is too large to swallow...</p>
+  <a href="/" class="home-btn">Home</a>
+
+  <div class="scene">
+    <img src="/static/images/fridge.svg" alt="fridge" class="fridge">
+  </div>
+</div>
+
+</body>
+</html>

@@ -10,5 +10,6 @@ RUN pip install -r requirements.txt
 # Copy the entire project
 COPY . .
 
-# Collect static files into the staticfiles/ folder
-RUN python manage.py collectstatic --noinput
+# manually ensure errors folder is in staticfiles, collectstatic is in the yml
+RUN mkdir -p /app/staticfiles/errors && \
+    cp /app/static/errors/413.html /app/staticfiles/errors/413.html
