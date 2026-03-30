@@ -71,13 +71,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary',
+    'cloudinary_storage',  # AFTER staticfiles because i only want it to serve media
     'simple_history',
-
 ] + PROJECT_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    # 'whitenoise.middleware.WhiteNoiseMiddleware', # switched to Nginx
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -196,20 +197,43 @@ CSRF_FAILURE_VIEW = 'users.views.csrf_failure'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{levelname}] {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': '/app/logs/django.log',  # persisted via volume
+            'formatter': 'verbose',
         },
     },
     'loggers': {
-        'django.request': {
-            'handlers': ['console'],
-            'level': 'DEBUG',  # catches the full traceback
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'ERROR',
             'propagate': False,
         },
-        'django': {
-            'handlers': ['console'],
-            'level': 'ERROR',
+        'django.request': {
+            'handlers': ['console', 'file'],
+            'level': 'WARNING',  # logs 404, 403, 500 etc
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['console', 'file'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'meals_manager': {
+            'handlers': ['console', 'file'],
+            'level': 'WARNING',
+            'propagate': False,
         },
     },
 }
@@ -225,15 +249,26 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']  #  dev static folder
 STATIC_ROOT = BASE_DIR / 'staticfiles'    #  collectstatic
 
+# Compatibility fix for django-cloudinary-storage with Django 4.2+
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        # "BACKEND": "django.core.files.storage.FileSystemStorage", # for local
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",  # no "Manifest"
+        # "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage", # for local
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 

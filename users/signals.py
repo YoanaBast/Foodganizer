@@ -14,7 +14,6 @@ def delete_old_profile_picture(sender, instance, **kwargs):
         return
 
     if old.profile_picture and old.profile_picture != instance.profile_picture:
-        # print(f"Deleting old picture: {old.profile_picture.path}")
         old.profile_picture.delete(save=False)
 
 # delete file when object deleted

@@ -42,3 +42,6 @@ staticfiles/
 
 # PostgreSQL
 *.backup
+
+logs/
+*.log
