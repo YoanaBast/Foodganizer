@@ -18,13 +18,14 @@ class RegisterForm(UserCreationForm):
             raise forms.ValidationError('This email is already registered.')
         return email
 
-    def save(self, commit=True):
-        user = super().save(commit=commit)
-        if commit:
-            Profile.objects.create(user=user)
-            group = Group.objects.get_or_create(name='User')[0]
-            user.groups.add(group)
-        return user
+# profile creation moved to signal
+    # def save(self, commit=True):
+    #     user = super().save(commit=commit)
+    #     if commit:
+    #         Profile.objects.create(user=user)
+    #         group = Group.objects.get_or_create(name='User')[0]
+    #         user.groups.add(group)
+    #     return user
 
 
 class LoginForm(AuthenticationForm):

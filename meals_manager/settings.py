@@ -26,7 +26,14 @@ load_dotenv()
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-default-for-local')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+
+# if not DEBUG:
+#     SECURE_SSL_REDIRECT = True
+#     SECURE_HSTS_SECONDS = 31536000
+#     CSRF_COOKIE_SECURE = True
+#     SESSION_COOKIE_SECURE = True
+
 
 ALLOWED_HOSTS = ['*']
 
@@ -63,7 +70,9 @@ MIDDLEWARE = [
     'simple_history.middleware.HistoryRequestMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'core.middleware.Custom405Middleware',
+    'core.middleware.Custom405Middleware', # render custom 405 page
+    'core.middleware.SignedCookieMiddleware', # extra security
+    'core.middleware.IPRateLimitMiddleware' # limit requests per IP
 ]
 
 ROOT_URLCONF = 'meals_manager.urls'
@@ -118,6 +127,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
