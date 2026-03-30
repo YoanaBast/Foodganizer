@@ -18,6 +18,10 @@ services:
     image: postgres:15  # Use the official PostgreSQL image, no Dockerfile needed
     env_file:
       - .env  # Postgres reads POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD from here
+    volumes:
+      # Mount a named volume to persist database data between container restarts
+      # Without this, all data is lost every time the container is removed
+      - postgres_data:/var/lib/postgresql/data
 
   # The Nginx reverse proxy service
   nginx:
@@ -30,3 +34,9 @@ services:
       - ./media:/usr/share/nginx/html/media  # Give nginx access to media files (user uploads)
     depends_on:
       - web  # Don't start nginx until the Django/Gunicorn container is up
+
+# Top-level volumes block — Docker manages these independently from containers
+# Data survives: docker-compose down, docker-compose restart
+# Data is ONLY lost if you run: docker-compose down -v  ⚠️
+volumes:
+  postgres_data:

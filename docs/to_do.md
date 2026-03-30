@@ -7,6 +7,10 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - check favourites table 
     - 429.html 
     - fix allowed hosts
+    - change django secure key
+    - hide allowed hosts, email from
+    - manage.py check --deploy
+    - s3 or something for media?
 
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too
