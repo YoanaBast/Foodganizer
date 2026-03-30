@@ -6,6 +6,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - When DEBUG=True, Django serves media files itself via django.views.static.serve. When DEBUG=False, it stops doing that — you're supposed to have a real server (nginx, etc.) handle it.
     - check favourites table 
     - 429.html 
+    - fix allowed hosts
 
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too
