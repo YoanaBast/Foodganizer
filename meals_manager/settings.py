@@ -26,16 +26,31 @@ load_dotenv()
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-default-for-local')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-# if not DEBUG:
-#     SECURE_SSL_REDIRECT = True
-#     SECURE_HSTS_SECONDS = 31536000
-#     CSRF_COOKIE_SECURE = True
-#     SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False  # must be False for HTTP localhost
+CSRF_COOKIE_SECURE = False     # must be False for HTTP localhost
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 
-ALLOWED_HOSTS = ['*']
+# Trust the X-Forwarded-Proto header from Nginx
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')  # use 'https' if behind SSL
+
+# Allow CSRF from your actual host
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:81',
+    'http://127.0.0.1:81',
+]
+
+# Also make sure USE_X_FORWARDED_HOST is set
+USE_X_FORWARDED_HOST = True
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'web']
 
 
 # Application definition
@@ -104,9 +119,9 @@ WSGI_APPLICATION = 'meals_manager.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "NAME": os.getenv("POSTGRES_DB"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
         "HOST": os.getenv("DB_HOST"),
         "PORT": os.getenv("DB_PORT"),
     }
@@ -129,7 +144,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE =  not DEBUG
 SESSION_COOKIE_HTTPONLY = True
 
 # Internationalization
@@ -223,6 +238,8 @@ STORAGES = {
 }
 
 print("DB CONFIG:")
-print("NAME:", os.getenv("DB_NAME"))
-print("USER:", os.getenv("DB_USER"))
+print("NAME:", os.getenv("POSTGRES_DB"))
+print("USER:", os.getenv("POSTGRES_USER"))
 print("HOST:", os.getenv("DB_HOST"))
+
+
