@@ -17,18 +17,28 @@ services:
       - "8000"  # Expose port 8000 to other containers (NOT to your browser, only nginx talks to this)
     env_file:
       - .env  # Load environment variables from .env (DB credentials, SECRET_KEY, etc.)
-    depends_on:
-      - db  # Don't start web until the database container is up
+
+# --- CURRENTLY USING SUPABASE - TO SWITCH BACK TO LOCAL CONTAINER DB ---
+# 1. Uncomment depends_on below
+# 2. Uncomment the entire db service below
+# 3. Uncomment postgres_data in the volumes block at the bottom
+# 4. In .env: replace DATABASE_URL with POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
+#    and set DB host to 'db' (the service name above)
+# --------------------------------------------
+
+
+#    depends_on:
+#      - db  # Don't start web until the database container is up
 
   # The PostgreSQL database service
-  db:
-    image: postgres:15  # Use the official PostgreSQL image, no Dockerfile needed
-    env_file:
-      - .env  # Postgres reads POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD from here
-    volumes:
-      # Mount a named volume to persist database data between container restarts
-      # Without this, all data is lost every time the container is removed
-      - postgres_data:/var/lib/postgresql/data
+#  db:
+#    image: postgres:15  # Use the official PostgreSQL image, no Dockerfile needed
+#    env_file:
+#      - .env  # Postgres reads POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD from here
+#    volumes:
+#      # Mount a named volume to persist database data between container restarts
+#      # Without this, all data is lost every time the container is removed
+#      - postgres_data:/var/lib/postgresql/data
 
   # The Nginx reverse proxy service
   nginx:
@@ -46,7 +56,7 @@ services:
 # Data survives: docker-compose down, docker-compose restart
 # Data is ONLY lost if you run: docker-compose down -v  ⚠️
 volumes:
-  postgres_data:
+#  postgres_data:
   static_volume:  # shared between web and nginx for static files
 
   # this is full of comments intentionally as it is my first time settiing it up
