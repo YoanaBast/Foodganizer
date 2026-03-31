@@ -50,6 +50,13 @@ USE_X_FORWARDED_HOST = True
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
+import sentry_sdk
+
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN"),
+    send_default_pii=True,
+)
+
 
 # Application definition
 PROJECT_APPS = [

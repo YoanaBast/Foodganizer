@@ -1,5 +1,7 @@
 # Project Structure
 
+
+
 ## User | Profile | Authentication 
     - Using Dhango's User + a custom Profile model (OTO relationship)
     - User is for authentication and Profile is for more data (such as bio, profile picture)
