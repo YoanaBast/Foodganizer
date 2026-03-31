@@ -42,15 +42,13 @@ if not DEBUG:
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')  # use 'https' if behind SSL
 
 # Allow CSRF from your actual host
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:81',
-    'http://127.0.0.1:81',
-]
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:81').split(',')
+
 
 # Also make sure USE_X_FORWARDED_HOST is set
 USE_X_FORWARDED_HOST = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'web']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
 
 # Application definition
@@ -273,9 +271,5 @@ STORAGES = {
     },
 }
 
-print("DB CONFIG:")
-print("NAME:", os.getenv("POSTGRES_DB"))
-print("USER:", os.getenv("POSTGRES_USER"))
-print("HOST:", os.getenv("DB_HOST"))
 
 
