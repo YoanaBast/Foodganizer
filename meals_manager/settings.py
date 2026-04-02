@@ -165,15 +165,14 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Mailjet Email Configuration
+# Brevo Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'in-v3.mailjet.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv('MAIL_API')
-EMAIL_HOST_PASSWORD = os.getenv('MAIL_SECRET')
-DEFAULT_FROM_EMAIL = 'foodganizer@outlook.com'
-
+EMAIL_HOST = os.getenv('BREVO_SMTP_HOST')
+EMAIL_PORT = int(os.getenv('BREVO_SMTP_PORT'))
+EMAIL_USE_TLS = os.getenv('BREVO_EMAIL_USE_TLS')
+EMAIL_HOST_USER = os.getenv('BREVO_SMTP_USER')
+EMAIL_HOST_PASSWORD = os.getenv('BREVO_SMTP_KEY')
+DEFAULT_FROM_EMAIL = os.getenv('BREVO_DEFAULT_FROM_EMAIL')
 
 JAZZMIN_SETTINGS = {
     "site_title": "Foodganizer Admin",
@@ -214,30 +213,25 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': '/app/logs/django.log',  # persisted via volume
-            'formatter': 'verbose',
-        },
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'ERROR',
             'propagate': False,
         },
         'django.request': {
-            'handlers': ['console', 'file'],
-            'level': 'WARNING',  # logs 404, 403, 500 etc
+            'handlers': ['console'],
+            'level': 'WARNING',
             'propagate': False,
         },
         'django.security': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'WARNING',
             'propagate': False,
         },
         'meals_manager': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': 'WARNING',
             'propagate': False,
         },
