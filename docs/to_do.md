@@ -2,13 +2,12 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 
 # TO-DO
 ## PRIORITY 1 FIXES
+    - .env-template
+    - bring back whitenoise
+    - terraform, secretys manager, workflow
     - test pagination w search
-    - When DEBUG=True, Django serves media files itself via django.views.static.serve. When DEBUG=False, it stops doing that — you're supposed to have a real server (nginx, etc.) handle it.
-    - check favourites table 
     - 429.html 
-    - fix allowed hosts
-    - change django secure key
-    - hide allowed hosts, email from
+    - fix dns for email replies
     - manage.py check --deploy
 
 ## PRIORITY 2 FIXES
@@ -17,7 +16,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - hide the bubble menu on mobile or move it somewhere
     - tests
     - change <br> to margin 
-    - add a better rash can in the category/tag menu
+    - add a better trash can in the category/tag menu
 
 ## FEATURES
     - add more dummy data

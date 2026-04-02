@@ -11,6 +11,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse_lazy
 
 from planner.helpers import transfer_session_to_user
+from .emails import send_welcome_email
 from .forms import RegisterForm, ProfileEditForm
 from .models import Profile
 
@@ -23,6 +24,7 @@ class RegisterView(CreateView):
     def form_valid(self, form):
         response = super().form_valid(form)
         transfer_session_to_user(self.object, self.request.session)
+        send_welcome_email(self.object)  # self.object is the newly created user
         return response
 
 
