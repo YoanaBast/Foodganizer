@@ -2,13 +2,12 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 
 # TO-DO
 ## PRIORITY 1 FIXES
-    - .env-template
-    - bring back whitenoise
-    - terraform, secretys manager, workflow
+    - terraform, secrets manager, workflow ?
     - test pagination w search
     - 429.html 
     - fix dns for email replies
     - manage.py check --deploy
+    - show measuremnts on create ingredient nutrients
 
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too
@@ -19,6 +18,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - add a better trash can in the category/tag menu
 
 ## FEATURES
+    - .env-template
     - add more dummy data
     - add select boxes and select all with option to delete all ? bulk actions
     - add count of favoutited by and sort by popularity for recipes

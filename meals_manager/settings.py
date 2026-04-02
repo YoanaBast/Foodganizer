@@ -26,7 +26,8 @@ load_dotenv()
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-default-for-local')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
+ENV = os.environ.get('ENVIRONMENT', 'DEV')
+DEBUG = ENV != 'PROD'
 
 SESSION_COOKIE_SECURE = False  # must be False for HTTP localhost
 CSRF_COOKIE_SECURE = False     # must be False for HTTP localhost
@@ -39,7 +40,12 @@ if not DEBUG:
 
 
 # Trust the X-Forwarded-Proto header from Nginx
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')  # use 'https' if behind SSL
+
+if ENV == 'PROD':
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+USE_X_FORWARDED_HOST = ENV in ('DOCKER', 'PROD')
+
 
 # Allow CSRF from your actual host
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:81').split(',')
@@ -50,13 +56,12 @@ USE_X_FORWARDED_HOST = True
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
-import sentry_sdk
-
-sentry_sdk.init(
-    dsn=os.getenv("SENTRY_DSN"),
-    send_default_pii=True,
-)
-
+if ENV == "PROD":
+    import sentry_sdk
+    sentry_sdk.init(
+        dsn=os.getenv("SENTRY_DSN"),
+        send_default_pii=True,
+    )
 
 # Application definition
 PROJECT_APPS = [
@@ -117,22 +122,33 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'meals_manager.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB"),
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT"),
-        "OPTIONS": {"sslmode": os.getenv("DB_SSLMODE", "require")} # for supabase
+if ENV == 'PROD' or ENV == 'DOCKER':
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("POSTGRES_DB"),
+            "USER": os.getenv("POSTGRES_USER"),
+            "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+            "HOST": os.getenv("DB_HOST"),
+            "PORT": os.getenv("DB_PORT"),
+            "OPTIONS": {"sslmode": os.getenv("DB_SSLMODE", "require")}  # for supabase
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("LOCAL_POSTGRES_DB"),
+            "USER": os.getenv("LOCAL_POSTGRES_USER"),
+            "PASSWORD": os.getenv("LOCAL_POSTGRES_PASSWORD"),
+            "HOST": os.getenv("LOCAL_DB_HOST"),
+            "PORT": os.getenv("LOCAL_DB_PORT"),
+            "OPTIONS": {"sslmode": os.getenv("LOCAL_DB_SSLMODE", "disable")}
+        }
+    }
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
@@ -168,7 +184,7 @@ USE_TZ = True
 # Brevo Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('BREVO_SMTP_HOST')
-EMAIL_PORT = int(os.getenv('BREVO_SMTP_PORT'))
+EMAIL_PORT = int(os.getenv('BREVO_SMTP_PORT', 587))
 EMAIL_USE_TLS = os.getenv('BREVO_EMAIL_USE_TLS')
 EMAIL_HOST_USER = os.getenv('BREVO_SMTP_USER')
 EMAIL_HOST_PASSWORD = os.getenv('BREVO_SMTP_KEY')
@@ -252,6 +268,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'    #  collectstatic
 # Compatibility fix for django-cloudinary-storage with Django 4.2+
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -261,16 +278,15 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
 
+
 STORAGES = {
     "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        # "BACKEND": "django.core.files.storage.FileSystemStorage", # for local
+        "BACKEND": (
+            "cloudinary_storage.storage.MediaCloudinaryStorage" if ENV == 'PROD' # Cloudinary in production
+            else "django.core.files.storage.FileSystemStorage"
+        ),
     },
     "staticfiles": {
-        # "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage", # for local
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
-
-
-
