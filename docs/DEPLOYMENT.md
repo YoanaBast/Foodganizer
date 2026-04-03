@@ -9,11 +9,25 @@
 | **Date** | April 2, 2026 |
 
 ---
+## AWS 
+1. Launch EC2 - ubuntu VM
+2. Allocate and Associate Elastic IP
+3. Point my Domain to EC2 (this is done from domain DNS settings)
+	- A @ <ELASTIC_IP>
+	- A WWW <ELASTIC_IP>
 
-## Overview
-Deployed a Django-based meal planning and nutrition tracking web application to AWS EC2 using Docker, with Nginx as a reverse proxy, Gunicorn as the WSGI server, and Supabase as the hosted PostgreSQL database. HTTPS was configured using Let's Encrypt via Certbot.
-
----
+    
+4. SSH Into ubuntu VM
+   
+##### WINDOWS
+```bash
+ssh -i "C:\path\to\key.pem" ubuntu@<ELASTIC_IP> 
+```
+##### LINUX
+```bash
+chmod 400 /path/to/key.pem 
+ssh -i "/path/to/key.pem" ubuntu@<ELASTIC_IP>
+```
 
 ## Initial Server Setup
 ```bash
