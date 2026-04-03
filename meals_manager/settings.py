@@ -29,33 +29,32 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-default-for-lo
 ENV = os.environ.get('ENVIRONMENT', 'DEV')
 DEBUG = ENV != 'PROD'
 
-SESSION_COOKIE_SECURE = False  # must be False for HTTP localhost
+SESSION_COOKIE_SECURE = False  # must be False for HTTP localhost. Also setting to false for Cloudflare
 CSRF_COOKIE_SECURE = False     # must be False for HTTP localhost
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_HTTPONLY = True
 
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = 31536000
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
 
 # Trust the X-Forwarded-Proto header from Nginx
-
 if ENV == 'PROD':
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 USE_X_FORWARDED_HOST = ENV in ('DOCKER', 'PROD')
 
-
 # Allow CSRF from your actual host
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:81').split(',')
-
 
 # Also make sure USE_X_FORWARDED_HOST is set
 USE_X_FORWARDED_HOST = True
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
 
+#SENTRY BUG LOGS
 if ENV == "PROD":
     import sentry_sdk
     sentry_sdk.init(
@@ -70,6 +69,7 @@ PROJECT_APPS = [
     'planner',
     'core',
     'users.apps.UsersConfig'
+    'api',
 
 ]
 
@@ -84,6 +84,8 @@ INSTALLED_APPS = [
     'cloudinary',
     'cloudinary_storage',  # AFTER staticfiles because i only want it to serve media
     'simple_history',
+    'rest_framework',
+
 ] + PROJECT_APPS
 
 MIDDLEWARE = [
@@ -149,6 +151,7 @@ else:
             "OPTIONS": {"sslmode": os.getenv("LOCAL_DB_SSLMODE", "disable")}
         }
     }
+
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
@@ -167,8 +170,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-SESSION_COOKIE_SECURE =  not DEBUG
-SESSION_COOKIE_HTTPONLY = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/

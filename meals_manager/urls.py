@@ -26,7 +26,7 @@ urlpatterns = [
     path('ingredients/', include('ingredients.urls')),
     path('planner/', include('planner.urls')),
     path('users/', include('users.urls')),
-
+    path('api/', include('api.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
