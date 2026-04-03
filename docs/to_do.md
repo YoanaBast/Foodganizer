@@ -10,6 +10,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - show measuremnts on create ingredient nutrients
     - show favourites only should be only for logged in users 
      - kcal calculator should be for logged in users only, and the calendar is not even showing on mobile
+    - make sure to pip freeze befoe the 7th
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too
     - {{ item.unit }} for anon in the fridge, can it get the name for property recreated
