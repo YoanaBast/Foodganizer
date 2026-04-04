@@ -1,22 +1,22 @@
-from django.shortcuts import render
-
+from rest_framework import status
 from rest_framework.permissions import SAFE_METHODS, BasePermission, AllowAny
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from ingredients.models import Ingredient
 from recipes.models import Recipe
-from .mixins import ReadWriteSerializerMixin
 from .serializers import (
     IngredientSerializer,
+    IngredientMeasurementUnitSerializer,
     RecipeReadSerializer,
     RecipeWriteSerializer,
 )
 
-# Create your views here.
 
-"""
-PERMISSION
-"""
+# ---------------------------------------------------------------------------
+# PERMISSION
+# ---------------------------------------------------------------------------
 
 class IsOwnerOrModeratorOrReadOnly(BasePermission):
     """
@@ -25,11 +25,9 @@ class IsOwnerOrModeratorOrReadOnly(BasePermission):
         - POST (create): any authenticated user.
         - PUT/PATCH/DELETE: only the owner or a Moderator group member.
     """
-
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
             return True
-        # ALL unsafe methods (POST, PUT, PATCH, DELETE) require login
         return request.user and request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
@@ -40,11 +38,24 @@ class IsOwnerOrModeratorOrReadOnly(BasePermission):
         return is_owner or is_moderator
 
 
+# ---------------------------------------------------------------------------
+# MIXIN — read/write serializer switching (same as professor's pattern)
+# ---------------------------------------------------------------------------
+
+class ReadWriteSerializerMixin:
+    read_serializer = None
+    write_serializer = None
+
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return self.read_serializer
+        return self.write_serializer
 
 
-"""
-INGREDIENT VIEWS
-"""
+# ---------------------------------------------------------------------------
+# INGREDIENT VIEWS
+# ---------------------------------------------------------------------------
+
 class ListCreateIngredientApiView(ListCreateAPIView):
     """
     GET  /api/ingredients/  → list all ingredients (anyone)
@@ -79,9 +90,9 @@ class RetrieveUpdateDestroyIngredientApiView(RetrieveUpdateDestroyAPIView):
     ).all()
 
 
-"""
-RECIPE VIEWS
-"""
+# ---------------------------------------------------------------------------
+# RECIPE VIEWS
+# ---------------------------------------------------------------------------
 
 class ListCreateRecipeApiView(ReadWriteSerializerMixin, ListCreateAPIView):
     """
@@ -135,3 +146,56 @@ class RetrieveUpdateDestroyRecipeApiView(ReadWriteSerializerMixin, RetrieveUpdat
         'recipe_ingredient__ingredient__default_unit',
         'recipe_ingredient__unit__unit',
     ).all()
+
+
+# ---------------------------------------------------------------------------
+# INGREDIENT MEASUREMENT UNIT VIEW
+# ---------------------------------------------------------------------------
+
+class AddIngredientMeasurementUnitApiView(APIView):
+    """
+    POST /api/ingredients/<id>/units/
+    Add (or update) a measurement unit for an ingredient.
+    Only the ingredient owner or a moderator can do this.
+
+    Payload:
+    {
+        "unit_code": "cup",
+        "unit_name_singular": "cup",
+        "unit_name_plural": "cups",
+        "conversion_to_base": 240
+    }
+
+    get_or_create logic:
+    - MeasurementUnit: found or created by unit_code
+    - IngredientMeasurementUnit: found or created by ingredient+unit
+    - If already linked: conversion_to_base is updated
+    """
+    permission_classes = [IsOwnerOrModeratorOrReadOnly]
+
+    def get_ingredient(self, pk):
+        try:
+            return Ingredient.objects.get(pk=pk)
+        except Ingredient.DoesNotExist:
+            return None
+
+    def post(self, request, pk):
+        ingredient = self.get_ingredient(pk)
+        if not ingredient:
+            return Response({'error': 'Ingredient not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # manual object-level permission check (APIView doesn't call has_object_permission automatically)
+        self.check_object_permissions(request, ingredient)
+
+        serializer = IngredientMeasurementUnitSerializer(data=request.data)
+        if serializer.is_valid():
+            imu = serializer.save(ingredient=ingredient)
+            return Response({
+                'ingredient': ingredient.name,
+                'unit_code': imu.unit.code,
+                'unit_name_singular': imu.unit.name_singular,
+                'unit_name_plural': imu.unit.name_plural,
+                'conversion_to_base': imu.conversion_to_base,
+            }, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

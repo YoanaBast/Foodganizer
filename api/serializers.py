@@ -7,9 +7,10 @@ from ingredients.models import (
 from recipes.models import Recipe, RecipeIngredient, RecipeCategory
 
 
-"""
-INGREDIENT SERIALIZERS
-"""
+# ---------------------------------------------------------------------------
+# INGREDIENT SERIALIZERS
+# ---------------------------------------------------------------------------
+
 class MeasurementUnitSerializer(serializers.ModelSerializer):
     class Meta:
         model = MeasurementUnit
@@ -61,6 +62,9 @@ class IngredientSerializer(serializers.ModelSerializer):
             'default_unit', 'default_unit_code',
             'nutrients',
         )
+        extra_kwargs = {
+            'name': {'validators': []},  # disable unique validator, get_or_create handles it
+        }
 
     def get_nutrients(self, obj):
         return obj.nutrients_with_units
@@ -144,9 +148,9 @@ class IngredientSerializer(serializers.ModelSerializer):
         return instance
 
 
-"""
-RECIPE SERIALIZERS
-"""
+# ---------------------------------------------------------------------------
+# RECIPE SERIALIZERS
+# ---------------------------------------------------------------------------
 
 class RecipeIngredientReadSerializer(serializers.ModelSerializer):
     """
@@ -300,6 +304,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             'id', 'name', 'instructions', 'servings',
             'category_name', 'ingredients',
         )
+        extra_kwargs = {
+            'name': {'validators': []},  # disable unique validator, get_or_create handles it
+        }
 
     def _resolve_category(self, name):
         if not name:
@@ -365,3 +372,61 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             self._sync_ingredients(instance, ingredients_data)
 
         return instance
+
+
+# ---------------------------------------------------------------------------
+# INGREDIENT MEASUREMENT UNIT SERIALIZER
+# ---------------------------------------------------------------------------
+
+class IngredientMeasurementUnitSerializer(serializers.Serializer):
+    """
+    Used for POST /api/ingredients/<id>/units/
+    Adds a measurement unit to an existing ingredient (get_or_create).
+
+    Payload example:
+    {
+        "unit_code": "cup",
+        "unit_name_singular": "cup",
+        "unit_name_plural": "cups",
+        "conversion_to_base": 240
+    }
+
+    If unit_code already exists as a MeasurementUnit, it is reused.
+    If the unit is already linked to this ingredient, the conversion is updated.
+    """
+    unit_code = serializers.CharField(max_length=10)
+    unit_name_singular = serializers.CharField(max_length=40, required=False)
+    unit_name_plural = serializers.CharField(max_length=40, required=False)
+    conversion_to_base = serializers.FloatField(min_value=0.01, max_value=100_000)
+
+    def validate_unit_code(self, value):
+        return value.strip().lower()
+
+    def save(self, ingredient):
+        unit_code = self.validated_data['unit_code']
+        conversion = self.validated_data['conversion_to_base']
+        name_singular = self.validated_data.get('unit_name_singular', unit_code)
+        name_plural = self.validated_data.get('unit_name_plural', unit_code)
+
+        # get_or_create the MeasurementUnit by code
+        unit, _ = MeasurementUnit.objects.get_or_create(
+            code=unit_code,
+            defaults={
+                'name_singular': name_singular,
+                'name_plural': name_plural,
+            }
+        )
+
+        # get_or_create the link between ingredient and unit
+        imu, created = IngredientMeasurementUnit.objects.get_or_create(
+            ingredient=ingredient,
+            unit=unit,
+            defaults={'conversion_to_base': conversion}
+        )
+
+        # if already linked, update the conversion
+        if not created:
+            imu.conversion_to_base = conversion
+            imu.save()
+
+        return imu
