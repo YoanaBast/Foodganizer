@@ -2,7 +2,6 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 
 # TO-DO
 ## PRIORITY 1 FIXES
-    - terraform, secrets manager, workflow ?
     - test pagination w search
     - 429.html 
     - fix dns for email replies
@@ -11,6 +10,10 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - show favourites only should be only for logged in users 
      - kcal calculator should be for logged in users only, and the calendar is not even showing on mobile
     - make sure to pip freeze befoe the 7th
+     - verify all custom errs
+    - ad created by updated by read only on ing and recipe
+    - finish manual QA on API
+
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too
     - {{ item.unit }} for anon in the fridge, can it get the name for property recreated
@@ -19,6 +22,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - change <br> to margin 
     - add a better trash can in the category/tag menu
     - let users set targets
+    - confuigure security in AWS to allow only cloudflare
 
 ## FEATURES
     - .env-template
