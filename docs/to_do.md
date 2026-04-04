@@ -2,7 +2,6 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 
 # TO-DO
 ## PRIORITY 1 FIXES
-    - terraform, secrets manager, workflow ?
     - test pagination w search
     - 429.html 
     - fix dns for email replies
@@ -13,6 +12,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - make sure to pip freeze befoe the 7th
      - verify all custom errs
     - ad created by updated by read only on ing and recipe
+    - finish manual QA on API
 
 ## PRIORITY 2 FIXES
     - Generation History needs to show what was added too
