@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 
 from ingredients.models import Ingredient
 from recipes.models import Recipe
+from .mixins import IsOwnerOrModeratorOrReadOnly, ReadWriteSerializerMixin
 from .serializers import (
     IngredientSerializer,
     IngredientMeasurementUnitSerializer,
@@ -13,43 +14,6 @@ from .serializers import (
     RecipeWriteSerializer,
 )
 
-
-# ---------------------------------------------------------------------------
-# PERMISSION
-# ---------------------------------------------------------------------------
-
-class IsOwnerOrModeratorOrReadOnly(BasePermission):
-    """
-    - Safe methods (GET, HEAD, OPTIONS): open to everyone, even anonymous.
-    - Unsafe methods (POST, PUT, PATCH, DELETE):
-        - POST (create): any authenticated user.
-        - PUT/PATCH/DELETE: only the owner or a Moderator group member.
-    """
-    def has_permission(self, request, view):
-        if request.method in SAFE_METHODS:
-            return True
-        return request.user and request.user.is_authenticated
-
-    def has_object_permission(self, request, view, obj):
-        if request.method in SAFE_METHODS:
-            return True
-        is_moderator = request.user.groups.filter(name='Moderator').exists()
-        is_owner = getattr(obj, 'created_by', None) == request.user
-        return is_owner or is_moderator
-
-
-# ---------------------------------------------------------------------------
-# MIXIN — read/write serializer switching (same as professor's pattern)
-# ---------------------------------------------------------------------------
-
-class ReadWriteSerializerMixin:
-    read_serializer = None
-    write_serializer = None
-
-    def get_serializer_class(self):
-        if self.request.method in SAFE_METHODS:
-            return self.read_serializer
-        return self.write_serializer
 
 
 # ---------------------------------------------------------------------------
