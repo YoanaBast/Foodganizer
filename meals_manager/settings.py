@@ -68,7 +68,7 @@ PROJECT_APPS = [
     'ingredients',
     'planner',
     'core',
-    'users.apps.UsersConfig'
+    'users.apps.UsersConfig',
     'api',
 
 ]
@@ -85,8 +85,27 @@ INSTALLED_APPS = [
     'cloudinary_storage',  # AFTER staticfiles because i only want it to serve media
     'simple_history',
     'rest_framework',
+    'rest_framework_simplejwt',
+    'drf_spectacular',
 
-] + PROJECT_APPS
+    ] + PROJECT_APPS
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '60/hour',   # anonymous users — by IP
+        'user': '300/hour',  # authenticated users
+    },
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
