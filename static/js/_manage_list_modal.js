@@ -129,7 +129,7 @@ function openManageModal(title, items, selectId) {
         };
 
         const delBtn = document.createElement('button');
-        delBtn.textContent = '🗑';
+        delBtn.textContent = '×';
         delBtn.className = 'btn btn-danger btn-small';
         delBtn.onclick = () => {
             askConfirm(`Delete "${nameSpan.textContent}"?`, () => {

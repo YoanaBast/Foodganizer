@@ -12,10 +12,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 
 ## PRIORITY 2 FIXES
     - {{ item.unit }} for anon in the fridge, can it get the name for property recreated
-    - tests
     - change <br> to margin 
-    - add a better trash can in the category/tag menu
-    - let users set targets
     - confuigure security in AWS to allow only cloudflare
 
 ## FEATURES

@@ -22,24 +22,58 @@
                 {% csrf_token %}
 
                 <div class="form-group">
+                    {{ form.unit_system.label_tag }}
+                    {{ form.unit_system }}
+                </div>
+
+                <div class="form-group">
                     {{ form.gender.label_tag }}
                     {{ form.gender }}
+                    <p style="margin-top:1rem;" class="small-gray">Pick the one that is the closest to your body right now (hormone-wise). This is needed for calculations.</p>
                 </div>
+
                 <div class="form-group">
                     {{ form.age.label_tag }}
                     {{ form.age }}
                 </div>
-                <div class="form-group">
+
+                <!-- metric fields -->
+                <div class="form-group" id="metric-weight">
                     {{ form.weight_kg.label_tag }}
                     {{ form.weight_kg }}
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="metric-height">
                     {{ form.height_cm.label_tag }}
                     {{ form.height_cm }}
                 </div>
+
+                <!-- imperial fields -->
+                <div class="form-group" id="imperial-weight" style="display:none;">
+                    <label>Weight</label>
+                    {{ form.weight_lbs }}
+                </div>
+                <div class="form-group" id="imperial-height" style="display:none;">
+                    <label>Height</label>
+                    <div style="display:flex; gap:0.5rem;">
+                        {{ form.height_ft }}
+                        {{ form.height_in }}
+                    </div>
+                </div>
+
                 <div class="form-group">
                     {{ form.activity_level.label_tag }}
                     {{ form.activity_level }}
+                </div>
+
+                <div class="form-group">
+                    <label>Deficit Target</label>
+                    <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.25rem;">
+                        {% for radio in form.deficit_target %}
+                        <label style="display:flex; align-items:center; gap:0.5rem; font-weight:normal; cursor:pointer;">
+                            {{ radio.tag }} {{ radio.choice_label }}
+                        </label>
+                        {% endfor %}
+                    </div>
                 </div>
 
                 {% if form.errors %}
@@ -77,11 +111,28 @@
 
                     <hr style="border-color: var(--border); margin-bottom: 1.5rem;">
 
+                    <p style="margin-bottom: 0.5rem;"><strong>No deficit (maintain):</strong> {{ biometrics.tdee }} kcal/day</p>
                     <p style="margin-bottom: 0.5rem;"><strong>Mild deficit (−250 kcal):</strong> {{ biometrics.tdee|add:"-250" }} kcal/day</p>
                     <p style="margin-bottom: 0.5rem;"><strong>Moderate deficit (−500 kcal):</strong> {{ biometrics.tdee|add:"-500" }} kcal/day</p>
                     <p style="margin-bottom: 0.5rem;"><strong>Aggressive deficit (−750 kcal):</strong> {{ biometrics.tdee|add:"-750" }} kcal/day</p>
 
                     <hr style="border-color: var(--border); margin: 1.5rem 0;">
+
+                    {% if biometrics.deficit_target %}
+                    <p style="margin-bottom: 0.5rem;">
+                        <strong>Your target:</strong>
+                        <span style="color: var(--accent); font-size: 1.25rem;">{{ biometrics.target_calories }}</span> kcal/day
+                    </p>
+                    {% endif %}
+
+                    {% if biometrics.unit_system == 'imperial' %}
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">
+                        Weight: {{ biometrics.weight_kg|floatformat:1 }} kg
+                        ({{ biometrics.weight_kg|floatformat:1 }} × 2.205 =
+                        {% widthratio biometrics.weight_kg 1 2.205 %} lbs) ·
+                        Height: {{ biometrics.height_cm|floatformat:1 }} cm
+                    </p>
+                    {% endif %}
 
                     <p style="color: var(--text-secondary); font-size: 0.8rem;">
                         Last updated: {{ biometrics.updated_at|date:"d M Y" }}
@@ -96,4 +147,20 @@
 
     </div>
 </div>
+
+<script>
+const unitSystem = document.getElementById('id_unit_system');
+
+function toggleUnits() {
+    const isImperial = unitSystem.value === 'imperial';
+    document.getElementById('metric-weight').style.display = isImperial ? 'none' : '';
+    document.getElementById('metric-height').style.display = isImperial ? 'none' : '';
+    document.getElementById('imperial-weight').style.display = isImperial ? '' : 'none';
+    document.getElementById('imperial-height').style.display = isImperial ? '' : 'none';
+}
+
+unitSystem.addEventListener('change', toggleUnits);
+toggleUnits(); // run on load
+</script>
+
 {% endblock %}

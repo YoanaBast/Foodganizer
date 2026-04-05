@@ -1,5 +1,5 @@
 
-<div id="ingredientModal" class="recipe-modal">
+<div id="ingredientModal" class="recipe-modal" style="padding: 0 1rem;">
     <div class="recipe-modal-content">
         <h4>Add Ingredient</h4>
                 {% include "errors_label.html" %}
@@ -18,13 +18,12 @@
             {% endfor %}
         </select>
 
-        <br><br>
         <input type="number" id="quantityInput" name="quantity" step="0.01" min="0.01" placeholder="Quantity">
-        <br><br>
         <select id="unitSelect"></select>
-        <br><br>
+        <div style="margin-top: 1rem;">
         <button type="button" onclick="addIngredient()">Add</button>
         <button type="button" onclick="closeModal()">Cancel</button>
+        </div>
     </div>
 </div>
 </div>

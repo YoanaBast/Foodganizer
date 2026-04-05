@@ -4,8 +4,8 @@
 {% load core_filters %}
 
 {% block content %}
-<div class="container-home">
-    <br>
+<div class="container-home" style="margin-top: 1rem;">
+
     <h2>{{ item.ingredient.name|title_except }} Stock</h2>
 
     <form method="post" novalidate>
@@ -22,9 +22,8 @@
                    name="quantity"
                    value="{{ form.quantity.value }}">
 
-            <br><br>
 
-            <label>Unit</label>
+            <label style="margin-top: 1rem;">Unit</label>
             <select id="unitSelect" name="unit" onchange="convertQuantity(this)">
                 {% for mu in ingredient_units %}
                     <option value="{{ mu.unit.id }}"
@@ -51,9 +50,8 @@
     {# Make anon_index available to JS #}
     <input type="hidden" id="anonIndex" value="{{ anon_index }}">
 
-    <br><br>
 
-    <label>Unit</label>
+    <label style="margin-top: 1rem;">Unit</label>
     <select id="unitSelect" name="unit" onchange="convertQuantity(this)">
         {% for mu in ingredient_units %}
             <option value="{{ mu.unit.id }}"
@@ -65,10 +63,12 @@
     </select>
 {% endif %}
 
-        <br><br>
+        <div style="margin-top: 2rem;">
 
         <button type="submit" class="btn btn-success">Save</button>
         <a href="{% url 'manage_fridge' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+
     </form>
 </div>
 

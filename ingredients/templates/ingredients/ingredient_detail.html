@@ -93,9 +93,8 @@
                 <form method="post" class="styled-form" novalidate>
                     {% csrf_token %}
                     <div class="form-group">
-                        <p class="small-gray">Choose the amount (quantity in units) to represent the nutritional values. Select 'Show' and check the updated table!</p>
+                        <p style="margin-bottom: 1rem;" class="small-gray">Choose the amount (quantity in units) to represent the nutritional values. Select 'Show' and check the updated table!</p>
 
-                        <br>
                         <label>Measurement unit:</label>
 
                         <select name="unit">
@@ -122,8 +121,7 @@
         </div>
 
 <!-- nutrients table -->
-    <div class="nutrients-tables">
-        <br>
+    <div style="margin-top: 1rem;" class="nutrients-tables">
         <h1 class="section-title">Nutrients for {{ quantity }} {{ unit_name }}:</h1>
 
 <!--        <h2 style="font-size: 18px;">Nutrients for {{ quantity }} {{ unit_name }}:</h2>-->
