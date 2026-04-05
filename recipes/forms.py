@@ -24,6 +24,10 @@ class RecipeForm(forms.ModelForm):
         queryset=RecipeCategory.objects.all().order_by('name'),
         required=False
     )
+
+    created_by = forms.CharField(required=False, disabled=True, label='Created by')
+    updated_by = forms.CharField(required=False, disabled=True, label='Last updated by')
+
     hours = forms.IntegerField(
         min_value=0, max_value=23, required=True, label="Hours", initial=0,
         widget=forms.NumberInput(attrs={'class': 'form-input small-width', 'min': 0}),
@@ -53,12 +57,17 @@ class RecipeForm(forms.ModelForm):
         }
     )
 
-    class Meta:
-        model = Recipe
-        exclude = ['cooking_time', 'ingredients', 'favourited_by']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        if self.instance and self.instance.pk:
+            self.fields['created_by'].initial = self.instance.created_by or '-'
+            self.fields['updated_by'].initial = self.instance.updated_by or '-'
+            self.fields['created_by'].widget.attrs['class'] = 'form-input'
+            self.fields['updated_by'].widget.attrs['class'] = 'form-input'
+
+
         if self.instance and self.instance.cooking_time:
             self.fields['hours'].initial = self.instance.cooking_time.hour
             self.fields['minutes'].initial = self.instance.cooking_time.minute
@@ -86,6 +95,9 @@ class RecipeForm(forms.ModelForm):
             instance.save()
         return instance
 
+    class Meta:
+        model = Recipe
+        exclude = ['cooking_time', 'ingredients', 'favourited_by', 'created_by', 'updated_by']
 
 class RecipeIngredientForm(forms.ModelForm):
     class Meta:

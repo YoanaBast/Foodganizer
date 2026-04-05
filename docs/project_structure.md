@@ -1,6 +1,7 @@
 # Project Structure
 
 
+<img src="./graph.png" alt="graph" width="750" />
 
 ## User | Profile | Authentication 
     - Using Dhango's User + a custom Profile model (OTO relationship)
