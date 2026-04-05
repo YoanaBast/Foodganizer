@@ -4,6 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def send_welcome_email(user):
     try:
         send_mail(

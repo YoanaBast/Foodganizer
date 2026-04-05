@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os
 from pathlib import Path
+from celery.schedules import crontab
 
 from dotenv import load_dotenv
 
@@ -87,8 +88,25 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_spectacular',
+    'django_celery_beat',
 
     ] + PROJECT_APPS
+
+# Celery
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://redis:6379/0')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
+
+CELERY_BEAT_SCHEDULE = {
+    'cleanup-expired-sessions': {
+        'task': 'core.tasks.cleanup_expired_sessions',
+        'schedule': crontab(hour=2, minute=0),  # nightly at 2am UTC
+    },
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
