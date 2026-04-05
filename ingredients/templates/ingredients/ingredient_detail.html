@@ -72,6 +72,15 @@
                             <td>{{ ingredient.dietary_info|default:"-" }}</td>
                         </tr>
 
+
+                        <tr>
+                            <th>Created by</th>
+                            <td>{{ ingredient.created_by|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Updated by</th>
+                            <td>{{ ingredient.updated_by|default:"-" }}</td>
+                        </tr>
                     </tbody>
                 </table>
 </div>
@@ -135,8 +144,12 @@
                 </tbody>
             </table>
 
+
+
     </div>
     <br>
+
+
 
     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
         <a href="javascript:history.back()" class="btn">Back</a>

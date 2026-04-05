@@ -68,10 +68,19 @@ class IngredientAddForm(IngredientFormBase):
 
 
 class IngredientEditForm(IngredientFormBase):
+    created_by = forms.CharField(required=False, disabled=True)
+    updated_by = forms.CharField(required=False, disabled=True)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['base_quantity'].widget.attrs['readonly'] = True
         self.fields['base_quantity'].help_text = 'Base quantity cannot be changed after creation as it affects nutrient calculations.'
+
+        if self.instance.pk:
+            self.fields['created_by'].initial = self.instance.created_by or '-'
+            self.fields['updated_by'].initial = self.instance.updated_by or '-'
+            self.fields['created_by'].widget.attrs['class'] = 'form-input'
+            self.fields['updated_by'].widget.attrs['class'] = 'form-input'
 
     def clean_name(self):
         """

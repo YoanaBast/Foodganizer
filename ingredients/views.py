@@ -126,9 +126,6 @@ class DeleteIngredientView(LoginRequiredMixin, OwnerOrModeratorMixin, View):
 
 
 def ingredient_detail(request, ingredient_id):
-    """
-    Single-object view, keeping it as FBV, because there is a unit switcher that posts, and it is simpler this way
-    """
     ingredient = get_object_or_404(Ingredient, pk=ingredient_id)
     form = IngredientDetailForm(ingredient, request.POST or None)
 
@@ -142,6 +139,8 @@ def ingredient_detail(request, ingredient_id):
         'unit_name': unit.name_for_quantity(quantity),
         'nutrients': form.get_nutrients(),
         'quantity': quantity,
+        'created_by': ingredient.created_by,
+        'updated_by': ingredient.updated_by,
     }
     return render(request, 'ingredients/ingredient_detail.html', context)
 

@@ -32,6 +32,8 @@
             <p><strong>Cooking Duration:</strong> {{ recipe.cooking_duration|default:"-" }}</p>
             <p><strong>Kcal per Serving:</strong> {{ recipe.kcal_per_serving|default:"-" }}</p>
             <p><strong>Servings:</strong> {{ recipe.servings|default:"-" }}</p>
+            <p><strong>Created by:</strong> {{ recipe.created_by|default:"-" }}</p>
+            <p><strong>Updated by:</strong> {{ recipe.updated_by|default:"-" }}</p>
         </div>
         <div class="grid-item ingredients">
             <h2>Ingredients</h2>
