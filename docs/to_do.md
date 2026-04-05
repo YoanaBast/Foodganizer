@@ -16,16 +16,11 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - confuigure security in AWS to allow only cloudflare
 
 ## FEATURES
-    - .env-template
     - add more dummy data
     - add select boxes and select all with option to delete all ? bulk actions
-    - add count of favoutited by and sort by popularity for recipes
-    - add sort by kcal, filter by tags/category
-    - rara: Real deficit of 2914.6 kcal. That is 37.2% from 1kg of fat lost in 31 days. add also how many kg for bigger nums
 
 
 ## TEST
-    - math 
 
 ## UI
     - + button on categories, tags and unit is not obvious, maybe add a label

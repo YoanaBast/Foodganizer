@@ -8,9 +8,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView
+from django.db.models import Count
 
 from core.utils import is_moderator
-from ingredients.models import Ingredient, IngredientMeasurementUnit
+from ingredients.models import Ingredient, IngredientMeasurementUnit, IngredientDietaryTag
 from .forms import RecipeForm, RecipeIngredientForm, RecipeIngredientFormSet
 from .models import Recipe, RecipeCategory, RecipeIngredient
 
@@ -18,6 +19,7 @@ from .models import Recipe, RecipeCategory, RecipeIngredient
 """
 RECIPE VIEWS
 """
+
 
 class ManageRecipesView(ListView):
     model = Recipe
@@ -27,14 +29,40 @@ class ManageRecipesView(ListView):
 
     def get_queryset(self):
         search = self.request.GET.get('search', '')
-        qs = Recipe.objects.all().order_by('name')
+        category = self.request.GET.get('category', '')
+        tags = [t for t in self.request.GET.getlist('tag') if t]
+        sort = self.request.GET.get('sort', '')
+
+        qs = Recipe.objects.select_related('category').prefetch_related(
+            'recipe_ingredient__ingredient__dietary_tag'
+        ).annotate(fav_count=Count('favourited_by')).order_by('name')
+
         if search:
             qs = qs.filter(name__icontains=search)
+        if category:
+            qs = qs.filter(category__id=category)
+        if tags:
+            qs = qs.filter(
+                recipe_ingredient__ingredient__dietary_tag__id__in=tags
+            ).distinct()
+
+        if sort == 'kcal_asc':
+            qs = sorted(qs, key=lambda r: r.kcal_per_serving)
+        elif sort == 'kcal_desc':
+            qs = sorted(qs, key=lambda r: r.kcal_per_serving, reverse=True)
+        elif sort == 'popular':
+            qs = qs.order_by('-fav_count')
+
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['search'] = self.request.GET.get('search', '')
+        context['categories'] = RecipeCategory.objects.all().order_by('name')
+        context['tags'] = IngredientDietaryTag.objects.all().order_by('name')
+        context['selected_category'] = self.request.GET.get('category', '')
+        context['selected_tags'] = [t for t in self.request.GET.getlist('tag') if t]
+        context['selected_sort'] = self.request.GET.get('sort', '')
         for rec in context['recipes']:
             if self.request.user.is_authenticated:
                 rec.is_fav = rec.favourited_by.filter(id=self.request.user.id).exists()

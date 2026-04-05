@@ -27,12 +27,37 @@ class ManageIngredientsView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Ingredient.objects.select_related(
+        qs = Ingredient.objects.select_related(
             'category', 'default_unit'
-        ).prefetch_related(
-            'dietary_tag'
-        ).order_by('name')
+        ).prefetch_related('dietary_tag').order_by('name')
 
+        search = self.request.GET.get('search', '')
+        category = self.request.GET.get('category', '')
+        tags = [t for t in self.request.GET.getlist('tag') if t]
+        sort = self.request.GET.get('sort', '')
+
+        if search:
+            qs = qs.filter(name__icontains=search)
+        if category:
+            qs = qs.filter(category__id=category)
+        if tags:
+            qs = qs.filter(dietary_tag__id__in=tags).distinct()
+        if sort == 'kcal_asc':
+            qs = qs.order_by('base_quantity_kcal')
+        elif sort == 'kcal_desc':
+            qs = qs.order_by('-base_quantity_kcal')
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = IngredientCategory.objects.all().order_by('name')
+        context['tags'] = IngredientDietaryTag.objects.all().order_by('name')
+        context['selected_category'] = self.request.GET.get('category', '')
+        context['selected_tags'] = [t for t in self.request.GET.getlist('tag') if t]
+        context['selected_sort'] = self.request.GET.get('sort', '')
+        context['search'] = self.request.GET.get('search', '')
+        return context
 
 class AddIngredientView(LoginRequiredMixin, CreateView):
     model = Ingredient
