@@ -1,6 +1,7 @@
 Welcome to my to-do list! Feel free to give me siggestions :)
 
 # TO-DO
+
 ## PRIORITY 1 FIXES
     - test pagination w search
     - 429.html 
