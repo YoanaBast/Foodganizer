@@ -45,3 +45,6 @@ staticfiles/
 
 logs/
 *.log
+
+# Celery Beat
+celerybeat-schedule*

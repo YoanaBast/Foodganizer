@@ -1,5 +1,4 @@
-from django.core.checks import messages
-
+from django.contrib import messages
 from ingredients.models import IngredientMeasurementUnit, Ingredient, MeasurementUnit
 from planner.models import GroceryListGeneration, GroceryListGenerationItem, UserGroceryList, UserFridge, UserMealList
 

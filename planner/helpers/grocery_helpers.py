@@ -1,6 +1,5 @@
 # helpers.py
-from django.core.checks import messages
-
+from django.contrib import messages
 from planner.helpers import convert_qty_to_unit
 from planner.models import UserGroceryList
 

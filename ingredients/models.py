@@ -96,7 +96,7 @@ class Ingredient(TrackingMixin, models.Model):
 
     def get_nutrients_dict(self, ingredient_unit: 'IngredientMeasurementUnit', quantity: float):
         """Return a dics of all nutrients per unit and quantity"""
-        if ingredient_unit == self.default_unit:
+        if ingredient_unit.unit == self.default_unit:
             quantity_in_base_units = quantity
         else:
             quantity_in_base_units = quantity * ingredient_unit.conversion_to_base
