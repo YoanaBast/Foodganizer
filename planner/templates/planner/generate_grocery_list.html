@@ -24,13 +24,15 @@ Generate Grocery List
         {% endfor %}
     {% endif %}
 
-    <!-- Search & Filter -->
+        <!-- Search & Filter -->
         <div style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center;">
             <input type="text" id="search-box" placeholder="Search by name..." oninput="filterRecipes()">
+            {% if request.user.is_authenticated %}
             <a href="?page=1{% if not show_favs %}&favs=1{% endif %}{% for r in selected_recipes %}&recipes={{ r }}{% endfor %}"
                class="btn btn-small">
                 {% if show_favs %}Show All{% else %}Show Favourites Only{% endif %}
             </a>
+            {% endif %}
         </div>
 
     <form method="POST" id="recipe-form">
