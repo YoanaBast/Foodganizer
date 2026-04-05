@@ -3,8 +3,6 @@ import json
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator
-from django.db import IntegrityError
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -22,9 +20,6 @@ INGREDIENT VIEWS
 """
 
 class ManageIngredientsView(ListView):
-    """
-    A dashboard with all ingredients
-    """
     model = Ingredient
     template_name = 'ingredients/manage_ingredients.html'
     context_object_name = 'ingredients'
@@ -50,15 +45,12 @@ class AddIngredientView(LoginRequiredMixin, CreateView):
         ingredient.updated_by = self.request.user
         ingredient.save()
         form.save_m2m()
-
-        # Auto-create the base IngredientMeasurementUnit for the default unit
         if ingredient.default_unit:
             IngredientMeasurementUnit.objects.get_or_create(
                 ingredient=ingredient,
                 unit=ingredient.default_unit,
                 defaults={'conversion_to_base': 1}
             )
-
         return redirect('edit_ingredient', ingredient_id=ingredient.id)
 
     def form_invalid(self, form):
@@ -91,88 +83,64 @@ class EditIngredientView(LoginRequiredMixin, OwnerOrModeratorMixin, UpdateView):
         return render(self.request, self.template_name, self.get_context_data(form=form))
 
 
-"""
-Note:
-
-POST request
-→ CreateView runs form validation
-    → valid   → form_valid()  → save + redirect
-    → invalid → form_invalid() → re-render with errors
-
-get_context_data gives a dictionary to the template to render, like context = {} in FBV
-"""
-
 class DeleteIngredientView(LoginRequiredMixin, OwnerOrModeratorMixin, View):
-    """
-    HTML delete button (trash bin) -> JS pop-up -> openDeleteModal (delete_popup.js)
-    -> Delete button in the pop-up posts to URL (/ingredients/7/delete/) -> URL calls DeleteIngredientView
-
-    OwnerOrModeratorMixin relies on get_object(), which is a method from Django's SingleObjectMixin — used by UpdateView, DetailView etc. But your DeleteIngredientView extends plain View, which has no get_object() at all, so the mixin's permission check never runs.
-    Checking manually in the post
-    """
-
     def post(self, request, ingredient_id):
         ing = get_object_or_404(Ingredient, pk=ingredient_id)
-
-        is_moderator = request.user.groups.filter(name='Moderator').exists()
+        is_mod = request.user.groups.filter(name='Moderator').exists()
         is_owner = ing.created_by == request.user
-
-        if not is_moderator and not is_owner:
+        if not is_mod and not is_owner:
             raise PermissionDenied
-
         ing.delete()
         return redirect('manage_ingredients')
 
 
+class IngredientDetailView(View):
+    def get(self, request, ingredient_id):
+        return self._render(request, ingredient_id)
 
-def ingredient_detail(request, ingredient_id):
-    ingredient = get_object_or_404(Ingredient, pk=ingredient_id)
-    form = IngredientDetailForm(ingredient, request.POST or None)
+    def post(self, request, ingredient_id):
+        return self._render(request, ingredient_id)
 
-    quantity = form.get_quantity()
-    unit = form.get_unit()
-    quantity = int(quantity) if quantity == int(quantity) else quantity
+    def _render(self, request, ingredient_id):
+        ingredient = get_object_or_404(Ingredient, pk=ingredient_id)
+        form = IngredientDetailForm(ingredient, request.POST or None)
+        quantity = form.get_quantity()
+        unit = form.get_unit()
+        quantity = int(quantity) if quantity == int(quantity) else quantity
+        return render(request, 'ingredients/ingredient_detail.html', {
+            'ingredient': ingredient,
+            'form': form,
+            'unit_name': unit.name_for_quantity(quantity),
+            'nutrients': form.get_nutrients(),
+            'quantity': quantity,
+            'created_by': ingredient.created_by,
+            'updated_by': ingredient.updated_by,
+        })
 
-    context = {
-        'ingredient': ingredient,
-        'form': form,
-        'unit_name': unit.name_for_quantity(quantity),
-        'nutrients': form.get_nutrients(),
-        'quantity': quantity,
-        'created_by': ingredient.created_by,
-        'updated_by': ingredient.updated_by,
-    }
-    return render(request, 'ingredients/ingredient_detail.html', context)
-
-
-
-"""
-Note:
-AJAX views will be kept as FBV as they just return a JSON response. CBV would add nothing to them. 
-"""
 
 """
 INGREDIENT CATEGORY VIEWS
 """
 
-def list_categories_ajax(request):
-    cats = IngredientCategory.objects.all().order_by('name')
-    return JsonResponse({'items': [
-        {
-            'id': c.id,
-            'name': c.name,
-            'edit_url': reverse('edit_category_ajax', kwargs={'pk': c.id}),
-            'delete_url': reverse('delete_category_ajax', kwargs={'pk': c.id}),
-            'edit_fields': [
-                {'key': 'name', 'placeholder': 'Name', 'value': c.name},
-            ]
-        }
-        for c in cats
-    ]})
+class ListCategoriesAjaxView(View):
+    def get(self, request):
+        cats = IngredientCategory.objects.all().order_by('name')
+        return JsonResponse({'items': [
+            {
+                'id': c.id,
+                'name': c.name,
+                'edit_url': reverse('edit_category_ajax', kwargs={'pk': c.id}),
+                'delete_url': reverse('delete_category_ajax', kwargs={'pk': c.id}),
+                'edit_fields': [
+                    {'key': 'name', 'placeholder': 'Name', 'value': c.name},
+                ]
+            }
+            for c in cats
+        ]})
 
 
-def add_category_ajax(request):
-    if request.method == 'POST':
+class AddCategoryAjaxView(View):
+    def post(self, request):
         data = json.loads(request.body)
         name = data.get('name', '').strip().lower()
         if not name:
@@ -185,19 +153,18 @@ def add_category_ajax(request):
             obj.updated_by = request.user
             obj.save()
         return JsonResponse({'id': obj.id, 'name': obj.name})
-    return JsonResponse({'error': 'Invalid method.'}, status=405)
 
 
-def edit_category_ajax(request, pk):
-    if request.method == "POST":
+class EditCategoryAjaxView(View):
+    def post(self, request, pk):
         cat = IngredientCategory.objects.filter(pk=pk).first()
-        if not cat: return JsonResponse({"error": "Not found"}, status=404)
-
+        if not cat:
+            return JsonResponse({"error": "Not found"}, status=404)
         if not is_moderator(request.user) and cat.created_by != request.user:
             return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
-
         name = request.POST.get("name")
-        if not name: return JsonResponse({"error": "Name required"}, status=400)
+        if not name:
+            return JsonResponse({"error": "Name required"}, status=400)
         cat.name = name
         if request.user.is_authenticated:
             cat.updated_by = request.user
@@ -205,11 +172,11 @@ def edit_category_ajax(request, pk):
         return JsonResponse({"id": cat.id, "name": cat.name})
 
 
-def delete_category_ajax(request, pk):
-    if request.method == "POST":
+class DeleteCategoryAjaxView(View):
+    def post(self, request, pk):
         cat = IngredientCategory.objects.filter(pk=pk).first()
-        if not cat: return JsonResponse({"error": "Not found"}, status=404)
-
+        if not cat:
+            return JsonResponse({"error": "Not found"}, status=404)
         if not is_moderator(request.user) and cat.created_by != request.user:
             return JsonResponse({"error": "You do not have permission to delete this."}, status=403)
         cat.delete()
@@ -220,33 +187,31 @@ def delete_category_ajax(request, pk):
 INGREDIENT DIETARY TAGS VIEWS
 """
 
-def dietary_tags_fragment(request):
-    """
-    returns the dietary_tag field widget as a raw HTML string
-    """
-    form = IngredientAddForm()
-    return HttpResponse(str(form['dietary_tag']))
+class DietaryTagsFragmentView(View):
+    def get(self, request):
+        form = IngredientAddForm()
+        return HttpResponse(str(form['dietary_tag']))
 
 
-def list_dietary_tags_ajax(request):
-    tags = IngredientDietaryTag.objects.all().order_by('name')
+class ListDietaryTagsAjaxView(View):
+    def get(self, request):
+        tags = IngredientDietaryTag.objects.all().order_by('name')
+        return JsonResponse({'items': [
+            {
+                'id': t.id,
+                'name': t.name,
+                'edit_url': reverse('edit_dietary_tag_ajax', kwargs={'pk': t.id}),
+                'delete_url': reverse('delete_dietary_tag_ajax', kwargs={'pk': t.id}),
+                'edit_fields': [
+                    {'key': 'name', 'placeholder': 'Name', 'value': t.name},
+                ]
+            }
+            for t in tags
+        ]})
 
-    return JsonResponse({'items': [
-        {
-            'id': t.id,
-            'name': t.name,
-            'edit_url': reverse('edit_dietary_tag_ajax', kwargs={'pk': t.id}),
-            'delete_url': reverse('delete_dietary_tag_ajax', kwargs={'pk': t.id}),
-            'edit_fields': [
-                {'key': 'name', 'placeholder': 'Name', 'value': t.name},
-            ]
-        }
-        for t in tags
-    ]})
 
-
-def add_dietary_tag_ajax(request):
-    if request.method == 'POST':
+class AddDietaryTagAjaxView(View):
+    def post(self, request):
         data = json.loads(request.body)
         name = data.get('name', '').strip().lower()
         if not name:
@@ -259,18 +224,15 @@ def add_dietary_tag_ajax(request):
             obj.updated_by = request.user
             obj.save()
         return JsonResponse({'id': obj.id, 'name': obj.name})
-    return JsonResponse({'error': 'Invalid method.'}, status=405)
 
 
-def edit_dietary_tag_ajax(request, pk):
-    if request.method == "POST":
+class EditDietaryTagAjaxView(View):
+    def post(self, request, pk):
         tag = IngredientDietaryTag.objects.filter(pk=pk).first()
         if not tag:
             return JsonResponse({"error": "Not found"}, status=404)
-
         if not is_moderator(request.user) and tag.created_by != request.user:
             return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
-
         name = request.POST.get("name")
         if not name:
             return JsonResponse({"error": "Name required"}, status=400)
@@ -281,12 +243,11 @@ def edit_dietary_tag_ajax(request, pk):
         return JsonResponse({"id": tag.id, "name": tag.name})
 
 
-def delete_dietary_tag_ajax(request, pk):
-    if request.method == "POST":
+class DeleteDietaryTagAjaxView(View):
+    def post(self, request, pk):
         tag = IngredientDietaryTag.objects.filter(pk=pk).first()
         if not tag:
             return JsonResponse({"error": "Not found"}, status=404)
-
         if not is_moderator(request.user) and tag.created_by != request.user:
             return JsonResponse({"error": "You do not have permission to delete this."}, status=403)
         tag.delete()
@@ -297,12 +258,11 @@ def delete_dietary_tag_ajax(request, pk):
 INGREDIENT MEASUREMENT UNITS VIEWS
 """
 
-def add_measurement_unit(request, ingredient_id):
-    ingredient = get_object_or_404(Ingredient, pk=ingredient_id)
-    if request.method == 'POST':
+class AddMeasurementUnitView(View):
+    def post(self, request, ingredient_id):
+        ingredient = get_object_or_404(Ingredient, pk=ingredient_id)
         unit_id = request.POST.get('unit')
         conversion = request.POST.get('conversion_to_base')
-
         if not conversion:
             messages.error(request, 'Conversion to base is required.')
             return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
@@ -314,11 +274,9 @@ def add_measurement_unit(request, ingredient_id):
         if conversion_float <= 0:
             messages.error(request, 'Conversion to base must be greater than 0.')
             return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
-
-        elif  conversion_float > 100_000:
+        elif conversion_float > 100_000:
             messages.error(request, 'Conversion to base must be less than 100 000.')
             return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
-
         if unit_id:
             unit = get_object_or_404(MeasurementUnit, pk=unit_id)
             obj, created = IngredientMeasurementUnit.objects.get_or_create(
@@ -330,11 +288,11 @@ def add_measurement_unit(request, ingredient_id):
                 messages.error(request, f'"{unit.name_singular}" is already added for this ingredient.')
             else:
                 messages.success(request, f'"{unit.name_singular}" added successfully.')
-    return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
+        return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
 
 
-def add_measurement_unit_ajax(request):
-    if request.method == 'POST':
+class AddMeasurementUnitAjaxView(View):
+    def post(self, request):
         data = json.loads(request.body)
         code = data.get('code', '').strip().lower()
         name_singular = data.get('name_singular', '').strip().lower()
@@ -345,7 +303,6 @@ def add_measurement_unit_ajax(request):
             code=code,
             defaults={'name_singular': name_singular, 'name_plural': name_plural}
         )
-
         if not created:
             return JsonResponse({'error': f'Unit with code "{code}" already exists.'}, status=400)
         if request.user.is_authenticated:
@@ -353,36 +310,36 @@ def add_measurement_unit_ajax(request):
             obj.updated_by = request.user
             obj.save()
         return JsonResponse({'id': obj.id, 'name': f'{obj.name_singular} ({obj.code})'})
-    return JsonResponse({'error': 'Invalid method.'}, status=405)
 
 
-def delete_measurement_unit(request, ingredient_id, imu_id):
-    imu = get_object_or_404(IngredientMeasurementUnit, pk=imu_id)
-    if request.method == 'POST':
+class DeleteMeasurementUnitView(View):
+    def post(self, request, ingredient_id, imu_id):
+        imu = get_object_or_404(IngredientMeasurementUnit, pk=imu_id)
         imu.delete()
-    return redirect('edit_ingredient', ingredient_id=ingredient_id)
+        return redirect('edit_ingredient', ingredient_id=ingredient_id)
 
 
-def list_measurement_units_ajax(request):
-    units = MeasurementUnit.objects.all().order_by('name_singular')
-    return JsonResponse({'items': [
-        {
-            'id': u.id,
-            'name': f'{u.name_singular} ({u.code})',
-            'edit_url': reverse('edit_measurement_unit_ajax', kwargs={'pk': u.id}),
-            'delete_url': reverse('delete_measurement_unit_ajax', kwargs={'pk': u.id}),
-            'edit_fields': [
-                {'key': 'name_singular', 'placeholder': 'Singular (e.g. gram)', 'value': u.name_singular},
-                {'key': 'name_plural', 'placeholder': 'Plural (e.g. grams)', 'value': u.name_plural},
-                {'key': 'code', 'placeholder': 'Code (e.g. g)', 'value': u.code},
-            ]
-        }
-        for u in units
-    ]})
+class ListMeasurementUnitsAjaxView(View):
+    def get(self, request):
+        units = MeasurementUnit.objects.all().order_by('name_singular')
+        return JsonResponse({'items': [
+            {
+                'id': u.id,
+                'name': f'{u.name_singular} ({u.code})',
+                'edit_url': reverse('edit_measurement_unit_ajax', kwargs={'pk': u.id}),
+                'delete_url': reverse('delete_measurement_unit_ajax', kwargs={'pk': u.id}),
+                'edit_fields': [
+                    {'key': 'name_singular', 'placeholder': 'Singular (e.g. gram)', 'value': u.name_singular},
+                    {'key': 'name_plural', 'placeholder': 'Plural (e.g. grams)', 'value': u.name_plural},
+                    {'key': 'code', 'placeholder': 'Code (e.g. g)', 'value': u.code},
+                ]
+            }
+            for u in units
+        ]})
 
 
-def edit_measurement_unit_ajax(request, pk):
-    if request.method == 'POST':
+class EditMeasurementUnitAjaxView(View):
+    def post(self, request, pk):
         unit = get_object_or_404(MeasurementUnit, pk=pk)
         name_singular = request.POST.get('name_singular', '').strip()
         name_plural = request.POST.get('name_plural', '').strip()
@@ -390,7 +347,6 @@ def edit_measurement_unit_ajax(request, pk):
             return JsonResponse({'error': 'Name is required.'}, status=400)
         if not is_moderator(request.user) and unit.created_by != request.user:
             return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
-
         unit.name_singular = name_singular
         if name_plural:
             unit.name_plural = name_plural
@@ -398,39 +354,34 @@ def edit_measurement_unit_ajax(request, pk):
             unit.updated_by = request.user
         unit.save()
         return JsonResponse({'id': unit.id, 'name': f'{unit.name_singular} ({unit.code})'})
-    return JsonResponse({'error': 'Invalid method.'}, status=405)
 
 
-def delete_measurement_unit_ajax(request, pk):
-    if request.method == 'POST':
+class DeleteMeasurementUnitAjaxView(View):
+    def post(self, request, pk):
         unit = get_object_or_404(MeasurementUnit, pk=pk)
         if not is_moderator(request.user) and unit.created_by != request.user:
             return JsonResponse({"error": "You do not have permission to delete this."}, status=403)
         unit.delete()
         return JsonResponse({'success': True})
-    return JsonResponse({'error': 'Invalid method.'}, status=405)
 
 
-def edit_measurement_unit_conversion(request, ingredient_id, imu_id):
-    imu = get_object_or_404(IngredientMeasurementUnit, pk=imu_id)
-    if request.method == 'POST':
+class EditMeasurementUnitConversionView(View):
+    def post(self, request, ingredient_id, imu_id):
+        imu = get_object_or_404(IngredientMeasurementUnit, pk=imu_id)
         conversion = request.POST.get('conversion_to_base')
         try:
             conversion_float = float(conversion)
             if conversion_float <= 0:
                 messages.error(request, 'Conversion must be greater than 0.')
-
             elif conversion_float > 100_000:
                 messages.error(request, 'Conversion must be less than 100 000.')
-
             else:
                 imu.conversion_to_base = conversion_float
                 imu.save()
                 messages.success(request, 'Conversion updated.')
         except (ValueError, TypeError):
             messages.error(request, 'Please enter a valid number.')
-    return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
-
+        return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
 
 
 """
