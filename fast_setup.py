@@ -4,12 +4,49 @@ from pathlib import Path
 
 # Config
 env_path = Path(".env")
-env_content = f"""DB_NAME=dbname
-DB_USER=dbuser
-DB_PASSWORD=dbpassword
-DB_HOST=127.0.0.1
+env_content = f"""
+ENVIRONMENT=DEV # DEV, PROD, DOCKER
+
+DJANGO_SECRET_KEY=django-insecure-local-dev-key-1234567890
+ALLOWED_HOSTS=localhost,127.0.0.1,web
+CSRF_TRUSTED_ORIGINS=http://localhost:81,http://127.0.0.1:81
+
+#LOCAL DB
+LOCAL_DB_HOST=localhost
+LOCAL_DB_PORT=5432
+LOCAL_POSTGRES_DB=xxxxxxxxx
+LOCAL_POSTGRES_USER=xxxxxxxx
+LOCAL_POSTGRES_PASSWORD=xxxxxxxxxxx
+LOCAL_DB_SSLMODE=disable
+
+# CLOUD DB LIKE SUPABASE
+POSTGRES_DB=postgres
+POSTGRES_USER=postgres.xxxxxxxxxxxxxxxxx
+POSTGRES_PASSWORD=xxxxxxxx
+DB_HOST=aws-xxxxxxxxxxxxxxxxxxxxxxx
 DB_PORT=5432
-SECRET_KEY =django-insecure-testkey1234567890
+DB_SSLMODE=require  #require for cloud, disable for local
+
+#SENTRY
+SENTRY_DSN=https://xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Email via Brevo SMTP
+BREVO_SMTP_HOST=smtp-xxxxxxxxxxxxx
+BREVO_SMTP_PORT = 587
+BREVO_EMAIL_USE_TLS = True
+BREVO_SMTP_USER=xxxxxxxxxxxxxxx-brevo.com
+BREVO_SMTP_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+BREVO_DEFAULT_FROM_EMAIL=xxxxxxxxxxxxxxxx <xxxxxx@xxxxxx.com>
+
+#CLIUNDINARY - MEDIA
+CLOUDINARY_CLOUD_NAME=xxxxxxxxx
+CLOUDINARY_API_KEY=xxxxx
+CLOUDINARY_API_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+#CELERY
+CELERY_BROKER_URL=redis://localhost:6379/0
+CELERY_RESULT_BACKEND=redis://localhost:6379/0
+
 """
 
 affirmatives = {
