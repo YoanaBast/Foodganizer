@@ -32,7 +32,7 @@
 
             <div style="position:relative;">
                 <button type="button" onclick="this.nextElementSibling.classList.toggle('open')"
-                    class="btn btn-small btn-secondary" style="height:38px; padding:0 0.875rem;">
+                    class="btn btn-small btn-secondary" style="height:41px; padding:0 0.875rem;">
                     Tags {% if selected_tags %}({{ selected_tags|length }}){% endif %} ▾
                 </button>
                 <div class="tag-dropdown" style="display:none; position:absolute; top:100%; left:0; z-index:100;
@@ -73,6 +73,7 @@
                     <th>Kcal per Serving</th>
                     <th>Servings</th>
                     <th>Likes</th>
+
 
                     <th>Actions</th>
                 </tr>

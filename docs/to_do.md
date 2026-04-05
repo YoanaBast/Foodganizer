@@ -4,10 +4,8 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 ## PRIORITY 1 FIXES
     - test pagination w search
     - 429.html 
-    - fix dns for email replies
     - manage.py check --deploy
-    - make sure to pip freeze befoe the 7th
-     - verify all custom errs - 404 yes on dev
+    - verify all custom errs - 404 yes on dev
     - finish manual QA on API
 
 ## PRIORITY 2 FIXES
@@ -18,7 +16,6 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 ## FEATURES
     - add more dummy data
     - add select boxes and select all with option to delete all ? bulk actions
-
 
 ## TEST
 
@@ -33,28 +30,6 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - created by will be added to models once i implement auth
     - Meal suggestion - how many times I can prepare it 
     - Filter by days in my meal history, calendar 
-
-
-
-
-
-
-Critical
-
-Set DEBUG=False in your .env
-Make sure SECRET_KEY is a strong random key, not the default
-Add your actual domain to ALLOWED_HOSTS and CSRF_TRUSTED_ORIGINS
-Switch SECURE_PROXY_SSL_HEADER value from http to https
-
-Important
-
-Add the named volume for the DB (as discussed earlier) so data persists
-Make sure your .env is in .gitignore — never commit it
-Set up SSL/HTTPS on your server (usually via Certbot + Nginx)
-
-Nice to have
-
-Add a health check to your db service so the web container waits for Postgres to be actually ready (not just started):
 
 
 ## Notes:
