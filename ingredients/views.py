@@ -9,6 +9,7 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView
 
+from core.constants import NUTRIENT_UNITS
 from core.mixins import OwnerOrModeratorMixin
 from core.utils import is_moderator
 from .models import Ingredient, IngredientMeasurementUnit, IngredientCategory, IngredientDietaryTag, MeasurementUnit
@@ -37,6 +38,12 @@ class AddIngredientView(LoginRequiredMixin, CreateView):
     model = Ingredient
     form_class = IngredientAddForm
     template_name = 'ingredients/add_ingredient.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['nutrient_units'] = NUTRIENT_UNITS
+        return context
+
 
     def form_valid(self, form):
         ingredient = form.save(commit=False)
@@ -67,6 +74,7 @@ class EditIngredientView(LoginRequiredMixin, OwnerOrModeratorMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['ingredient'] = self.object
         context['nutrients'] = Ingredient.NUTRIENTS
+        context['nutrient_units'] = NUTRIENT_UNITS
         context['default_url'] = reverse_lazy('manage_ingredients')
         context['all_units'] = MeasurementUnit.objects.all().order_by('name_singular')
         return context

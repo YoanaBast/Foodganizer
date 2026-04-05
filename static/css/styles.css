@@ -83,6 +83,7 @@ label {
     gap: 0.5rem;
     flex-wrap: wrap;
     align-items: center;
+        padding: 0 1rem;
 }
 
 .container-content:has(.grid-container) {

@@ -63,3 +63,9 @@
     visibility: visible;
     opacity: 1;
 }
+
+css@media (max-width: 768px) {
+    .container-content {
+        padding: 0 1rem;
+    }
+}

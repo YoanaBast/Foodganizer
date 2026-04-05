@@ -18,3 +18,7 @@ def name_for_quantity_filter(unit, quantity):
     except ValueError:
         quantity = 1
     return unit.name_for_quantity(quantity)
+
+@register.filter
+def get_dict_item(dictionary, key):
+    return dictionary.get(key, '')

@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="{% static 'css/ingredient_forms_styles.css' %}">
 <link rel="stylesheet" href="{% static 'css/ingredient_styles.css' %}">
 
-<div class="container-content">
+<div class="container-content" style="padding: 0 1rem;">
     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
         <a href="javascript:history.back()" class="btn">← Back</a>
     </div>
@@ -101,7 +101,9 @@
 
         <!-- Nutrients -->
         <div style="margin-top:2rem; padding-top:2rem; border-top:1px solid var(--border);">
-<h2 style="font-size: 18px;">Nutrients (per {{ ingredient.base_quantity }} {{ ingredient.default_unit.code }})</h2>            <div class="nutrients-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1rem; margin-top:1rem;">
+<h2 style="font-size: 18px;">Nutrients (per {{ ingredient.base_quantity }} {{ ingredient.default_unit.code }})</h2>
+
+<div class="nutrients-grid" style="margin-top:1rem;">
                 {% for field in form.visible_fields %}
                     {% if "base_quantity_" in field.name %}
                     <div class="form-group">
