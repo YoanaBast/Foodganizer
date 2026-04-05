@@ -108,7 +108,7 @@ class CalendarDataView(LoginRequiredMixin, View):
         # get TDEE if biometrics exist
         tdee = None
         try:
-            tdee = request.user.biometrics.tdee
+            tdee = request.user.biometrics.target_calories
         except Exception:
             pass
 

@@ -9,15 +9,13 @@ Grocery List
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/planner_styles.css' %}">
 
-<div class="container-home">
-    <br>
+<div class="container-home" style="margin-top: 1rem;">
     <h2>My Grocery List</h2>
-    <p>Enjoy a personalized grocery list from the <a href="{% url 'generate_grocery_list' %}">grocery list generator</a>.</p>    {% if messages %}
+    <p style="margin-bottom: 1rem;">Enjoy a personalized grocery list from the <a href="{% url 'generate_grocery_list' %}">grocery list generator</a>.</p>    {% if messages %}
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }}">{{ message }}</div>
         {% endfor %}
     {% endif %}
-    <br>
 
     {% include '_anon_warning.html' with section_name="grocery list" %}
 
@@ -81,13 +79,13 @@ Grocery List
 
     {% if history %}
     <div class="history-section">
-        <h3 style="margin-top: 2rem;">Generation History</h3>     <br>
+        <h3 style="margin-top: 2rem;">Generation History</h3>
 
-        <p style="color: var(--text-muted); font-size: 0.9rem;">A log of each time you generated ingredients, grouped by recipe.</p>     <br>
+        <p style="margin-top: 1rem;" style="color: var(--text-muted); font-size: 0.9rem;">A log of each time you generated ingredients, grouped by recipe.</p>
 
 
         {% for gen in history %}
-        <div class="history-card">
+        <div style="margin-top: 1rem;" class="history-card">
             <div class="history-header">
                 <span class="history-date">{{ gen.created_at|date:"d M Y, H:i" }}</span>
             </div>

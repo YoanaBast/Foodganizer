@@ -4,6 +4,7 @@ from django.db import models
 
 from ingredients.models import Ingredient, MeasurementUnit
 from recipes.models import Recipe
+from core.constants import UNIT_SYSTEM_CHOICES, DEFICIT_CHOICES, DEFICIT_VALUES, GENDER_CHOICES, ACTIVITY_CHOICES, ACTIVITY_MULTIPLIERS
 
 
 # Create your models here.
@@ -71,27 +72,12 @@ class UserMealList(models.Model):
 
 
 class UserBiometrics(models.Model):
-
-    GENDER_CHOICES = [
-        ('M', 'Male'),
-        ('F', 'Female'),
-    ]
-
-    ACTIVITY_CHOICES = [
-        ('sedentary', 'Sedentary (little or no exercise)'),
-        ('light', 'Lightly Active (1-3 days/week)'),
-        ('moderate', 'Moderately Active (3-5 days/week)'),
-        ('very', 'Very Active (6-7 days/week)'),
-        ('extra', 'Extra Active (physical job or 2x training)'),
-    ]
-
-    ACTIVITY_MULTIPLIERS = {
-        'sedentary': 1.2,
-        'light': 1.375,
-        'moderate': 1.55,
-        'very': 1.725,
-        'extra': 1.9,
-    }
+    UNIT_SYSTEM_CHOICES = UNIT_SYSTEM_CHOICES
+    DEFICIT_CHOICES = DEFICIT_CHOICES
+    DEFICIT_VALUES = DEFICIT_VALUES
+    GENDER_CHOICES = GENDER_CHOICES
+    ACTIVITY_CHOICES =  ACTIVITY_CHOICES
+    ACTIVITY_MULTIPLIERS = ACTIVITY_MULTIPLIERS
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='biometrics')
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
@@ -99,7 +85,14 @@ class UserBiometrics(models.Model):
     weight_kg = models.FloatField(validators=[MinValueValidator(20), MaxValueValidator(300)])
     height_cm = models.FloatField(validators=[MinValueValidator(50), MaxValueValidator(300)])
     activity_level = models.CharField(max_length=20, choices=ACTIVITY_CHOICES, default='sedentary')
+    unit_system = models.CharField(max_length=10, choices=UNIT_SYSTEM_CHOICES, default='metric')
+    deficit_target = models.CharField(max_length=20, choices=DEFICIT_CHOICES, default='maintain')
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def target_calories(self):
+        """TDEE adjusted for deficit target"""
+        return round(self.tdee + self.DEFICIT_VALUES.get(self.deficit_target, 0), 2)
 
     @property
     def bmr(self) -> float:

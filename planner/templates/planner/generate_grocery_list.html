@@ -11,12 +11,11 @@ Generate Grocery List
 <link rel="stylesheet" href="{% static 'css/planner_styles.css' %}">
 
 
-<div class="container-home">
-    <br>
+<div class="container-home" style="margin-top: 1rem;">
 
     <h2>Generate Grocery List</h2>
-<p>Create your very own <a href="{% url 'user_grocery_list' %}">Grocery List</a>.</p> <br>
-<p>Try searching for a recipe, or choose from your favourites! Select and generate!</p> <br>
+    <p style="margin-bottom: 1rem;">Create your very own <a href="{% url 'user_grocery_list' %}">Grocery List</a>.</p>
+    <p style="margin-bottom: 1rem;">Try searching for a recipe, or choose from your favourites! Select and generate!</p>
 
     {% if messages %}
         {% for message in messages %}
@@ -24,13 +23,15 @@ Generate Grocery List
         {% endfor %}
     {% endif %}
 
-    <!-- Search & Filter -->
+        <!-- Search & Filter -->
         <div style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center;">
             <input type="text" id="search-box" placeholder="Search by name..." oninput="filterRecipes()">
+            {% if request.user.is_authenticated %}
             <a href="?page=1{% if not show_favs %}&favs=1{% endif %}{% for r in selected_recipes %}&recipes={{ r }}{% endfor %}"
                class="btn btn-small">
                 {% if show_favs %}Show All{% else %}Show Favourites Only{% endif %}
             </a>
+            {% endif %}
         </div>
 
     <form method="POST" id="recipe-form">

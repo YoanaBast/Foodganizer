@@ -83,6 +83,7 @@ label {
     gap: 0.5rem;
     flex-wrap: wrap;
     align-items: center;
+        padding: 0 1rem;
 }
 
 .container-content:has(.grid-container) {
@@ -1353,8 +1354,28 @@ body:has(.modal-overlay:target) {
     }
 }
 
+@media (max-width: 768px) {
+    .floating-buttons .bubble {
+        border: 1px solid var(--accent);
+    }
+}
+@media (max-width: 768px) {
+    .tab-nav .logo {
+        position: relative;
+        padding-bottom: 0.5rem;
+        width: 100%;
+    }
 
-
+    .tab-nav .logo::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: -3rem;
+        right: -3rem;
+        height: 4px;
+        background: rgba(8, 100, 50, 0.6);
+    }
+}
 #search-box {
     max-width: 250px;
 }

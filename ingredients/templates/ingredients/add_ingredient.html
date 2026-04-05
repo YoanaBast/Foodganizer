@@ -46,11 +46,14 @@
 
         <div class="grid-item info">
             <p class="small-gray">This is the reference amount all nutrient values are calculated for. For example, if base quantity is 100g, all nutrients below represent what's in 100g of this ingredient.</p>
-                <br>
+
+
+            <div style="margin-top: 1rem;">
             {{ form.base_quantity.label_tag }} {{ form.base_quantity }}
-
-
             {{ form.default_unit.label_tag }}
+            </div>
+
+
             <div style="display:flex; align-items:center; gap:0.4rem;">
                 {{ form.default_unit }}
                 <button type="button" class="btn btn-small btn-round" title="Create new unit"

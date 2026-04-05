@@ -1,7 +1,7 @@
 from django import forms
 from django.core.validators import MinValueValidator
 
-from core.constants import NUTRIENTS
+from core.constants import NUTRIENTS, NUTRIENT_UNITS
 from .models import Ingredient, IngredientMeasurementUnit
 from core.mixins import ErrorMessagesMixin
 
@@ -17,13 +17,13 @@ class IngredientFormBase(ErrorMessagesMixin, forms.ModelForm):
 
         for nutrient in NUTRIENTS:
             field = f'base_quantity_{nutrient}'
-            self.fields[field].label = nutrient.replace('_', ' ').title()
+            unit = NUTRIENT_UNITS.get(nutrient, '')
+            self.fields[field].label = f"{nutrient.replace('_', ' ').title()} ({unit})"
             self.fields[field].required = False
             self.fields[field].initial = 0
             self.fields[field].widget = forms.NumberInput(
                 attrs={'class': 'form-input nutrient-input', 'step': 'any', 'min': 0}
             )
-
 
     def clean_name(self):
         name = self.cleaned_data['name'].strip()

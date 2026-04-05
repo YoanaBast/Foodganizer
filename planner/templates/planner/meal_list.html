@@ -7,10 +7,10 @@ My Meal History
 
 {% block content %}
 
-<div class="container-home">
-<br>
+<div class="container-home" style="margin-top: 1rem;">
+
     <h2>My Meal History</h2>
-    <p>
+    <p style="margin-bottom: 2rem;">
       A log of all the recipes you've made in the
       <a href="{% url 'meal_suggestions' %}">Meal Suggestions</a>.
     </p>
@@ -21,7 +21,6 @@ My Meal History
         {% endfor %}
     {% endif %}
 
-    <br>
     {% include '_anon_warning.html' with section_name="meals list" %}
 
     {% if request.user.is_authenticated %}

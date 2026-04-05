@@ -6,35 +6,21 @@ Welcome to my to-do list! Feel free to give me siggestions :)
     - 429.html 
     - fix dns for email replies
     - manage.py check --deploy
-    - show measuremnts on create ingredient nutrients
-    - show favourites only should be only for logged in users 
-     - kcal calculator should be for logged in users only, and the calendar is not even showing on mobile
     - make sure to pip freeze befoe the 7th
-     - verify all custom errs
-    - ad created by updated by read only on ing and recipe
+     - verify all custom errs - 404 yes on dev
     - finish manual QA on API
 
 ## PRIORITY 2 FIXES
-    - Generation History needs to show what was added too
     - {{ item.unit }} for anon in the fridge, can it get the name for property recreated
-    - hide the bubble menu on mobile or move it somewhere
-    - tests
     - change <br> to margin 
-    - add a better trash can in the category/tag menu
-    - let users set targets
     - confuigure security in AWS to allow only cloudflare
 
 ## FEATURES
-    - .env-template
     - add more dummy data
     - add select boxes and select all with option to delete all ? bulk actions
-    - add count of favoutited by and sort by popularity for recipes
-    - add sort by kcal, filter by tags/category
-    - rara: Real deficit of 2914.6 kcal. That is 37.2% from 1kg of fat lost in 31 days. add also how many kg for bigger nums
 
 
 ## TEST
-    - math 
 
 ## UI
     - + button on categories, tags and unit is not obvious, maybe add a label

@@ -30,3 +30,43 @@ NUTRIENT_UNITS = {
     'potassium': 'mg',
     'zinc': 'mg',
 }
+
+UNIT_SYSTEM_CHOICES = [
+    ('metric', 'Metric (kg/cm)'),
+    ('imperial', 'Imperial (lbs/inches)'),
+]
+
+DEFICIT_CHOICES = [
+    ('maintain', 'No deficit (maintain)'),
+    ('mild', 'Mild (-250 kcal)'),
+    ('moderate', 'Moderate (-500 kcal)'),
+    ('aggressive', 'Aggressive (-750 kcal)'),
+]
+
+DEFICIT_VALUES = {
+    'maintain': 0,
+    'mild': -250,
+    'moderate': -500,
+    'aggressive': -750,
+}
+
+GENDER_CHOICES = [
+    ('M', 'Male'),
+    ('F', 'Female'),
+]
+
+ACTIVITY_CHOICES = [
+    ('sedentary', 'Sedentary (little or no exercise)'),
+    ('light', 'Lightly Active (1-3 days/week)'),
+    ('moderate', 'Moderately Active (3-5 days/week)'),
+    ('very', 'Very Active (6-7 days/week)'),
+    ('extra', 'Extra Active (physical job or 2x training)'),
+]
+
+ACTIVITY_MULTIPLIERS = {
+    'sedentary': 1.2,
+    'light': 1.375,
+    'moderate': 1.55,
+    'very': 1.725,
+    'extra': 1.9,
+}
