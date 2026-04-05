@@ -148,6 +148,7 @@ class IngredientDetailView(View):
             'quantity': quantity,
             'created_by': ingredient.created_by,
             'updated_by': ingredient.updated_by,
+            'selected_imu': unit,
         })
 
 
