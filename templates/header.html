@@ -16,8 +16,8 @@
             <a href="{% url 'manage_ingredients' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_ingredients' %}active{% endif %}">Ingredients</a>
             <a href="{% url 'manage_recipes' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_recipes' %}active{% endif %}">Recipes</a>
             <a href="{% url 'manage_fridge' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_fridge' %}active{% endif %}">Fridge</a>
-            <a href="{% url 'meal_suggestions' %}" class="tab-button {% if request.resolver_match.url_name == 'meal_suggestions' %}active{% endif %}">Get Meal Suggestions</a>
-            <a href="{% url 'generate_grocery_list' %}" class="tab-button {% if request.resolver_match.url_name == 'generate_grocery_list' %}active{% endif %}">Generate Grocery List</a>
+            <a href="{% url 'meal_suggestions' %}" class="tab-button {% if request.resolver_match.url_name == 'meal_suggestions' %}active{% endif %}">Get Meal Ideas</a>
+            <a href="{% url 'generate_grocery_list' %}" class="tab-button {% if request.resolver_match.url_name == 'generate_grocery_list' %}active{% endif %}">Get Grocery List</a>
 
         </div>
 
