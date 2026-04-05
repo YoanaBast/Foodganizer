@@ -38,3 +38,4 @@ class HowItWorksView(TemplateView):
 def handler405(request, exception=None):
     """django does not have a 405 handler by default"""
     return render(request, '405.html', status=405)
+

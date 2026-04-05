@@ -1,30 +1,25 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}KCALendar {% endblock %}
+{% block title %}KCALendar{% endblock %}
 
 {% block content %}
 
-<!-- TITLE + EDIT -->
-<div class="container-home" style="padding-top: 2rem; padding-bottom: 2rem;">
+<div class="container-home" style="padding-bottom: 2rem;">
 
+{% if request.user.is_authenticated %}
+
+    <!-- TITLE + EDIT -->
     <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
         <div>
             <h2 class="section-title">Deficit Calculator</h2>
             <p class="section-description">See the actual % of fat that you have lost/gained over a period of time.</p>
         </div>
-        <a href="{% url 'biometrics' %}" class="btn btn-secondary">
-            {% if request.user.is_authenticated %}Edit Targets{% else %}Set Targets{% endif %}
-        </a>
-
+        <a href="{% url 'biometrics' %}" class="btn btn-secondary">Edit Targets</a>
     </div>
 
-<!-- Deficit Calculator DIV-->
-{% if request.user.is_authenticated %}
-<div class="container-home" style="padding-bottom: 2rem;">
-
-    <div style=" background: var(--bg-secondary); border-radius: 0.75rem; padding: 1.5rem;">
-
+    <!-- DEFICIT CALCULATOR -->
+    <div style="background: var(--bg-secondary); border-radius: 0.75rem; padding: 1.5rem;">
         <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1rem;">
             <div>
                 <label style="font-size: 0.8rem; display:block; margin-bottom:4px;">Start date</label>
@@ -35,16 +30,14 @@
                 <input type="date" id="deficit-end" style="width: auto;">
             </div>
             <button class="btn" onclick="calculateDeficit()">Calculate</button>
-
         </div>
 
-            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
-                <input type="checkbox" id="fill-empty" style="width:auto; height:auto;" checked>
-                <label for="fill-empty" style="font-size:0.875rem; margin:0;">Fill empty days with maintenance calories</label>
-            </div>
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
+            <input type="checkbox" id="fill-empty" style="width:auto; height:auto;" checked>
+            <label for="fill-empty" style="font-size:0.875rem; margin:0;">Fill empty days with maintenance calories</label>
+        </div>
 
-            <p class="small-gray">Note that this calculation is for fat weight only. Your actual weight on the scale will vary based on multiple factors, such as water retention, new muscle mass from heavy exercise, and food being metabolized. </p>
-
+        <p class="small-gray">Note that this calculation is for fat weight only. Your actual weight on the scale will vary based on multiple factors, such as water retention, new muscle mass from heavy exercise, and food being metabolized.</p>
 
         <div id="deficit-result" style="display:none; padding: 1rem; background: var(--bg-tertiary); border-radius: 0.5rem;">
             <p id="deficit-text" style="font-size: 0.875rem; margin-bottom: 1rem; color: var(--text-secondary);"></p>
@@ -66,43 +59,20 @@
                     <div style="font-size: 1.25rem; font-weight: 500;" id="deficit-net"></div>
                 </div>
             </div>
+        </div>
+
+        <div id="deficit-error" style="display:none; color: #ff6b6b; font-size: 0.875rem;"></div>
     </div>
-
-    <div id="deficit-error" style="display:none; color: #ff6b6b; font-size: 0.875rem;"></div>
 </div>
- </div>
 
+<!-- KCALENDAR -->
 <div class="container-home" style="padding-top: 2rem; padding-bottom: 2rem;">
-
-<div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
-    <div>
-        <h2 class="section-title">KCALendar (Calorie Tracker Calendar)</h2>
-        <p class="section-description">Track your daily calories and meals.</p>
-    </div>
-</div>
-
-    {% if not request.user.is_authenticated %}
-    <div style="position: relative;">
-        <div style="filter: blur(3px); pointer-events: none; opacity: 0.4;">
-            <div id="cal-placeholder" style="display:grid; grid-template-columns: repeat(7,1fr); gap:4px;">
-                {% for i in "SMTWTFS" %}
-                    <div style="text-align:center; font-size:11px; color:var(--text-secondary); padding:6px 0; text-transform:uppercase; letter-spacing:0.05em;">{{ i }}</div>
-                {% endfor %}
-                {% for i in "1234567890123456789012345678901234" %}
-                    <div style="min-height:80px; border:0.5px solid var(--border); border-radius:0.5rem; padding:6px; background:var(--bg-secondary);"></div>
-                {% endfor %}
-            </div>
-        </div>
-        <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
-            <p style="font-size:1.1rem; font-weight:500; color:var(--text-primary);">Sign in to track your meals</p>
-            <div style="display:flex; gap:0.75rem;">
-                <a href="{% url 'register' %}" class="btn">Register</a>
-                <a href="{% url 'login' %}" class="btn btn-secondary">Login</a>
-            </div>
+    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+        <div>
+            <h2 class="section-title">KCALendar (Calorie Tracker Calendar)</h2>
+            <p class="section-description">Track your daily calories and meals.</p>
         </div>
     </div>
-
-    {% else %}
 
     <div id="cal-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
         <div id="cal-title" style="font-size:1.25rem; font-weight:500; color:var(--text-primary);"></div>
@@ -126,73 +96,79 @@
         <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--bg-tertiary); margin-right:4px;"></span>No data</span>
     </div>
 
-    {% endif %}
-</div>
-
-<!-- DAY MODAL -->
-<div id="day-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center;">
-    <div style="background:var(--bg-secondary); border-radius:0.75rem; padding:1.5rem; width:480px; max-width:95vw; max-height:85vh; overflow-y:auto;">
-
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <h3 id="modal-date-title" style="font-size:1.1rem; font-weight:500; margin:0;"></h3>
-            <button onclick="closeModal()" class="btn-invisible" style="font-size:1.5rem; color:var(--text-secondary);">&#215;</button>
-        </div>
-
-        <div id="modal-summary" style="margin-bottom:1rem;"></div>
-
-        <div id="modal-entries" style="margin-bottom:1.25rem;"></div>
-
-        <div style="border-top:1px solid var(--border); padding-top:1rem;">
-            <p style="font-size:0.875rem; font-weight:500; margin-bottom:0.75rem;">Add entry</p>
-
-            <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
-                <button class="btn btn-secondary btn-small" onclick="setType('recipe')" id="btn-recipe">Recipe</button>
-                <button class="btn btn-secondary btn-small" onclick="setType('ingredient')" id="btn-ingredient">Ingredient</button>
+    <!-- DAY MODAL -->
+    <div id="day-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center;">
+        <div style="background:var(--bg-secondary); border-radius:0.75rem; padding:1.5rem; width:480px; max-width:95vw; max-height:85vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h3 id="modal-date-title" style="font-size:1.1rem; font-weight:500; margin:0;"></h3>
+                <button onclick="closeModal()" class="btn-invisible" style="font-size:1.5rem; color:var(--text-secondary);">&#215;</button>
             </div>
+            <div id="modal-summary" style="margin-bottom:1rem;"></div>
+            <div id="modal-entries" style="margin-bottom:1.25rem;"></div>
 
-            <input type="text" id="search-input" placeholder="Search..." oninput="doSearch(this.value)" style="width:100%; margin-bottom:0.5rem;">
-            <div id="search-results" style="margin-bottom:0.75rem; max-height:150px; overflow-y:auto;"></div>
+            <div style="border-top:1px solid var(--border); padding-top:1rem;">
+                <p style="font-size:0.875rem; font-weight:500; margin-bottom:0.75rem;">Add entry</p>
 
-            <div id="add-form" style="display:none;">
-                <p id="selected-name" style="font-size:0.875rem; font-weight:500; margin-bottom:0.5rem;"></p>
-                <div id="recipe-fields">
-                    <label style="font-size:0.8rem;">Servings</label>
-                    <input type="number" id="input-servings" min="0.1" step="0.1" value="1" style="width:100%; margin-bottom:0.5rem;">
+                <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
+                    <button class="btn btn-secondary btn-small" onclick="setType('recipe')" id="btn-recipe">Recipe</button>
+                    <button class="btn btn-secondary btn-small" onclick="setType('ingredient')" id="btn-ingredient">Ingredient</button>
                 </div>
-                <div id="ingredient-fields" style="display:none;">
-                    <label style="font-size:0.8rem;">Quantity</label>
-                    <input type="number" id="input-quantity" min="0.01" step="0.01" value="100" style="width:100%; margin-bottom:0.5rem;">
-                    <label style="font-size:0.8rem;">Unit</label>
-                    <select id="input-unit" style="width:100%; margin-bottom:0.5rem;"></select>
+
+                <input type="text" id="search-input" placeholder="Search..." oninput="doSearch(this.value)" style="width:100%; margin-bottom:0.5rem;">
+                <div id="search-results" style="margin-bottom:0.75rem; max-height:150px; overflow-y:auto;"></div>
+
+                <div id="add-form" style="display:none;">
+                    <p id="selected-name" style="font-size:0.875rem; font-weight:500; margin-bottom:0.5rem;"></p>
+                    <div id="recipe-fields">
+                        <label style="font-size:0.8rem;">Servings</label>
+                        <input type="number" id="input-servings" min="0.1" step="0.1" value="1" style="width:100%; margin-bottom:0.5rem;">
+                    </div>
+                    <div id="ingredient-fields" style="display:none;">
+                        <label style="font-size:0.8rem;">Quantity</label>
+                        <input type="number" id="input-quantity" min="0.01" step="0.01" value="100" style="width:100%; margin-bottom:0.5rem;">
+                        <label style="font-size:0.8rem;">Unit</label>
+                        <select id="input-unit" style="width:100%; margin-bottom:0.5rem;"></select>
+                    </div>
+                    <button class="btn" onclick="submitAdd()">Add</button>
                 </div>
-                <button class="btn" onclick="submitAdd()">Add</button>
             </div>
         </div>
     </div>
-</div>
 
-<!-- EDIT MODAL -->
-<div id="edit-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2100; align-items:center; justify-content:center;">
-    <div style="background:var(--bg-secondary); border-radius:0.75rem; padding:1.5rem; width:320px; max-width:95vw;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <h3 id="edit-title" style="font-size:1rem; font-weight:500; margin:0;"></h3>
-            <button onclick="closeEdit()" class="btn-invisible" style="font-size:1.5rem; color:var(--text-secondary);">&#215;</button>
-        </div>
-        <div id="edit-fields"></div>
-        <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-            <button class="btn" onclick="submitEdit()">Save</button>
-            <button class="btn btn-danger" onclick="submitDelete()">Delete</button>
-            <button class="btn btn-secondary" onclick="closeEdit()">Cancel</button>
+    <!-- EDIT MODAL -->
+    <div id="edit-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2100; align-items:center; justify-content:center;">
+        <div style="background:var(--bg-secondary); border-radius:0.75rem; padding:1.5rem; width:320px; max-width:95vw;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h3 id="edit-title"></h3>
+                <button onclick="closeEdit()" class="btn-invisible" style="font-size:1.5rem; color:var(--text-secondary);">&#215;</button>
+            </div>
+            <div id="edit-fields"></div>
+            <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                <button class="btn" onclick="submitEdit()">Save</button>
+                <button class="btn btn-danger" onclick="submitDelete()">Delete</button>
+                <button class="btn btn-secondary" onclick="closeEdit()">Cancel</button>
+            </div>
         </div>
     </div>
-</div>
 
+{% else %}
+    <!-- NOT AUTHENTICATED -->
+    <div style="position: relative; margin-top: 150px;">
+        <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
+            <p style="font-size:1.1rem; font-weight:500; color:var(--text-primary);">Sign in to track your meals</p>
+            <div style="display:flex; gap:0.75rem;">
+                <a href="{% url 'register' %}" class="btn">Register</a>
+                <a href="{% url 'login' %}" class="btn btn-secondary">Login</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
 
+</div> <!-- container-home -->
 
 <script>
     const CSRF = '{{ csrf_token }}';
 </script>
 <script src="{% static 'js/kcal_calnedar_handler.js' %}"></script>
-{% endif %}
 
 {% endblock %}

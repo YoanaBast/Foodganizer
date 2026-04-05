@@ -88,14 +88,14 @@ class BiometricsView(View):
             })
 
 
-class CalendarView(View):
+class CalendarView(LoginRequiredMixin, View):
     template_name = 'planner/calendar.html'
 
     def get(self, request):
         return render(request, self.template_name)
 
 
-class CalendarDataView(View):
+class CalendarDataView(LoginRequiredMixin, View):
     """Returns JSON data for a given month"""
 
     def get(self, request):
@@ -140,7 +140,7 @@ class CalendarDataView(View):
 
 
 
-class CalendarAddEntryView(View):
+class CalendarAddEntryView(LoginRequiredMixin, View):
     def post(self, request):
         if not request.user.is_authenticated:
             return JsonResponse({'error': 'not authenticated'}, status=403)
@@ -180,7 +180,7 @@ class CalendarAddEntryView(View):
         return JsonResponse({'ok': True})
 
 
-class CalendarEditEntryView(View):
+class CalendarEditEntryView(LoginRequiredMixin, View):
     def post(self, request, entry_id):
         if not request.user.is_authenticated:
             return JsonResponse({'error': 'not authenticated'}, status=403)
@@ -205,7 +205,7 @@ class CalendarEditEntryView(View):
         return JsonResponse({'ok': True})
 
 
-class CalendarDeleteEntryView(View):
+class CalendarDeleteEntryView(LoginRequiredMixin, View):
     def post(self, request, entry_id):
         if not request.user.is_authenticated:
             return JsonResponse({'error': 'not authenticated'}, status=403)
@@ -214,7 +214,7 @@ class CalendarDeleteEntryView(View):
         return JsonResponse({'ok': True})
 
 
-class CalendarSearchView(View):
+class CalendarSearchView(LoginRequiredMixin, View):
     """Search recipes or ingredients for the add modal"""
     def get(self, request):
         if not request.user.is_authenticated:
@@ -236,7 +236,7 @@ class CalendarSearchView(View):
         return JsonResponse({'results': data})
 
 
-class CalendarDeficitView(View):
+class CalendarDeficitView(LoginRequiredMixin, View):
     def get(self, request):
         if not request.user.is_authenticated:
             return JsonResponse({'error': 'not authenticated'}, status=403)
