@@ -1354,7 +1354,11 @@ body:has(.modal-overlay:target) {
     }
 }
 
-
+@media (max-width: 768px) {
+    .floating-buttons .bubble {
+        border: 1px solid var(--accent);
+    }
+}
 
 #search-box {
     max-width: 250px;
