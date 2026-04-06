@@ -73,8 +73,6 @@ class IngredientEditForm(IngredientFormBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['base_quantity'].widget.attrs['readonly'] = True
-        self.fields['base_quantity'].help_text = 'Base quantity cannot be changed after creation as it affects nutrient calculations.'
 
         if self.instance.pk:
             self.fields['created_by'].initial = self.instance.created_by or '-'
