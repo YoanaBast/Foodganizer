@@ -167,10 +167,7 @@ header .nav-links {
     list-style: none;
 }
 
-header .nav-links li a {
-    color: #fff;
-    text-decoration: none;
-}
+
 
 @media (max-width: 768px) {
     header {
@@ -249,7 +246,7 @@ nav {
     background: transparent;
     border: none;
     padding: 0.5em 1em;
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #fff;
     cursor: pointer;
@@ -320,6 +317,8 @@ nav {
         padding: 0.25rem 0;
     }
 }
+
+
 /* ============================================================
    FOOTER
    ============================================================ */

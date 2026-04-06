@@ -3,7 +3,8 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 # TO-DO
 
 ## PRIORITY 1 FIXES
-    - test pagination w search
+    - fix the paginator !!!
+
     - manage.py check --deploy
     - verify all custom errs - 404 yes on dev
     - finish manual QA on API

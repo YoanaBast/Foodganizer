@@ -31,23 +31,23 @@
                 {% endfor %}
             </select>
 
-<div style="position:relative;">
-<button type="button" onclick="this.nextElementSibling.classList.toggle('open')"
-    class="btn btn-small btn-secondary" style="height:41px; padding: 0 0.875rem;">
-    Tags {% if selected_tags %}({{ selected_tags|length }}){% endif %} ▾
-</button>
-    <div class="tag-dropdown" style="display:none; position:absolute; top:100%; left:0; z-index:100;
-        background:var(--bg-secondary); border:1px solid var(--border); border-radius:0.5rem;
-        padding:0.75rem; min-width:160px; max-height:200px; overflow-y:auto; margin-top:4px;">
-        {% for tag in tags %}
-        <label style="display:flex; align-items:center; gap:0.5rem; padding:0.25rem 0; cursor:pointer; font-weight:normal; white-space:nowrap;">
-            <input type="checkbox" name="tag" value="{{ tag.id }}"
-                {% if tag.id|stringformat:"s" in selected_tags %}checked{% endif %}>
-            {{ tag.name }}
-        </label>
-        {% endfor %}
-    </div>
-</div>
+            <div style="position:relative;">
+            <button type="button" onclick="this.nextElementSibling.classList.toggle('open')"
+                class="btn btn-small btn-secondary" style="height:41px; padding: 0 0.875rem;">
+                Tags {% if selected_tags %}({{ selected_tags|length }}){% endif %} ▾
+            </button>
+                <div class="tag-dropdown" style="display:none; position:absolute; top:100%; left:0; z-index:100;
+                    background:var(--bg-secondary); border:1px solid var(--border); border-radius:0.5rem;
+                    padding:0.75rem; min-width:160px; max-height:200px; overflow-y:auto; margin-top:4px;">
+                    {% for tag in tags %}
+                    <label style="display:flex; align-items:center; gap:0.5rem; padding:0.25rem 0; cursor:pointer; font-weight:normal; white-space:nowrap;">
+                        <input type="checkbox" name="tag" value="{{ tag.id }}"
+                            {% if tag.id|stringformat:"s" in selected_tags %}checked{% endif %}>
+                        {{ tag.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
 
             <select name="sort" class="form-select">
                 <option value="">Sort: Default</option>
@@ -62,8 +62,10 @@
 
         </form>
 
+
         <!-- Table -->
         <table class="data-table">
+
             <thead>
                 <tr>
                     <th>Ingredient Name</th>
@@ -103,8 +105,11 @@
             </tbody>
         </table>
 
+        <p>Total: {{ ingredients.paginator.count }} | Pages: {{ ingredients.paginator.num_pages }} | Has others: {{ ingredients.has_other_pages }}</p>
+
         <!-- Pagination -->
         {% if ingredients.has_other_pages %}
+
         <div class="pagination" style="margin-top:1rem;">
             {% if ingredients.has_previous %}
                 <a class="page-prev" href="?page={{ ingredients.previous_page_number }}&search={{ search }}&category={{ selected_category }}{% for t in selected_tags %}&tag={{ t }}{% endfor %}&sort={{ selected_sort }}">« Previous</a>
@@ -129,6 +134,12 @@
         {% endif %}
 
     </div>
+
+
+    <div style="text-align: center; margin-top: 1rem;">
+    <img src="/static/images/title_line.svg" alt="" style="width: 400px; height: auto;">
+    </div>
+
 </div>
 
 {% include 'ingredients/delete_ingredient_modal.html' %}
