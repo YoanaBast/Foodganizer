@@ -1,10 +1,38 @@
-{% extends 'base.html' %}
-{% block title %}Too Many Requests{% endblock %}
-{% block content %}
-<div class="container-home" style="text-align:center; padding-top:4rem;">
-    <h1 style="font-size:4rem; color:var(--accent);">429</h1>
-    <h2>Slow down!</h2>
-    <p class="small-gray">You're making too many requests. Please wait a moment and try again.</p>
-    <a href="/" class="btn" style="margin-top:1rem;">Go Home</a>
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>429 - Slow down!</title>
+  <link rel="stylesheet" href="{% static 'css/404.css' %}">
+</head>
+<body>
+<div class="scanlines"></div>
+
+  <div class="container">
+    <div class="error-code">429</div>
+    <p class="message">You're making too many requests. Please wait a moment and try again.
+    </p>
+    <a href="/" style="
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    color: #00ff6a;
+    background: transparent;
+    border: 2px solid #00ff6a;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 1rem;
+">Home</a>
+
+<div class="scene">
+  <img src="{% static 'images/dizzy_cat_429.svg' %}" alt="fridge" class="fridge">
 </div>
-{% endblock %}
+  </div>
+
+</body>
+
+</html>
+
