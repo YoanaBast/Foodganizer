@@ -1464,3 +1464,11 @@ body:has(.modal-overlay:target) {
     background-color: #22c55e;
     margin: 8px auto 0;
 }
+
+
+/* 3. Hide elements with .hide-mobile on mobile */
+@media (max-width: 768px) {
+    .hide-mobile {
+        display: none !important;
+    }
+}
