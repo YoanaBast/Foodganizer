@@ -7,13 +7,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}Foodganizer{% endblock %}</title>
+    <title>{% block title %}Foodganizer – Meal Planner & Nutrition Tracker{% endblock %}</title>
+
+    <meta name="description" content="{% block description %}Plan meals, track calories, and organize recipes with Foodganizer. Simple nutrition tracking from ingredients.{% endblock %}">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="{% block og_title %}Foodganizer{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Meal planner and nutrition tracker{% endblock %}">
+    <meta property="og:type" content="website">
+
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
 
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
-
 </head>
-
 
 <body>
 
