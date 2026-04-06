@@ -1,9 +1,7 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/auth.css' %}">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Capriola&display=swap" rel="stylesheet">
+
 
 <header class="main-header">
     <div class="tab-nav">
@@ -17,7 +15,6 @@
 
 
         <div class="tab-buttons-container">
-
             <a href="{% url 'manage_ingredients' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_ingredients' %}active{% endif %}">Ingredients</a>
     <p style="color: #22c55e; ">•</p>
             <a href="{% url 'manage_recipes' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_recipes' %}active{% endif %}">Recipes</a>
@@ -54,6 +51,7 @@
                 </div>
 
                 {% endif %}
+
 
 
     </div>

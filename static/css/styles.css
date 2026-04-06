@@ -247,10 +247,8 @@ nav {
     border: none;
     padding: 0.5em 1em;
     font-size: 1rem;
-    font-family: "Capriola", system-ui;
-    font-weight: 400;
-    font-style: normal;
-    color: #bff597;
+    font-weight: 700;
+    color: #fff;
     cursor: pointer;
     position: relative;
     border-radius: 4px;
@@ -320,6 +318,12 @@ nav {
     }
 }
 
+/* Hide the dot on screens smaller than 768px */
+@media (max-width: 768px) {
+  p {
+    display: none;
+  }
+}
 
 /* ============================================================
    FOOTER
