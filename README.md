@@ -4,7 +4,7 @@
 
 The Foodganizer is built around one idea: you're in control. Every recipe, ingredient, unit, category, and tag is yours to create and customise. 
 
-Want to add 1 shoefull of milk? You can do it!
+Want to add 1 shoefull of milk? Go for it!
 
 Meal Suggestions - fill your digital fridge and get meal suggestions that won't send you to the store! 
 
