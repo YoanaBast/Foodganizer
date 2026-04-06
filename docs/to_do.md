@@ -4,7 +4,7 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 
 ## PRIORITY 1 FIXES
     - select items should be a search bar + dropdown 
-
+    - check math on add ingredient to recipe 
     - manage.py check --deploy
     - verify all custom errs 
     - finish manual QA on API
