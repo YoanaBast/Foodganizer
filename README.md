@@ -6,9 +6,18 @@ The Foodganizer is built around one idea: you're in control. Every recipe, ingre
 
 Want to add 1 shoefull of milk? You can do it!
 
-Fill your digital fridge and get meal suggestions that won't send you to the store! Or if you feel like going out, geenrate a grocery list fast and easy from recipes of your choice! 
+Meal Suggestions - fill your digital fridge and get meal suggestions that won't send you to the store! 
+
+Grocery List - Or if you feel like going out, geenrate a grocery list fast and easy from recipes of your choice! 
+
+BMI calculator, calorie tracker, and much more! Everything in one place.
 
 If you hate the cognitive load that comes with planning meals every single day - this app is for you!
+
+
+
+On a more serious note, this was developed as an uni assignment. I've used Django Monolith + REST, Cloudflare, Redis, Supabase, Sentry, Brevo, Cloudinary, NginX, GUnicorn, Custom Server (Spaceship) and have deployed it congtainarized in Docker on a AWS EC2 Ubuntu machine. Full Stack + Deployment. 
+
 
 
 ## Demo
