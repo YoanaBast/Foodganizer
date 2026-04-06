@@ -72,7 +72,8 @@ def get_meal_suggestions(request):
                 matched += 1
             else:
                 missing_qty = round(max(ri.quantity - fridge_qty, 0), 2)
-                missing.append(f"{missing_qty:g}{ri.unit.unit.code} {ri.ingredient.name}")
+                unit_code = ri.unit.unit.code if ri.unit and ri.unit.unit else ""
+                missing.append(f"{missing_qty:g}{unit_code} {ri.ingredient.name}")
 
         match_percent = int((matched / total) * 100) if total else 0
         suggestions.append({
