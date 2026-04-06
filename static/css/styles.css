@@ -318,6 +318,84 @@ nav {
     }
 }
 
+@media (max-width: 768px) {
+
+    /* ── Structural reset ── */
+    .tab-nav {
+        flex-direction: column;
+        align-items: center;
+        padding: 0;
+        position: relative;
+        top: auto;
+    }
+
+    /* ── 1. Center logo ── */
+    .tab-nav .logo {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        padding: 0.6rem 1rem;
+        position: relative; /* anchor for the toggle button */
+        border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Toggle button injected by JS ── */
+    .mobile-nav-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: 1px solid var(--accent);
+        border-radius: 6px;
+        color: var(--accent);
+        padding: 0.2rem 0.6rem;
+        font-size: 1rem;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .toggle-chevron {
+        display: inline-block;
+        transition: transform 0.25s ease;
+    }
+
+    .mobile-nav-toggle[aria-expanded="true"] .toggle-chevron {
+        transform: rotate(180deg);
+    }
+
+    /* ── 5. Collapsible wrapper injected by JS ── */
+    .mobile-nav-body {
+        width: 100%;
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.3s ease;
+    }
+
+    .mobile-nav-body.open {
+        max-height: 500px;
+    }
+
+    /* ── 2. Center tab buttons ── */
+    .mobile-nav-body .tab-buttons-container {
+        justify-content: center;
+        flex-wrap: wrap;
+        padding: 0.5rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    /* ── 3. Center auth rows ── */
+    .mobile-nav-body .nav-top-links,
+    .mobile-nav-body .nav-links {
+        justify-content: center;
+        padding: 0.5rem 0 0.75rem;
+        width: 100%;
+        display: flex;
+
+        /* ── 4. Green line above auth ── */
+        border-top: 3px solid rgba(8, 100, 50, 0.6);
+    }
+}
 
 /* ============================================================
    FOOTER
@@ -370,6 +448,7 @@ nav {
     font-size: 0.75rem;
     color: var(--text-secondary);
 }
+
 
 
 /* ============================================================
@@ -1377,4 +1456,11 @@ body:has(.modal-overlay:target) {
 }
 #search-box {
     max-width: 250px;
+}
+
+.header-line {
+    width: 100px;
+    height: 2px;
+    background-color: #22c55e;
+    margin: 8px auto 0;
 }

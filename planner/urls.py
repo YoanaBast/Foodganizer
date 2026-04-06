@@ -2,7 +2,7 @@ from django.urls import path, include
 
 from planner import views
 from planner.views import CalendarView, CalendarDataView, CalendarAddEntryView, CalendarEditEntryView, \
-    CalendarDeleteEntryView, CalendarSearchView, CalendarDeficitView, MakeRecipeView
+    CalendarDeleteEntryView, CalendarSearchView, CalendarDeficitView, MakeRecipeView, EmptyFridgeView
 
 fridge_patterns = [
     # path('', views.manage_fridge, name='manage_fridge'),
@@ -38,6 +38,8 @@ grocery_patterns = [
 
 urlpatterns = [
     path('fridge/', include(fridge_patterns)),
+    path('fridge/empty/', EmptyFridgeView.as_view(), name='empty_fridge'),
+
     path('grocery-list/', include(grocery_patterns)),
     path('calorie-tracker/', views.calorie_tracker, name='calorie-tracker'),
     path('suggestions/', views.get_meal_suggestions, name='meal_suggestions'),

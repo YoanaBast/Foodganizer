@@ -30,12 +30,10 @@ class ManageIngredientsView(ListView):
         qs = Ingredient.objects.select_related(
             'category', 'default_unit'
         ).prefetch_related('dietary_tag').order_by('name')
-
         search = self.request.GET.get('search', '')
         category = self.request.GET.get('category', '')
         tags = [t for t in self.request.GET.getlist('tag') if t]
         sort = self.request.GET.get('sort', '')
-
         if search:
             qs = qs.filter(name__icontains=search)
         if category:
@@ -58,6 +56,7 @@ class ManageIngredientsView(ListView):
         context['selected_sort'] = self.request.GET.get('sort', '')
         context['search'] = self.request.GET.get('search', '')
         return context
+
 
 class AddIngredientView(LoginRequiredMixin, CreateView):
     model = Ingredient
