@@ -72,9 +72,13 @@ class Ingredient(TrackingMixin, models.Model):
 
     name = models.CharField(max_length=100, unique=True)
 
-    default_unit = models.ForeignKey('MeasurementUnit', on_delete=models.SET_NULL, null=True, related_name='+') #no reverse
-    #the unit that holds the nutrient data for conversions
-
+    default_unit = models.ForeignKey(
+        'MeasurementUnit',
+        on_delete=models.PROTECT,  # prevents deleting a unit that's someone's default
+        null=False,  # remove null=True
+        related_name='+'
+    )
+    
     base_quantity = models.FloatField(default=100, validators=[MinValueValidator(0.01), MaxValueValidator(100_000)],
                                       help_text="The quantity the NUTRIENTS are based on in default_unit (100 g, 1 pc, etc.)")
     #base_quantity = 100 means nutrients are defined per 100g
@@ -123,6 +127,15 @@ class Ingredient(TrackingMixin, models.Model):
     def nutrients_for_quantity(self, ingredient_unit, quantity):
         nutrients_dict = self.get_nutrients_dict(ingredient_unit, quantity)
         return {n: f"{round(v, 2)} {self.NUTRIENT_UNITS.get(n, '')}" for n, v in nutrients_dict.items()}
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.default_unit:
+            IngredientMeasurementUnit.objects.update_or_create(
+                ingredient=self,
+                unit=self.default_unit,
+                defaults={'conversion_to_base': 1}
+            )
 
     def __str__(self):
         return self.name
