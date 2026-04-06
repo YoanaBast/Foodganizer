@@ -7,41 +7,105 @@
 
         <form id="addFridgeItemForm" method="post" action="{% url 'add_fridge_item' %}" novalidate>
             {% csrf_token %}
-                {% include "errors_label.html" %}
+            {% include "errors_label.html" %}
 
-            <!-- Ingredient Dropdown -->
-            <label for="ingredientSelect">Ingredient</label>
-            <select id="ingredientSelect" name="ingredient_id" onchange="loadUnits()">
-                <option value="">Select ingredient</option>
-                {% for ing in ingredients %}
-                    <option value="{{ ing.id }}"
-                        data-units='[
-                            {% for rel in ing.measurement_units.all %}
-                                {"id": "{{ rel.unit.id }}", "name": "{{ rel.unit.name_singular|escapejs }}"}{% if not forloop.last %},{% endif %}
-                            {% endfor %}
-                        ]'
-                    >{{ ing.name|title_except }}</option>
-                {% endfor %}
-            </select>
+            <label>Ingredient</label>
+            <div class="searchable-select" id="fridgeIngredientDropdown">
+                <input type="text" id="fridgeIngredientSearch" placeholder="Search ingredient..."
+                       autocomplete="off"
+                       oninput="filterFridgeIngredients()"
+                       onfocus="openFridgeDropdown()">
+                <div class="searchable-options" id="fridgeIngredientOptions">
+                    <div class="search-option" data-value="" data-units="[]">Select ingredient</div>
+                    {% for ing in ingredients %}
+                    <div class="search-option"
+                         data-value="{{ ing.id }}"
+                         data-units='[{% for rel in ing.measurement_units.all %}{"id":"{{ rel.unit.id }}","name":"{{ rel.unit.name_singular|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'>
+                        {{ ing.name|title_except }}
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="fridgeIngredientSelect" name="ingredient_id">
+            </div>
 
-
-            <!-- Quantity -->
             <label for="quantityInput">Quantity</label>
             <input type="number" id="quantityInput" name="quantity" step="0.01" min="0.01" placeholder="Quantity">
 
-
-            <!-- Unit Dropdown -->
             <label for="unitSelect">Unit</label>
             <select id="unitSelect" name="unit"></select>
 
             <div style="margin-top: 1rem;">
-
-           <button type="submit" class="btn btn-success">Add to Fridge</button>
-            <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-success">Add to Fridge</button>
+                <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
             </div>
-
         </form>
     </div>
 </div>
 
+<style>
+    .searchable-select {
+    position: relative;
+}
 
+.searchable-options {
+    display: none;
+    position: absolute;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+    z-index: 1000;
+}
+
+.searchable-options.open {
+    display: block;
+}
+
+.search-option {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.search-option:hover, .search-option.selected {
+    background: #3a3a3a;
+}
+</style>
+<script>
+    function openFridgeDropdown() {
+    document.getElementById('fridgeIngredientOptions').classList.add('open');
+}
+
+function filterFridgeIngredients() {
+    const filter = document.getElementById('fridgeIngredientSearch').value.toLowerCase();
+    document.querySelectorAll('#fridgeIngredientOptions .search-option').forEach(opt => {
+        opt.style.display = !filter || opt.textContent.toLowerCase().includes(filter) ? '' : 'none';
+    });
+    openFridgeDropdown();
+}
+
+function selectFridgeIngredient(opt) {
+    document.getElementById('fridgeIngredientSearch').value = opt.textContent.trim();
+    document.getElementById('fridgeIngredientSelect').value = opt.dataset.value;
+    document.getElementById('fridgeIngredientOptions').classList.remove('open');
+
+    const units = JSON.parse(opt.dataset.units || '[]');
+    const unitSelect = document.getElementById('unitSelect');
+    unitSelect.innerHTML = units.map(u =>
+        `<option value="${u.id}">${u.name}</option>`
+    ).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('#fridgeIngredientOptions .search-option').forEach(opt => {
+        opt.addEventListener('click', () => selectFridgeIngredient(opt));
+    });
+
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#fridgeIngredientDropdown')) {
+            document.getElementById('fridgeIngredientOptions').classList.remove('open');
+        }
+    });
+});
+</script>

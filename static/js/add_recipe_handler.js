@@ -14,9 +14,11 @@ document.getElementById('addIngredientBtn').addEventListener('click', function (
 function closeModal() {
     document.getElementById('ingredientModal').style.display = 'none';
     document.getElementById('ingredientSelect').value = '';
+    document.getElementById('ingredientSearch').value = '';  // add this
     document.getElementById('quantityInput').value = '';
     document.getElementById('unitSelect').innerHTML = '';
 }
+
 
 function loadUnits() {
     const select = document.getElementById('ingredientSelect');
@@ -33,27 +35,26 @@ function addIngredient() {
     const ingredient_id = document.getElementById('ingredientSelect').value;
     const quantity = parseFloat(document.getElementById('quantityInput').value);
     const unit_id = document.getElementById('unitSelect').value;
-    const ingredient_name = document.getElementById('ingredientSelect').options[
-        document.getElementById('ingredientSelect').selectedIndex
-    ].text;
+
+    // get name from the search input instead of select.options
+    const ingredient_name = document.getElementById('ingredientSearch').value;
     const unit_name = document.getElementById('unitSelect').options[
         document.getElementById('unitSelect').selectedIndex
-    ].text;
+    ]?.text;
 
     if (!ingredient_id || quantity === '' || isNaN(quantity) || !unit_id) {
         alert('Please fill in all fields.');
         return;
     }
-
     if (quantity <= 0) {
         alert('Quantity must be greater than 0.');
         return;
     }
-
-        if (quantity > 100000) {
+    if (quantity > 100000) {
         alert('Quantity must be less than 100 000.');
         return;
     }
+
     if (mode === 'edit') {
         fetch(addIngredientUrl, {
             method: "POST",
@@ -64,65 +65,61 @@ function addIngredient() {
             body: JSON.stringify({ingredient_id, quantity, unit_id})
         })
         .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Remove the added ingredient from the dropdown
-                    const ingredientSelect = document.getElementById('ingredientSelect');
-                    const selectedOption = ingredientSelect.options[ingredientSelect.selectedIndex];
-                    selectedOption.remove();
+        .then(data => {
+            if (data.success) {
+                // hide option in dropdown instead of removing
+                const opt = document.querySelector(`#ingredientOptions .search-option[data-value="${ingredient_id}"]`);
+                if (opt) opt.style.display = 'none';
 
-                    appendIngredientLine(
-                        data.ingredient_name,
-                        data.quantity,
-                        data.unit_name,
-                        data.ingredient_id,
-                        data.unit_id
-                    );
-                    closeModal();
-                } else {
-                    alert('Error: ' + data.error);
-                }
-            });
+                appendIngredientLine(
+                    data.ingredient_name,
+                    data.quantity,
+                    data.unit_name,
+                    data.ingredient_id,
+                    data.unit_id
+                );
+                closeModal();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        });
 
-        } else {
-            const container = document.getElementById('ingredientsContainer');
-            const totalForms = document.getElementById('id_recipe_ingredient-TOTAL_FORMS');
-            const formIndex = parseInt(totalForms.value);
+    } else {
+        const container = document.getElementById('ingredientsContainer');
+        const totalForms = document.getElementById('id_recipe_ingredient-TOTAL_FORMS');
+        const formIndex = parseInt(totalForms.value);
 
-            // Remove from dropdown immediately
-            const ingredientSelect = document.getElementById('ingredientSelect');
-            const selectedOption = ingredientSelect.options[ingredientSelect.selectedIndex];
-            const removedId = selectedOption.value;
-            const removedName = selectedOption.text;
-            selectedOption.remove();
+        // hide option in dropdown instead of removing
+        const opt = document.querySelector(`#ingredientOptions .search-option[data-value="${ingredient_id}"]`);
+        if (opt) opt.style.display = 'none';
 
-            const newRow = document.createElement('div');
-            newRow.classList.add('ingredient-line');
-            newRow.innerHTML = `
-                <input type="hidden" name="recipe_ingredient-${formIndex}-id" value="">
-                <label>Ingredient</label>
-                <select name="recipe_ingredient-${formIndex}-ingredient">
-                    <option value="${removedId}" selected>${removedName}</option>
-                </select>
-                <label>Quantity</label>
-                <input type="number" name="recipe_ingredient-${formIndex}-quantity"
-                       value="${quantity}" step="0.01" min="0.01">
-                <label>Unit</label>
-                <select name="recipe_ingredient-${formIndex}-unit">
-                    <option value="${unit_id}" selected>${unit_name}</option>
-                </select>
-                <input type="checkbox" name="recipe_ingredient-${formIndex}-DELETE"
-                       id="delete_${formIndex}"
-                       data-ingredient-id="${removedId}"
-                       data-ingredient-name="${removedName}"
-                       onchange="handleAddDelete(this)">
-                <label for="delete_${formIndex}">Delete</label>
-            `;
+        const newRow = document.createElement('div');
+        newRow.classList.add('ingredient-line');
+        newRow.innerHTML = `
+            <input type="hidden" name="recipe_ingredient-${formIndex}-id" value="">
+            <label>Ingredient</label>
+            <select name="recipe_ingredient-${formIndex}-ingredient">
+                <option value="${ingredient_id}" selected>${ingredient_name}</option>
+            </select>
+            <label>Quantity</label>
+            <input type="number" name="recipe_ingredient-${formIndex}-quantity"
+                   value="${quantity}" step="0.01" min="0.01">
+            <label>Unit</label>
+            <select name="recipe_ingredient-${formIndex}-unit">
+                <option value="${unit_id}" selected>${unit_name}</option>
+            </select>
+            <input type="checkbox" name="recipe_ingredient-${formIndex}-DELETE"
+                   id="delete_${formIndex}"
+                   data-ingredient-id="${ingredient_id}"
+                   data-ingredient-name="${ingredient_name}"
+                   onchange="handleAddDelete(this)">
+            <label for="delete_${formIndex}">Delete</label>
+        `;
 
-            container.appendChild(newRow);
-            totalForms.value = formIndex + 1;
-            closeModal();
-        }
+        container.appendChild(newRow);
+        totalForms.value = formIndex + 1;
+        closeModal();
+    }
 }
 
 function appendIngredientLine(name, quantity, unit_name, ingredient_id, unit_id) {

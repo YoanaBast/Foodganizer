@@ -1,29 +1,106 @@
-
 <div id="ingredientModal" class="recipe-modal" style="padding: 0 1rem;">
     <div class="recipe-modal-content">
         <h4>Add Ingredient</h4>
-                {% include "errors_label.html" %}
+        {% include "errors_label.html" %}
 
-        <select id="ingredientSelect" onchange="loadUnits()">
-            <option value="">Select ingredient</option>
+        <div class="searchable-select" id="ingredientDropdown">
+            <input type="text" id="ingredientSearch" placeholder="Search ingredient..." autocomplete="off"
+                   oninput="filterIngredients()" onfocus="openIngredientDropdown()">
+            <div class="searchable-options" id="ingredientOptions">
+                <div class="search-option" data-value="" data-units="[]">Select ingredient</div>
                 {% for ing in ingredients %}
-                <option value="{{ ing.id }}"
-                        data-units='[
-                        {% for mu in ing.measurement_units.all %}
-                            {"id": "{{ mu.id }}", "name": "{{ mu.name_for_quantity_singular }}"}
-                            {% if not forloop.last %},{% endif %}
-                        {% endfor %}]'>
+                <div class="search-option"
+                     data-value="{{ ing.id }}"
+                     data-units='[{% for mu in ing.measurement_units.all %}{"id":"{{ mu.id }}","name":"{{ mu.name_for_quantity_singular }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'>
                     {{ ing.name }}
-                </option>
-            {% endfor %}
-        </select>
+                </div>
+                {% endfor %}
+            </div>
+            <input type="hidden" id="ingredientSelect">
+        </div>
 
         <input type="number" id="quantityInput" name="quantity" step="0.01" min="0.01" placeholder="Quantity">
         <select id="unitSelect"></select>
+
         <div style="margin-top: 1rem;">
-        <button type="button" onclick="addIngredient()">Add</button>
-        <button type="button" onclick="closeModal()">Cancel</button>
+            <button type="button" onclick="addIngredient()">Add</button>
+            <button type="button" onclick="closeModal()">Cancel</button>
         </div>
     </div>
 </div>
-</div>
+
+<style>
+    .searchable-select {
+    position: relative;
+}
+
+.searchable-options {
+    display: none;
+    position: absolute;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+    z-index: 1000;
+}
+
+.searchable-options.open {
+    display: block;
+}
+
+.search-option {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.search-option:hover, .search-option.selected {
+    background: #3a3a3a;
+}
+</style>
+
+<script>
+    function openIngredientDropdown() {
+    document.getElementById('ingredientOptions').classList.add('open');
+}
+
+function filterIngredients() {
+    const filter = document.getElementById('ingredientSearch').value.toLowerCase();
+    const options = document.querySelectorAll('#ingredientOptions .search-option');
+    options.forEach(opt => {
+        opt.style.display = !filter || opt.textContent.toLowerCase().includes(filter) ? '' : 'none';
+    });
+    openIngredientDropdown();
+}
+
+function selectIngredient(opt) {
+    document.getElementById('ingredientSearch').value = opt.textContent.trim();
+    document.getElementById('ingredientSelect').value = opt.dataset.value;
+    document.getElementById('ingredientOptions').classList.remove('open');
+    // trigger your existing loadUnits logic
+    const units = JSON.parse(opt.dataset.units || '[]');
+    const unitSelect = document.getElementById('unitSelect');
+    unitSelect.innerHTML = '';
+    units.forEach(u => {
+        const o = document.createElement('option');
+        o.value = u.id;
+        o.textContent = u.name;
+        unitSelect.appendChild(o);
+    });
+}
+
+// attach click handlers after DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('#ingredientOptions .search-option').forEach(opt => {
+        opt.addEventListener('click', () => selectIngredient(opt));
+    });
+
+    // close on outside click
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#ingredientDropdown')) {
+            document.getElementById('ingredientOptions').classList.remove('open');
+        }
+    });
+});
+</script>
