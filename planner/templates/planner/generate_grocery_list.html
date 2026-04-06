@@ -19,9 +19,14 @@ Generate Grocery List
 
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            <div class="alert alert-{{ message.tags }}"
+                 style="background:#22c55e; color:white; font-size:18px; padding:12px 16px; border-radius:8px; margin:12px 0; font-weight:600;">
+                {{ message }}
+            </div>
         {% endfor %}
     {% endif %}
+
+    <hr style="border: none; height: 2px; background: #0f3d2e; margin-bottom: 50px;">
 
         <!-- Search & Filter -->
         <div style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center;">

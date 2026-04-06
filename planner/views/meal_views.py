@@ -130,9 +130,9 @@ class MakeRecipeView(View):
         )
         messages.success(request, (
             f'<b>{recipe.name.title()}</b> made successfully! '
-            f'<a href="{reverse("recipe_detail", kwargs={"pk": recipe.id})}">View recipe</a> · '
-            f'<a href="{reverse("meal_list")}">Meal history</a> · '
-            f'<a href="{reverse("manage_fridge")}">Check your fridge</a>'
+            # f'<a href="{reverse("recipe_detail", kwargs={"pk": recipe.id})}">View recipe</a> · '
+            # f'<a href="{reverse("meal_list")}">Meal history</a> · '
+            # f'<a href="{reverse("manage_fridge")}">Check your fridge</a>'
         ))
         return redirect('meal_suggestions')
 

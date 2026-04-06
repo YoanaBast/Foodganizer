@@ -19,6 +19,8 @@
             <a href="{% url 'add_recipe' %}" class="btn">Add New Recipe</a>
         </div>
 
+        <hr style="border: none; height: 2px; background: #0f3d2e; margin-bottom: 50px;">
+
         <!-- Search & Filter -->
         <form method="get" style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:1rem; align-items:flex-end;">
             <input type="text" name="search" value="{{ search }}" placeholder="Search by name..." style="max-width:250px;">
@@ -121,29 +123,32 @@
         </table>
 
         <!-- Pagination -->
-        {% if page_obj.has_other_pages %}
-        <div class="pagination" style="margin-top:1rem;">
-            {% if page_obj.has_previous %}
-                <a class="page-prev" href="?page={{ page_obj.previous_page_number }}&search={{ search }}&category={{ selected_category }}{% for t in selected_tags %}&tag={{ t }}{% endfor %}&sort={{ selected_sort }}">« Previous</a>
-            {% else %}
-                <span class="page-disabled page-prev">« Previous</span>
-            {% endif %}
+        {% if is_paginated %}
+<nav class="pagination" style="margin-top:1rem;">
 
-            {% for num in page_obj.paginator.page_range %}
-                {% if page_obj.number == num %}
-                    <span class="page-current">{{ num }}</span>
-                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <a href="?page={{ num }}&search={{ search }}&category={{ selected_category }}{% for t in selected_tags %}&tag={{ t }}{% endfor %}&sort={{ selected_sort }}">{{ num }}</a>
-                {% endif %}
-            {% endfor %}
+    {% if page_obj.has_previous %}
+        <a class="page-prev" href="?page={{ page_obj.previous_page_number }}&search={{ search }}&category={{ selected_category }}{% for t in selected_tags %}&tag={{ t }}{% endfor %}&sort={{ selected_sort }}">← Prev</a>
+    {% else %}
+        <span class="page-disabled page-prev">← Prev</span>
+    {% endif %}
 
-            {% if page_obj.has_next %}
-                <a class="page-next" href="?page={{ page_obj.next_page_number }}&search={{ search }}&category={{ selected_category }}{% for t in selected_tags %}&tag={{ t }}{% endfor %}&sort={{ selected_sort }}">Next »</a>
-            {% else %}
-                <span class="page-disabled page-next">Next »</span>
-            {% endif %}
-        </div>
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <span class="page-current">{{ num }}</span>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}&search={{ search }}&category={{ selected_category }}{% for t in selected_tags %}&tag={{ t }}{% endfor %}&sort={{ selected_sort }}">{{ num }}</a>
         {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a class="page-next" href="?page={{ page_obj.next_page_number }}&search={{ search }}&category={{ selected_category }}{% for t in selected_tags %}&tag={{ t }}{% endfor %}&sort={{ selected_sort }}">Next →</a>
+    {% else %}
+        <span class="page-disabled page-next">Next →</span>
+    {% endif %}
+
+</nav>
+{% endif %}
+        <!-- Pagination end -->
 
     </div>
         <div style="text-align: center; margin-top: 1rem;">

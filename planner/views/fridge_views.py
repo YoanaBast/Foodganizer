@@ -24,20 +24,57 @@ class ManageFridgeView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        if self.request.user.is_authenticated:
-            return UserFridge.objects.filter(user=self.request.user).select_related('ingredient__category', 'unit')
-        return UserFridge.objects.none()  # anon gets empty DB queryset, session handled in template
+        if not self.request.user.is_authenticated:
+            return UserFridge.objects.none()
+
+        qs = UserFridge.objects.filter(user=self.request.user).select_related(
+            'ingredient__category', 'ingredient__default_unit', 'unit'
+        ).prefetch_related('ingredient__dietary_tag')
+
+        search = self.request.GET.get('search', '')
+        category = self.request.GET.get('category', '')
+        tags = [t for t in self.request.GET.getlist('tag') if t]
+        sort = self.request.GET.get('sort', '')
+
+        if search:
+            qs = qs.filter(ingredient__name__icontains=search)
+        if category:
+            qs = qs.filter(ingredient__category__id=category)
+        if tags:
+            qs = qs.filter(ingredient__dietary_tag__id__in=tags).distinct()
+
+        if sort == 'qty_asc':
+            qs = qs.order_by('quantity')
+        elif sort == 'qty_desc':
+            qs = qs.order_by('-quantity')
+        elif sort == 'kcal_asc':
+            qs = qs.order_by('ingredient__base_quantity_kcal')
+        elif sort == 'kcal_desc':
+            qs = qs.order_by('-ingredient__base_quantity_kcal')
+        else:
+            qs = qs.order_by('ingredient__name')
+
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['ingredients'] = Ingredient.objects.all()
+        context['search'] = self.request.GET.get('search', '')
+        context['selected_category'] = self.request.GET.get('category', '')
+        context['selected_tags'] = [t for t in self.request.GET.getlist('tag') if t]
+        context['selected_sort'] = self.request.GET.get('sort', '')
+
+        from ingredients.models import IngredientCategory, IngredientDietaryTag
+        context['categories'] = IngredientCategory.objects.all().order_by('name')
+        context['tags'] = IngredientDietaryTag.objects.all().order_by('name')
+
         if not self.request.user.is_authenticated:
             anon_fridge = self.request.session.get('anon_fridge', [])
             resolved = []
             for index, item in enumerate(anon_fridge):
                 try:
                     resolved.append({
-                        'index': index,  # ← add this
+                        'index': index,
                         'ingredient': Ingredient.objects.get(id=item['ingredient_id']),
                         'unit': MeasurementUnit.objects.get(id=item['unit_id']),
                         'quantity': item['quantity'],
@@ -149,6 +186,14 @@ class DeleteFridgeItemView(View):
             item.delete()
         return redirect('manage_fridge')
 
+class EmptyFridgeView(View):
+    def post(self, request):
+        if request.user.is_authenticated:
+            UserFridge.objects.filter(user=request.user).delete()
+        else:
+            request.session['anon_fridge'] = []
+            request.session.modified = True
+        return redirect('manage_fridge')
 
 class DeleteAnonFridgeItemView(View):
     def post(self, request, index):

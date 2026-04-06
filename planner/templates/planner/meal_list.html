@@ -23,6 +23,8 @@ My Meal History
 
     {% include '_anon_warning.html' with section_name="meals list" %}
 
+    <hr style="border: none; height: 2px; background: #0f3d2e; margin-bottom: 50px;">
+
     {% if request.user.is_authenticated %}
         {% if meals %}
             <table class="data-table">

@@ -3,10 +3,10 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 # TO-DO
 
 ## PRIORITY 1 FIXES
-    - fix the paginator !!!
+    - select items should be a search bar + dropdown 
 
     - manage.py check --deploy
-    - verify all custom errs - 404 yes on dev
+    - verify all custom errs 
     - finish manual QA on API
 
 ## PRIORITY 2 FIXES
