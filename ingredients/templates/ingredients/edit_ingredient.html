@@ -120,12 +120,37 @@
 
     <!-- ADDITIONAL UNITS -->
 <div id="additional-units" style="margin-top:2rem; padding-top:2rem; border-top:1px solid var(--border);">
-        <h2 style="font-size: 18px;">Additional Measurement Units</h2>
-        <p style="color:var(--text-secondary); font-size:0.875rem; margin-bottom:1rem;">
-            Optional. Define extra units with their conversion to base (e.g. 1 cup = 120g → conversion = 120).
-        </p>
+        <h2 style="font-size: 18px;">Add Additional Measurement Units</h2>
+
+    <form method="post" action="{% url 'add_measurement_unit' ingredient.id %}" novalidate>
+            {% csrf_token %}
+            <div style="display:flex; gap:0.75rem; align-items:flex-end; flex-wrap:nowrap; max-width:500px;">
+
+                <div>
+                    <label>Quantity</label>
+                    <input type="number" name="conversion_to_base" step="0.0001" placeholder="e.g. 1">
+                </div>
 
 
+                <div>
+                    <label>Unit</label>
+                    <select name="unit">
+                        {% for mu in all_units %}
+                            <option value="{{ mu.id }}">{{ mu.name_singular }} ({{ mu.code }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <p style="font-size: 1.25rem; font-weight: 700; color: var(--accent); white-space: nowrap; align-self: flex-end; margin-bottom: 0.4rem;">= {{ ingredient.base_quantity|floatformat:"-2" }} {{ ingredient.default_unit.code }}</p>
+
+                <button type="submit" class="btn">Add</button>
+            </div>
+        </form>
+
+
+        <hr style="border: none; height: 2px; background: #0f3d2e; margin-bottom: 50px; margin-top: 50px;">
+
+    <h2 style="font-size: 18px;">Conversion to Base</h2>
         {% if ingredient.measurement_units.all %}
         <table class="data-table" style="max-width:500px; margin-bottom:1rem;">
             <thead>
@@ -175,74 +200,53 @@
             <p style="color:var(--text-secondary); font-style:italic; margin-bottom:1rem;">None added yet.</p>
         {% endif %}
 
-        <form method="post" action="{% url 'add_measurement_unit' ingredient.id %}" novalidate>
-            {% csrf_token %}
-            <div style="display:flex; gap:0.75rem; align-items:flex-end; flex-wrap:wrap; max-width:500px;">
-                <div>
-                    <label>Unit</label>
-                    <select name="unit">
-                        {% for mu in all_units %}
-                            <option value="{{ mu.id }}">{{ mu.name_singular }} ({{ mu.code }})</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <label>Conversion to base</label>
-                    <input type="number" name="conversion_to_base" step="0.0001" placeholder="e.g. 120">
-                </div>
-                <button type="submit" class="btn">Add Unit</button>
-            </div>
-        </form>
+
     </div>
 
 <!--    explanation-->
 <div style="background:var(--bg-tertiary); border-left:3px solid var(--accent); padding:1rem; margin-bottom:1.5rem; margin-top:1.5rem;border-radius:0.5rem;">
-    <h3 style="margin-bottom:0.75rem; font-size:1rem;">📐 How to set up an ingredient correctly</h3>
-    <p style="margin-bottom:0.5rem;"><strong>Step 1 — Choose a standard base unit and quantity.</strong><br>
-    Use <code>100 g</code> or <code>100 ml</code> for liquids/powders, or <code>1 pc</code> for countable items like eggs. This is the reference amount all nutrients are calculated for.</p>
-    <p style="margin-bottom:0.5rem;"><strong>Step 2 — Enter nutrients for that base amount.</strong><br>
-    Look up the nutrition label or a database like <a href="https://fdc.nal.usda.gov/" target="_blank" style="color:var(--accent);">USDA FoodData</a>. Enter values per your chosen base quantity.</p>
-    <p style="margin-bottom:0.5rem;"><strong>Step 3 — Add extra units with conversions.</strong><br>
-    Conversion = how many ml/g of the base unit equals 1 of the new unit.<br>
-    <strong>Formula:</strong> <code>1 [new unit] = X [base units]</code></p>
+    <h3 style="margin-bottom:0.75rem; font-size:1rem;">How the conversion to Base works</h3>
+    <p style="margin-bottom:0.5rem;"><strong>1 — Each ingredient has a default measurement unit with its base quantity.</strong><br>
+    The default unit + base quantity are used to set the nutrients table (kcal, etc).</p>
+    <p style="margin-bottom:0.5rem;"><strong>2 — When converting to other measurement units, the base quantity is reduced to 1.</strong><br>
+    The calculations then answer the question "How much of the new unit is in 1 base unit?"</p>
+    <strong>Formula:</strong> <code> X [new unit] = 1 [base units]</code></p>
    <table style="font-size:0.85rem; margin-top:0.5rem; border-collapse:collapse; width:100%; max-width:600px;">
     <tr style="border-bottom:1px solid var(--border);">
         <th style="text-align:left; padding:0.25rem 0.5rem;">Example</th>
-        <th style="text-align:left; padding:0.25rem 0.5rem;">Base</th>
+        <th style="text-align:left; padding:0.25rem 0.5rem;">Base (always 1)</th>
         <th style="text-align:left; padding:0.25rem 0.5rem;">New unit</th>
         <th style="text-align:left; padding:0.25rem 0.5rem;">Conversion</th>
         <th style="text-align:left; padding:0.25rem 0.5rem;">Why?</th>
     </tr>
     <tr>
         <td style="padding:0.25rem 0.5rem;">Milk</td>
-        <td style="padding:0.25rem 0.5rem;">100 ml</td>
-        <td style="padding:0.25rem 0.5rem;">1 cup</td>
+        <td style="padding:0.25rem 0.5rem;">1 ml</td>
+        <td style="padding:0.25rem 0.5rem;">cup</td>
         <td style="padding:0.25rem 0.5rem;">240</td>
         <td style="padding:0.25rem 0.5rem;">Because 1 cup = 240 ml</td>
     </tr>
     <tr>
         <td style="padding:0.25rem 0.5rem;">Flour</td>
-        <td style="padding:0.25rem 0.5rem;">100 g</td>
-        <td style="padding:0.25rem 0.5rem;">1 tbsp</td>
+        <td style="padding:0.25rem 0.5rem;">1 g</td>
+        <td style="padding:0.25rem 0.5rem;">tbsp</td>
         <td style="padding:0.25rem 0.5rem;">8</td>
         <td style="padding:0.25rem 0.5rem;">Because 1 tbsp of flour ≈ 8 g</td>
     </tr>
     <tr>
         <td style="padding:0.25rem 0.5rem;">Egg</td>
         <td style="padding:0.25rem 0.5rem;">1 pc</td>
-        <td style="padding:0.25rem 0.5rem;">1 pc</td>
-        <td style="padding:0.25rem 0.5rem;">1</td>
-        <td style="padding:0.25rem 0.5rem;">Because 1 egg = 1 piece (same unit)</td>
+        <td style="padding:0.25rem 0.5rem;">gr</td>
+        <td style="padding:0.25rem 0.5rem;">0.0166</td>
+        <td style="padding:0.25rem 0.5rem;">Because 1 egg ≈ 60g</td>
     </tr>
-    <tr>
-        <td style="padding:0.25rem 0.5rem;">Olive oil</td>
-        <td style="padding:0.25rem 0.5rem;">100 ml</td>
-        <td style="padding:0.25rem 0.5rem;">1 tbsp</td>
-        <td style="padding:0.25rem 0.5rem;">15</td>
-        <td style="padding:0.25rem 0.5rem;">Because 1 tbsp = 15 ml</td>
-    </tr>
+
 </table>
-    <p style="margin-top:0.75rem; font-size:0.85rem; color:var(--text-secondary);">⚠️ Do <strong>not</strong> add the base unit itself as an additional unit — it's already the reference. Only add <em>extra</em> units you want users to be able to select.</p>
+        <br>
+       <p style="margin-bottom:0.5rem;"><strong>3 — While the Conversion to Base can be edited manually, you can use the Add Additional Measurement Units for convenience.</strong><br>
+       It is easy to use - just say how much of the new unit equals base quantity of the default unit. </p>
+
+    <p style="margin-top:0.75rem; font-size:0.85rem; color:var(--text-secondary);">≈ Is used for some items, as their quantity is not exact. For example an egg could be between 50 and 70g. </p>
 </div>
 </div>
 
@@ -252,6 +256,8 @@
         <a href="{% url 'manage_ingredients' %}" class="btn">All Ingredients</a>
     </div>
 </div>
+
+
 
 {% include '_quick_add_modal.html' %}
 {% include '_manage_list_modal.html' %}

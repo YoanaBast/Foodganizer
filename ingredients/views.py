@@ -302,24 +302,43 @@ INGREDIENT MEASUREMENT UNITS VIEWS
 class AddMeasurementUnitView(View):
     def post(self, request, ingredient_id):
         ingredient = get_object_or_404(Ingredient, pk=ingredient_id)
-        unit_id = request.POST.get('unit')
-        conversion = request.POST.get('conversion_to_base')
-        if not conversion:
+        equals_base_unit_id = request.POST.get('unit')
+        secondary_quantity = request.POST.get('conversion_to_base')
+
+        # 1pc base, user said it equals 120 grams (secondary)
+        # 1g = ? pc? 1/120 = 0.008
+        # base_quantity / secondary_quantity = 1 / 120
+        # conversion = 0.008
+
+        # 100 grams base, user said it equals 10 tbsp (secondary)
+        # 1tbsp = ? gram? 10
+        # base_quantity / secondary_quantity = 100 / 10
+        # conversion = 10
+
+
+        print("DEBUG")
+        if not secondary_quantity:
             messages.error(request, 'Conversion to base is required.')
             return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
+
         try:
-            conversion_float = float(conversion)
-        except ValueError:
+            conversion_float = float(ingredient.base_quantity) / float(secondary_quantity)
+            print(f"DEBUG conversion_float{conversion_float}, ingredient.base_quantity{ingredient.base_quantity}. secondary_quantity{secondary_quantity}")
+
+        except (ValueError, TypeError, ZeroDivisionError):
             messages.error(request, 'Please enter a valid number for conversion.')
+
             return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
+
         if conversion_float <= 0:
             messages.error(request, 'Conversion to base must be greater than 0.')
             return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
         elif conversion_float > 100_000:
             messages.error(request, 'Conversion to base must be less than 100 000.')
             return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
-        if unit_id:
-            unit = get_object_or_404(MeasurementUnit, pk=unit_id)
+
+        if equals_base_unit_id:
+            unit = get_object_or_404(MeasurementUnit, pk=equals_base_unit_id)
             obj, created = IngredientMeasurementUnit.objects.get_or_create(
                 ingredient=ingredient,
                 unit=unit,
@@ -329,6 +348,7 @@ class AddMeasurementUnitView(View):
                 messages.error(request, f'"{unit.name_singular}" is already added for this ingredient.')
             else:
                 messages.success(request, f'"{unit.name_singular}" added successfully.')
+
         return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
 
 
