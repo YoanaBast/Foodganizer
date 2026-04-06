@@ -102,6 +102,14 @@ class EditIngredientView(LoginRequiredMixin, OwnerOrModeratorMixin, UpdateView):
         context['nutrient_units'] = NUTRIENT_UNITS
         context['default_url'] = reverse_lazy('manage_ingredients')
         context['all_units'] = MeasurementUnit.objects.all().order_by('name_singular')
+
+        # ensure default unit always exists in measurement_units
+        if self.object.pk and self.object.default_unit:
+            IngredientMeasurementUnit.objects.get_or_create(
+                ingredient=self.object,
+                unit=self.object.default_unit,
+                defaults={'conversion_to_base': 1}
+            )
         return context
 
     def form_valid(self, form):

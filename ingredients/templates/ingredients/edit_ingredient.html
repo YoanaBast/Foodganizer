@@ -140,24 +140,33 @@
             {% for imu in ingredient.measurement_units.all %}
         <tr>
             <td>{{ imu.unit.name_singular }} ({{ imu.unit.code }})</td>
-            <td>
-                <form method="post" action="{% url 'edit_measurement_unit_conversion' ingredient.id imu.id %}"
-                      style="display:flex; gap:0.5rem; align-items:center;">
-                    {% csrf_token %}
-                    <input type="number" name="conversion_to_base"
-                           value="{{ imu.conversion_to_base }}"
-                           step="0.0001" min="0.0001"
-                           style="width:80px;">
-                    <button type="submit" class="btn btn-small">Save</button>
-                </form>
+<td>
+                {% if imu.unit == ingredient.default_unit %}
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <input type="number" value="1" style="width:80px;" disabled>
+                        <span style="font-size:0.8rem; color:var(--text-secondary);">Base unit (fixed)</span>
+                    </div>
+                {% else %}
+                    <form method="post" action="{% url 'edit_measurement_unit_conversion' ingredient.id imu.id %}"
+                          style="display:flex; gap:0.5rem; align-items:center;">
+                        {% csrf_token %}
+                        <input type="number" name="conversion_to_base"
+                               value="{{ imu.conversion_to_base }}"
+                               step="0.0001" min="0.0001"
+                               style="width:80px;">
+                    <button type="submit" class="btn btn-small" style="margin-left:auto;">Save</button>
+                    </form>
+                {% endif %}
             </td>
-            <td>
-        <form method="post" action="{% url 'delete_measurement_unit' ingredient.id imu.id %}"
-              onsubmit="return confirm('Are you sure?');">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger btn-small">Delete</button>
-        </form>
-    </td>
+<td>
+                {% if imu.unit != ingredient.default_unit %}
+                    <form method="post" action="{% url 'delete_measurement_unit' ingredient.id imu.id %}"
+                          onsubmit="return confirm('Are you sure?');">
+                        {% csrf_token %}
+<button type="submit" class="btn btn-danger btn-small" style="margin-left:0;">Delete</button>
+                    </form>
+                {% endif %}
+            </td>
 </tr>
 {% endfor %}
             </tbody>
@@ -186,7 +195,55 @@
         </form>
     </div>
 
-
+<!--    explanation-->
+<div style="background:var(--bg-tertiary); border-left:3px solid var(--accent); padding:1rem; margin-bottom:1.5rem; margin-top:1.5rem;border-radius:0.5rem;">
+    <h3 style="margin-bottom:0.75rem; font-size:1rem;">📐 How to set up an ingredient correctly</h3>
+    <p style="margin-bottom:0.5rem;"><strong>Step 1 — Choose a standard base unit and quantity.</strong><br>
+    Use <code>100 g</code> or <code>100 ml</code> for liquids/powders, or <code>1 pc</code> for countable items like eggs. This is the reference amount all nutrients are calculated for.</p>
+    <p style="margin-bottom:0.5rem;"><strong>Step 2 — Enter nutrients for that base amount.</strong><br>
+    Look up the nutrition label or a database like <a href="https://fdc.nal.usda.gov/" target="_blank" style="color:var(--accent);">USDA FoodData</a>. Enter values per your chosen base quantity.</p>
+    <p style="margin-bottom:0.5rem;"><strong>Step 3 — Add extra units with conversions.</strong><br>
+    Conversion = how many ml/g of the base unit equals 1 of the new unit.<br>
+    <strong>Formula:</strong> <code>1 [new unit] = X [base units]</code></p>
+   <table style="font-size:0.85rem; margin-top:0.5rem; border-collapse:collapse; width:100%; max-width:600px;">
+    <tr style="border-bottom:1px solid var(--border);">
+        <th style="text-align:left; padding:0.25rem 0.5rem;">Example</th>
+        <th style="text-align:left; padding:0.25rem 0.5rem;">Base</th>
+        <th style="text-align:left; padding:0.25rem 0.5rem;">New unit</th>
+        <th style="text-align:left; padding:0.25rem 0.5rem;">Conversion</th>
+        <th style="text-align:left; padding:0.25rem 0.5rem;">Why?</th>
+    </tr>
+    <tr>
+        <td style="padding:0.25rem 0.5rem;">Milk</td>
+        <td style="padding:0.25rem 0.5rem;">100 ml</td>
+        <td style="padding:0.25rem 0.5rem;">1 cup</td>
+        <td style="padding:0.25rem 0.5rem;">240</td>
+        <td style="padding:0.25rem 0.5rem;">Because 1 cup = 240 ml</td>
+    </tr>
+    <tr>
+        <td style="padding:0.25rem 0.5rem;">Flour</td>
+        <td style="padding:0.25rem 0.5rem;">100 g</td>
+        <td style="padding:0.25rem 0.5rem;">1 tbsp</td>
+        <td style="padding:0.25rem 0.5rem;">8</td>
+        <td style="padding:0.25rem 0.5rem;">Because 1 tbsp of flour ≈ 8 g</td>
+    </tr>
+    <tr>
+        <td style="padding:0.25rem 0.5rem;">Egg</td>
+        <td style="padding:0.25rem 0.5rem;">1 pc</td>
+        <td style="padding:0.25rem 0.5rem;">1 pc</td>
+        <td style="padding:0.25rem 0.5rem;">1</td>
+        <td style="padding:0.25rem 0.5rem;">Because 1 egg = 1 piece (same unit)</td>
+    </tr>
+    <tr>
+        <td style="padding:0.25rem 0.5rem;">Olive oil</td>
+        <td style="padding:0.25rem 0.5rem;">100 ml</td>
+        <td style="padding:0.25rem 0.5rem;">1 tbsp</td>
+        <td style="padding:0.25rem 0.5rem;">15</td>
+        <td style="padding:0.25rem 0.5rem;">Because 1 tbsp = 15 ml</td>
+    </tr>
+</table>
+    <p style="margin-top:0.75rem; font-size:0.85rem; color:var(--text-secondary);">⚠️ Do <strong>not</strong> add the base unit itself as an additional unit — it's already the reference. Only add <em>extra</em> units you want users to be able to select.</p>
+</div>
 </div>
 
 <div class="container-content">
