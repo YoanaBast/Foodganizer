@@ -37,8 +37,6 @@ staticfiles/
 # Migrations (optional to track)
 */migrations/*.pyc
 */migrations/__pycache__/
-*/migrations/*.py
-!*/migrations/__init__.py
 
 # PostgreSQL
 *.backup
