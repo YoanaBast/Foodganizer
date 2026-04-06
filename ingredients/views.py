@@ -412,6 +412,10 @@ class EditMeasurementUnitConversionView(View):
             else:
                 imu.conversion_to_base = conversion_float
                 imu.save()
+
+                imu.ingredient.updated_by = request.user
+                imu.ingredient.save()
+
                 messages.success(request, 'Conversion updated.')
         except (ValueError, TypeError):
             messages.error(request, 'Please enter a valid number.')
