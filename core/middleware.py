@@ -55,7 +55,7 @@ class IPRateLimitMiddleware(MiddlewareMixin):
         ]
 
         if len(recent_timestamps) >= allowed_requests:
-            return HttpResponse('Too many requests!', status=429)
+            return render(request, '429.html', status=429)
 
         recent_timestamps.append(now)
         request.session[session_key] = recent_timestamps
