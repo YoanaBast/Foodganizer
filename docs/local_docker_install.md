@@ -28,7 +28,7 @@ python fast_docker_setup.py
 #### 2.2 Manual Docker Setup
 If you don't want to use the fast setup, follow the steps below:
 
-- Create a `.env` file in the root directory and fill in your credentials (see [this](docs/documented_files/creds_docker_example.txt))
+- Create a `.env` file in the root directory and fill in your credentials (see [this](documented_files/creds_docker_example.txt))
 - Make sure `ENVIRONMENT=DOCKER` is set in your `.env`
 ```bash
 docker-compose up --build -d
