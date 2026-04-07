@@ -39,7 +39,7 @@ You can run the command below to complete the setup:
 python fast_setup.py
 ```
 - This will do the following: 
-  - create .env if you don't have one (you need to put your creds like [this](docs/documented_files/creds_example.txt)
+  - create .env if you don't have one (you need to put your creds like [this](documented_files/creds_example.txt)
   - install requirements
   - makemigrations and migrate
   - collectstatic
@@ -47,7 +47,7 @@ python fast_setup.py
 #### 3.2 Manual Setup
 If you don't want to use the fast setup, you can follow the steps below
   - create a .env file in the root directory (healthy_meals or the name you set locally)
-  - put [this](docs/documented_files/creds_example.txt) inside and update it with your credentials
+  - put [this](documented_files/creds_example.txt) inside and update it with your credentials
   - run this to install requirements:
 ```bash
     pip install -r requirements.txt
