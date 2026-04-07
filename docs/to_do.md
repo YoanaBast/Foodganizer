@@ -3,22 +3,24 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 # TO-DO
 
 ## PRIORITY 1 FIXES
-    - select items should be a search bar + dropdown 
-    - check math on add ingredient to recipe 
-    - manage.py check --deploy
-    - verify all custom errs 
-    - finish manual QA on API
+
+
 
 ## PRIORITY 2 FIXES
+    - finish manual QA on API
+
+
+## PRIORITY MEH FIXES
     - {{ item.unit }} for anon in the fridge, can it get the name for property recreated
-    - change <br> to margin 
-    - confuigure security in AWS to allow only cloudflare
+    - change <br> to margin - did it for the most part but check again
+
 
 ## FEATURES
     - add more dummy data
-    - add select boxes and select all with option to delete all ? bulk actions
+
 
 ## TEST
+
 
 ## UI
     - + button on categories, tags and unit is not obvious, maybe add a label
@@ -27,8 +29,6 @@ Welcome to my to-do list! Feel free to give me siggestions :)
 ## EXTRA FEATURES
     - make a guide
     - make day/night widget
-    - have a check that allows edit/delete only on fields created by a specific user (user cannot delete public ingredients made by other users)
-    - created by will be added to models once i implement auth
     - Meal suggestion - how many times I can prepare it 
     - Filter by days in my meal history, calendar 
 
