@@ -165,7 +165,7 @@ WSGI_APPLICATION = 'meals_manager.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-if ENV == 'PROD' or ENV == 'DOCKER':
+if ENV == 'PROD':
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
