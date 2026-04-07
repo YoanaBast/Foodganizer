@@ -20,10 +20,7 @@ class IngredientViewTests(TestCase):
             base_quantity_carbs=5, base_quantity_fat=1,
             created_by=self.user, updated_by=self.user,
         )
-        IngredientMeasurementUnit.objects.create(
-            ingredient=self.ingredient, unit=self.ml, conversion_to_base=1
-        )
-
+        # removed IngredientMeasurementUnit.objects.create() — save() handles it now
     # --- ManageIngredientsView ---
 
     def test_manage_ingredients_get(self):
