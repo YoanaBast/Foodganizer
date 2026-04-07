@@ -118,4 +118,11 @@
     - The kcal tracker is a calendar that allows users to log ingredients + quantity & unit and recipes + serving
     - It calculates consumed kcal and compares against the target set in biometrics 
     - It has a calculator that can show how much weight of fat specifivally a person has gained/lost baded on the logs with contsant 1kg of fat = 7830 kcal
+
+
+## Notes:
+1. This project was developed in 2 parts for an uni exam. The first one required no user auth. Now that I have an existing DB structure with multiple migrations, I will use a Profile model (OneToOne), as opposed to an AbstractUser class, because I'd like to keep my migrations - they mark my progress, my previous errors and redesigns I've done. 
+
+2. I fully intend to replace all AI images with real art. The deadlines were tight and I needed something to prototype. This is a student project with no funding. 
+
     
