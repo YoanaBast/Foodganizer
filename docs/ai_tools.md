@@ -14,14 +14,17 @@ I want to disclose all tools used. Special thanks to everyone, who have develope
   - General lazy tasks such as:
     - Look at this JSON file. Could you create more ingredients and recipes, mirroring the ones we already have?
     - I renamed my URLs to all take pk instead of recipe_id, id and so on. Could you read these views and let me know if I failed to update to pk anywhere?
+    - Generated the images on the homepage cards. 
     
 
 - Claude:
-  - explained to me how ajax works and showed me how to apply it to my views 
+  - explained to me how ajax works and showed me how to apply it to my views
+    > Explained to me how a lot of things work, to be honest.   
   - Assisted me with questions, such as "Do you think solution X is optimal, or should I do Y. What are the pros and cons of both approaches"
   - General lazy tasks such as:
     - I've changed my templates and styles multiple times, could you scan for any unused css classes and reorder in a more readable way?
     - Showed my DB ERD and described what I like in my app to write the text for the "how it works" section.
+      > I've reworked the text, there is currently no AI text. 
 
 
 - ClickUp Brain:
@@ -31,7 +34,6 @@ I want to disclose all tools used. Special thanks to everyone, who have develope
     <img src="./documented_files/basil.png" alt="Basil" width="200" />
     <img src="./documented_files/cucumber.png" alt="Cucumber" width="200" />
     <img src="./documented_files/herb.png" alt="Herb" width="200" />
-    <img src="./documented_files/fridge.png" alt="Fridge" width="200" />
 
   
   
@@ -56,3 +58,7 @@ I want to disclose all tools used. Special thanks to everyone, who have develope
 - https://uiverse.io/kamehame-ha/chilly-snake-91
 - https://bootswatch.com/
 - https://www.freepik.com/
+- https://search.google.com/search-console (this is SEO this is not google.com)
+- https://www.mysitemapgenerator.com/
+- https://imagecolorpicker.com/
+- https://www.media.io/color-palette/black-green-yellow-color-palette.html
