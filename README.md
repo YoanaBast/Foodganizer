@@ -36,7 +36,8 @@ The site is already live, I even bought a domain <img src="docs/hamster.png" wid
 
 
 ## Installation
-[Local server Installation](docs/local_install.md)
+[Local Installation](docs/documented_files/local_install.md)
+[Local Docker Installation](docs/documented_files/local_install.md)
 
 
 

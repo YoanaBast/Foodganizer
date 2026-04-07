@@ -39,7 +39,7 @@ You can run the command below to complete the setup:
 python fast_setup.py
 ```
 - This will do the following:
-  - create .env if you don't have one (you need to put your creds like [this](docs/creds_example.md))
+  - create .env if you don't have one (you need to put your creds like [this](docs/documented_files/creds_example.txt))
   - install requirements
   - makemigrations and migrate
   - collectstatic
