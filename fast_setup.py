@@ -74,7 +74,7 @@ def run_commands(cmd_list):
 if not env_path.exists():
     if yes("No .env file found. Create one now? (y/n): "):
         env_path.write_text(env_content)
-        print("\033[1;34m.env created. Please update DB_NAME, DB_USER, DB_PASSWORD before continuing.\033[0m")
+        print("\033[1;34m.env created. Please update LOCAL_POSTGRES_DB, LOCAL_POSTGRES_USER, LOCAL_POSTGRES_PASSWORD before continuing.\033[0m")
         input("You may need to reload from disk to see it. Press Enter when done...")
     else:
         print("\033[1;33mNo .env file. Make sure it exists before running setup. It should look like:\033[0m")
