@@ -67,9 +67,8 @@ class BaseConversionTestCase(TestCase):
             base_quantity_kcal=42, base_quantity_protein=3.4,
             base_quantity_carbs=5.0, base_quantity_fat=1.0,
         )
-        self.milk_ml = IngredientMeasurementUnit.objects.create(
-            ingredient=self.milk, unit=self.ml, conversion_to_base=1
-        )
+        # save() auto-created milk_ml with conversion=1, just fetch it
+        self.milk_ml = IngredientMeasurementUnit.objects.get(ingredient=self.milk, unit=self.ml)
         self.milk_cup = IngredientMeasurementUnit.objects.create(
             ingredient=self.milk, unit=self.cup, conversion_to_base=240
         )
@@ -82,9 +81,8 @@ class BaseConversionTestCase(TestCase):
             base_quantity_kcal=165, base_quantity_protein=31,
             base_quantity_carbs=0, base_quantity_fat=3.6,
         )
-        self.chicken_g = IngredientMeasurementUnit.objects.create(
-            ingredient=self.chicken, unit=self.g, conversion_to_base=1
-        )
+        # save() auto-created chicken_g, just fetch it
+        self.chicken_g = IngredientMeasurementUnit.objects.get(ingredient=self.chicken, unit=self.g)
         self.chicken_oz = IngredientMeasurementUnit.objects.create(
             ingredient=self.chicken, unit=self.oz, conversion_to_base=28.35
         )
@@ -93,9 +91,8 @@ class BaseConversionTestCase(TestCase):
             name='egg', base_quantity=1, default_unit=self.pc,
             base_quantity_kcal=70, base_quantity_protein=6,
         )
-        self.egg_pc = IngredientMeasurementUnit.objects.create(
-            ingredient=self.egg, unit=self.pc, conversion_to_base=1
-        )
+        # save() auto-created egg_pc, just fetch it
+        self.egg_pc = IngredientMeasurementUnit.objects.get(ingredient=self.egg, unit=self.pc)
 
         self.category = RecipeCategory.objects.create(name='test category')
         self.recipe = Recipe.objects.create(
