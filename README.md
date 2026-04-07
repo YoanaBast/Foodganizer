@@ -38,7 +38,7 @@ The site is already live, I even bought a domain <img src="docs/documented_files
 ## Installation
 [Local Installation](docs/local_install.md)
 
-[Local Docker Installation](docs/local_install.md)
+[Local Docker Installation](docs/local_docker_install.md)
 
 
 
