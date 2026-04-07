@@ -11,7 +11,7 @@ ALLOWED_HOSTS=localhost,127.0.0.1,web
 CSRF_TRUSTED_ORIGINS=http://localhost:81,http://127.0.0.1:81
 
 #LOCAL DB
-LOCAL_DB_HOST=localhost
+LOCAL_DB_HOST=host.docker.internal
 LOCAL_DB_PORT=5432
 LOCAL_POSTGRES_DB=xxxxxxxxx
 LOCAL_POSTGRES_USER=xxxxxxxx
@@ -87,7 +87,9 @@ if yes("\033[1;35mReady for Docker setup? (y/n): \033[0m"):
     if yes("\n\033[1;35mCreate a superuser? (y/n): \033[0m"):
         subprocess.run("docker-compose exec web python manage.py createsuperuser", shell=True)
 
-    print("\n\033[1;33mDocker setup complete! App should be running at \033[0m\033[1;36mhttp://localhost:81\033[0m")
+    print("\n\033[1;34mRestarting nginx...\033[0m")
+    subprocess.run("docker-compose restart nginx", shell=True)
 
+    print("\n\033[1;33mDocker setup complete! App should be running at \033[0m\033[1;36mhttp://localhost\033[0m")
 else:
     print("\033[1;32mRun\033[0m \033[1;34mpython fast_docker_setup.py\033[0m \033[1;32magain when ready.\033[0m")
