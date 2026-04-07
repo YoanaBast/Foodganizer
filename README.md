@@ -21,7 +21,7 @@ On a more serious note, this was developed as an uni assignment. I've used Djang
 
 
 ## Demo
-The site is already live, I even bought a domain <img src="docs/hamster.png" width="30" height="30"/> 
+The site is already live, I even bought a domain <img src="docs/documented_files/hamster.png" width="30" height="30"/> 
 
 [![Typing SVG](https://readme-typing-svg.demolab.com?font=Teko&size=25&pause=1000&color=1D9019&width=435&lines=https%3A%2F%2Ffoodganizer.com%2F)](https://foodganizer.com)
 
