@@ -14,7 +14,7 @@ document.getElementById('addIngredientBtn').addEventListener('click', function (
 function closeModal() {
     document.getElementById('ingredientModal').style.display = 'none';
     document.getElementById('ingredientSelect').value = '';
-    document.getElementById('ingredientSearch').value = '';  // add this
+    document.getElementById('ingredientSearch').value = '';
     document.getElementById('quantityInput').value = '';
     document.getElementById('unitSelect').innerHTML = '';
 }
@@ -38,9 +38,8 @@ function addIngredient() {
 
     // get name from the search input instead of select.options
     const ingredient_name = document.getElementById('ingredientSearch').value;
-    const unit_name = document.getElementById('unitSelect').options[
-        document.getElementById('unitSelect').selectedIndex
-    ]?.text;
+    const unitSelect = document.getElementById('unitSelect');
+    const unit_name = unitSelect.selectedIndex >= 0 ? unitSelect.options[unitSelect.selectedIndex].text : '';
 
     if (!ingredient_id || quantity === '' || isNaN(quantity) || !unit_id) {
         alert('Please fill in all fields.');
