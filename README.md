@@ -28,6 +28,8 @@ I've shut it down for now, due to concerns with the new nginx and cloudflare exp
 
 [![Typing SVG](https://readme-typing-svg.demolab.com?font=Teko&size=25&pause=1000&color=1D9019&width=435&lines=https%3A%2F%2Ffoodganizer.com%2F)](https://foodganizer.com)
 
+I will try to bring it back up when I have the time to research the sistuation, as I don't want to get overcharged on amazon. In the meantime, you can watch the demo video:
+
 [![Watch Demo](https://img.shields.io/badge/Watch-Demo-blue?style=for-the-badge)](https://1drv.ms/v/c/59f3027c0407c281/IQCl9ldCyVjWQKaxNk0Gva8kAWy3Af3i9TMxHOu-DU1MgRQ?e=rJ91V6)
 
 ## Project Documentation
