@@ -255,17 +255,7 @@ AUTHENTICATION_BACKENDS = [
 CSRF_FAILURE_VIEW = 'users.views.csrf_failure'
 
 LOGGING = {
-    'version': 1,STORAGES = {
-    "default": {
-        "BACKEND": (
-            "cloudinary_storage.storage.MediaCloudinaryStorage" if ENV == 'PROD'
-            else "django.core.files.storage.FileSystemStorage"
-        ),
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+    'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
@@ -302,6 +292,8 @@ LOGGING = {
         },
     },
 }
+
+
 
 LOGIN_REDIRECT_URL = 'homepage'
 LOGOUT_REDIRECT_URL = 'homepage'
