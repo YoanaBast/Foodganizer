@@ -128,7 +128,7 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # 'whitenoise.middleware.WhiteNoiseMiddleware', # switched to Nginx
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Nginx on AWS, Whitenoise on Render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -255,7 +255,17 @@ AUTHENTICATION_BACKENDS = [
 CSRF_FAILURE_VIEW = 'users.views.csrf_failure'
 
 LOGGING = {
-    'version': 1,
+    'version': 1,STORAGES = {
+    "default": {
+        "BACKEND": (
+            "cloudinary_storage.storage.MediaCloudinaryStorage" if ENV == 'PROD'
+            else "django.core.files.storage.FileSystemStorage"
+        ),
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
@@ -304,8 +314,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']  #  dev static folder
 STATIC_ROOT = BASE_DIR / 'staticfiles'    #  collectstatic
 
-# Compatibility fix for django-cloudinary-storage with Django 4.2+
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+# Compatibility fix for django-cloudinary-storage with Django 4.2+ for AWS
+# STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 
 MEDIA_URL = '/media/'
@@ -317,15 +327,28 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
 
+#AWS
+# STORAGES = {
+#     "default": {
+#         "BACKEND": (
+#             "cloudinary_storage.storage.MediaCloudinaryStorage" if ENV == 'PROD' # Cloudinary in production
+#             else "django.core.files.storage.FileSystemStorage"
+#         ),
+#     },
+#     "staticfiles": {
+#         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+#     },
+# }
 
+#Render
 STORAGES = {
     "default": {
         "BACKEND": (
-            "cloudinary_storage.storage.MediaCloudinaryStorage" if ENV == 'PROD' # Cloudinary in production
+            "cloudinary_storage.storage.MediaCloudinaryStorage" if ENV == 'PROD'
             else "django.core.files.storage.FileSystemStorage"
         ),
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
