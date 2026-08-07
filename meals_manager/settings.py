@@ -278,7 +278,7 @@ LOGGING = {
         'django.request': {
             'handlers': ['console'],
             'level': 'WARNING',
-            'propagate': False,settings
+            'propagate': False,
         },
         'django.security': {
             'handlers': ['console'],
