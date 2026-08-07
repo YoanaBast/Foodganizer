@@ -10,6 +10,8 @@ services:
              python manage.py collectstatic --noinput &&
              gunicorn meals_manager.wsgi:application --bind 0.0.0.0:$PORT --workers 1"
     envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
       - key: ENVIRONMENT
         value: PROD
       - key: DJANGO_SECRET_KEY
@@ -27,7 +29,7 @@ services:
       - key: DB_HOST
         sync: false
       - key: DB_PORT
-        value: 5432
+        value: "5432"
       - key: DB_SSLMODE
         value: require
       - key: SENTRY_DSN
@@ -35,7 +37,7 @@ services:
       - key: BREVO_SMTP_HOST
         sync: false
       - key: BREVO_SMTP_PORT
-        value: 587
+        value: "587"
       - key: BREVO_EMAIL_USE_TLS
         value: "True"
       - key: BREVO_SMTP_USER
@@ -58,4 +60,21 @@ services:
     schedule: "0 2 * * *"
     dockerCommand: python manage.py cleanup_expired_sessions
     envVars:
-      - fromGroup: foodganizer-shared
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: ENVIRONMENT
+        value: PROD
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: POSTGRES_DB
+        sync: false
+      - key: POSTGRES_USER
+        sync: false
+      - key: POSTGRES_PASSWORD
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_SSLMODE
+        value: require
