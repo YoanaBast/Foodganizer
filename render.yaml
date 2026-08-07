@@ -1,0 +1,61 @@
+services:
+  - type: web
+    name: foodganizer
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /
+    dockerCommand: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn meals_manager.wsgi:application --bind 0.0.0.0:$PORT --workers 1"
+    envVars:
+      - key: ENVIRONMENT
+        value: PROD
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: ALLOWED_HOSTS
+        value: foodganizer.com,www.foodganizer.com,foodganizer.onrender.com
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://foodganizer.com,https://www.foodganizer.com,https://foodganizer.onrender.com
+      - key: POSTGRES_DB
+        sync: false
+      - key: POSTGRES_USER
+        sync: false
+      - key: POSTGRES_PASSWORD
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: 5432
+      - key: DB_SSLMODE
+        value: require
+      - key: SENTRY_DSN
+        sync: false
+      - key: BREVO_SMTP_HOST
+        sync: false
+      - key: BREVO_SMTP_PORT
+        value: 587
+      - key: BREVO_EMAIL_USE_TLS
+        value: "True"
+      - key: BREVO_SMTP_USER
+        sync: false
+      - key: BREVO_SMTP_KEY
+        sync: false
+      - key: BREVO_DEFAULT_FROM_EMAIL
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+  - type: cron
+    name: cleanup-expired-sessions
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    schedule: "0 2 * * *"
+    dockerCommand: python manage.py cleanup_expired_sessions
+    envVars:
+      - fromGroup: foodganizer-shared
