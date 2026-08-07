@@ -278,7 +278,7 @@ LOGGING = {
         'django.request': {
             'handlers': ['console'],
             'level': 'WARNING',
-            'propagate': False,
+            'propagate': False,settings
         },
         'django.security': {
             'handlers': ['console'],
@@ -341,8 +341,7 @@ STORAGES = {
         ),
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
-
 WHITENOISE_MANIFEST_STRICT = False
