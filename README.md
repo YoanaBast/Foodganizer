@@ -45,7 +45,7 @@ There is also a video demo with questionable music choices:
 [Project Deployment](docs/DEPLOYMENT.md)
 
 ### Render
-[Project Deployment](docs/DEPLOYMENT.md)
+[Project Deployment](docs/DEPLOYMENT2.md)
 
 
 
