@@ -9,26 +9,31 @@ Foodganizer Home
 <link rel="stylesheet" href="{% static 'css/homepage_styles.css' %}">
 
 <div class="hero">
-    <img class="hero-bg" src="{% static 'images/cucumber_tomato.svg' %}" alt="Tomato">
 
-</div>
-<div class="hero" style="margin-top: 0; padding-top: 0;">
-    <h2 style="color: #bff597;">Ready to get ahead of your meal planning?</h2>
-</div>
+  <div class="hero-text-btn">
+    <div>
+      <h1 class="ranchers-regular">
+          Track your <span class="highlight">Meals</span>,<br>
+          Achieve your <span class="highlight">Food </span>Goals!
+      </h1>
+    </div>
 
-<div class="container-home-head">
-    <p style="color: #bff597;">The Foodganizer lets you access an extendable database of highly customizable ingredients and recipes.</p>
-    <ul style="text-align: left; color: #bff597; list-style: none; padding: 0 50px;">
-  <li>— Generate a grocery list from your favourite recipes</li>
-  <li>— Keep a digital fridge and get meal suggestions from the ingredients you already have!</li>
-  <li>— Calculate your TDEE and BMR and track your meals and nutrients.</li>
-</ul>
+    <div class="btns-home">
+        <a href="#" class="primary">Grocery List</a>
+        <a href="#" class="secondary">Meal Ideas</a>
+    </div>
+
+  </div>
+
+  <div class="hero-logo">
+    <img src="{% static 'images/circle-logo.svg' %}" alt="foodganizer-logo">
+  </div>
+
 </div>
 
 
 <div class="cards">
 
-<img src="/static/images/title_line.svg" alt="title_line" style="width: 400px; height: auto;">
 
 <!-- GROCERY-->
 
@@ -60,7 +65,7 @@ Foodganizer Home
     </div>
   </a>
 
-<img src="/static/images/title_line.svg" alt="title_line" style="width: 400px; height: auto;">
+<img src="/static/images/title_line.svg" alt="title_line">
 
 <!-- MEALS-->
 
@@ -93,7 +98,7 @@ Foodganizer Home
   </a>
 
 
-<img src="/static/images/title_line.svg" alt="title_line" style="width: 400px; height: auto;">
+<img src="/static/images/title_line.svg" alt="title_line">
 <!-- TOOLS -->
 
   <a href="{% url 'calorie-tracker' %}" class="card">
@@ -125,7 +130,7 @@ Foodganizer Home
 </a>
 
 
-<img src="/static/images/title_line.svg" alt="fooganizer_ui_image" style="width: 400px; height: auto;">
+<img src="/static/images/title_line.svg" alt="fooganizer_ui_image">
 <!-- DATA -->
 
   <a href="{% url 'manage_fridge' %}" class="card">
@@ -173,9 +178,9 @@ Foodganizer Home
 
 </div>
 
-<div style="text-align: center; margin: 2rem 0;">
-    <div class="tooltip" style="display: inline-block;">
-        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Back to top" class="btn-invisible" style="display: inline-flex;">
+<div>
+    <div class="tooltip">
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Back to top" class="btn-invisible">
             <img src="{% static 'images/top_arr.svg' %}" width="30" height="30" alt="Back to top">
         </button>
         <span class="tooltip-text">Back to top</span>
