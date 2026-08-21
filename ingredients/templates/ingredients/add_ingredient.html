@@ -20,7 +20,7 @@
 
             <form id="add-ingredient-form" method="post" action="{% url 'add_ingredient' %}" novalidate>
                 {% csrf_token %}
-                {% include "errors_label.html" %}
+                {% include "messages/errors_label.html" %}
 
                 {{ form.name.label_tag }} {{ form.name }}
 
@@ -90,8 +90,8 @@
     </form>
 </div>
 
-{% include '_quick_add_modal.html' %}
-{% include '_manage_list_modal.html' %}
+{% include 'global_reusable/_quick_add_modal.html' %}
+{% include 'global_reusable/_manage_list_modal.html' %}
 
 <script src="{% static 'js/zero_inputt_handler.js' %}"></script>
 <script src="{% static 'js/fetch_and_manage.js' %}"></script>

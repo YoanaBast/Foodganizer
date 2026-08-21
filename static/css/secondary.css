@@ -1,0 +1,72 @@
+:root {
+    --bg-primary-ivory: #FBF7EE;
+    --bg-gray: #F5F1ED;
+    --bg-secondary-green: #20B486;
+    --mint: #c5e8db;
+    --wine: #D88895;
+}
+.ranchers-regular {
+  font-family: "Ranchers", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.container-home {
+    display: flex;
+    flex-direction: column;
+    padding: 4rem;
+}
+
+.section-title {
+    color: var(--bg-secondary-green);
+    font-size: xx-large;
+    margin: 0rem;
+}
+
+.section-description {
+    color: var(--wine);
+
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4rem;
+
+}
+
+.a-btn {
+    text-decoration: none;
+    text-transform: uppercase;
+    color: var(--bg-secondary-green);
+    background: var(--mint);
+    padding: 1rem 1.5rem;
+    border-radius: 3px;
+    font-weight: 700;
+}
+
+.searchbar, .search_filter select {
+    background: var(--mint);
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.5rem;
+    border: none;
+}
+
+.searchbar {
+    width: 100%;
+
+}
+
+.searchbar:focus {
+    border: 1px solid var(--wine);
+    outline: none;
+}
+
+.search_filter form{
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 4rem;
+
+}
+

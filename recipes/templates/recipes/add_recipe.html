@@ -20,7 +20,7 @@ Add Recipe
 <div class="container-home">
     <form method="post" action="{% url 'add_recipe' %}" novalidate>
         {% csrf_token %}
-        {% include "errors_label.html" with form=recipe_form %}
+        {% include "messages/errors_label.html" with form=recipe_form %}
 
         {{ ingredient_formset.management_form }}
 
@@ -61,7 +61,7 @@ Add Recipe
         <h3>Ingredients</h3>
         <div id="ingredientsContainer"></div>
 
-        {% include 'add_button.html' %}
+        {% include 'global_reusable/add_button.html' %}
 
         <br><br>
 
@@ -72,8 +72,8 @@ Add Recipe
 </div>
 
 {% include 'recipes/add_ingredients_to_recipe_modal.html' %}
-{% include '_quick_add_modal.html' %}
-{% include '_manage_list_modal.html' %}
+{% include 'global_reusable/_quick_add_modal.html' %}
+{% include 'global_reusable/_manage_list_modal.html' %}
 
 <script src="{% static 'js/add_recipe_handler.js' %}"></script>
 <script src="{% static 'js/zero_inputt_handler.js' %}"></script>

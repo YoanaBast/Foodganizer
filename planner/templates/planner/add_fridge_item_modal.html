@@ -7,7 +7,7 @@
 
         <form id="addFridgeItemForm" method="post" action="{% url 'add_fridge_item' %}" novalidate>
             {% csrf_token %}
-            {% include "errors_label.html" %}
+            {% include "messages/errors_label.html" %}
 
             <label>Ingredient</label>
             <div class="searchable-select" id="fridgeIngredientDropdown">

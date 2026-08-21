@@ -27,6 +27,7 @@ main {
     margin-inline: auto;
     box-sizing: border-box;
     background-color: var(--bg-primary-ivory);
+    margin-top: 3rem;
 
 }
 /*a {*/
