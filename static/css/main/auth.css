@@ -43,7 +43,7 @@ ul.errorlist {
 }
 
 .nav-links .nav-auth-link {
-        color: var(--accent);
+    color: var(--accent);
     font-size: 0.875rem;
     font-weight: 500;
     text-decoration: none;

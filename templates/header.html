@@ -1,6 +1,6 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/auth.css' %}">
-<link rel="stylesheet" href="{% static 'css/header.css' %}">
+<link rel="stylesheet" href="{% static 'css/main/auth.css' %}">
+<link rel="stylesheet" href="{% static 'css/main/header.css' %}">
 
 <script src="{% static 'js/navbarDropdownHandler.js' %}" defer></script>
 
@@ -57,30 +57,39 @@
             </a>
         </div>
 
-    {% if request.user.is_authenticated %}
-        <div class="nav-top-links">
+{% if request.user.is_authenticated %}
+    <div class="nav-top-links">
 
-        <a href="{% url 'profile' %}">
-        <img src="{% static 'images/profile.svg' %}" width="50" height="30">
+        <a href="{% url 'profile' %}" class="nav-user-icon">
+            <i class="fa-solid fa-user"></i>
         </a>
-
 
         <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
-            <button type="submit" class="btn-invisible">
-                <img src="{% static 'images/logout.svg' %}" width="50" height="30">
+            <button type="submit" class="nav-logout-icon">
+                <i class="fa-solid fa-right-from-bracket"></i>
             </button>
         </form>
+
     </div>
 
-    {% else %}
-        <div class="nav-links">
+{% else %}
+    <div class="nav-links">
 
-        <li><a href="{% url 'login' %}" class="nav-auth-link">Login</a></li>
-        <li><a href="{% url 'register' %}" class="nav-auth-link">Register</a></li>
+        <li>
+            <a href="{% url 'login' %}" class="nav-login-icon">
+                <i class="fa-solid fa-right-to-bracket"></i>
+            </a>
+        </li>
+
+        <li>
+            <a href="{% url 'register' %}" class="nav-register-icon">
+                <i class="fa-solid fa-user-plus"></i>
+            </a>
+        </li>
+
     </div>
-
-    {% endif %}
+{% endif %}
 
 
 

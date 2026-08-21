@@ -2,7 +2,7 @@
     --bg-primary-ivory: #FBF7EE;
     --bg-gray: #F5F1ED;
     --bg-secondary-green: #20B486;
-    --mint: #F0FAF7;
+    --mint: #c5e8db;
     --wine: #D88895;
 }
 
@@ -11,7 +11,7 @@ header {
     position: sticky;
     top: 0;
     z-index: 1000;
-    padding: 0 2rem;
+    padding: 1rem 2rem;
 }
 
 header li a {
@@ -92,7 +92,7 @@ header li a {
     box-sizing: border-box;
     background: var(--mint);
     z-index: 100;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 15rem);
     gap: 10px;
 }
 
@@ -103,7 +103,8 @@ header li a {
 .dropdown-menu a {
     padding: 0.5rem 0;
     text-decoration: none;
-    color: var(--bg-secondary-green);
+    color: var(--wine);
+    font-weight: 800;
 }
 
 .nav-top-links {
@@ -127,12 +128,38 @@ header .nav-links {
 }
 
 .nav-links a {
-    color: #B1BFA3;
+    color: var(--bg-secondary-green);
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: 1.2rem;
     transition: color 0.2s;
 }
 
 .nav-links a:hover {
     color: var(--bg-secondary-green);
+}
+
+
+.nav-user-icon,
+.nav-logout-icon,
+.nav-login-icon,
+.nav-register-icon {
+    font-size: 1.7rem;
+    color: var(--bg-secondary-green);
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.nav-user-icon:hover,
+.nav-logout-icon:hover,
+.nav-login-icon:hover,
+.nav-register-icon:hover {
+    opacity: 0.7;
+    transform: scale(1.08);
+}
+
+.nav-logout-icon {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
 }
