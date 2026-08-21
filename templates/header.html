@@ -23,15 +23,15 @@
 
             <div class="tab-dropdown">
                 <button class="tab-button">
-                    Use <span class="arrow">⌄</span>
+                    Cook <span class="arrow">⌄</span>
                 </button>
 
                 <div class="dropdown-menu">
-                    <a href="{% url 'manage_fridge' %}">Manage Fridge</a>
                     <a href="{% url 'meal_suggestions' %}">Get Meal Ideas</a>
                     <a href="{% url 'generate_grocery_list' %}">Get Grocery List</a>
-                    <a href="{% url 'user_grocery_list' %}">Grocery List</a>
+                    <a href="{% url 'manage_fridge' %}">Manage Fridge</a>
                     <a href="{% url 'meal_list' %}">Meals List</a>
+                    <a href="{% url 'user_grocery_list' %}">Grocery List</a>
 
                 </div>
             </div>
@@ -42,8 +42,8 @@
                 </button>
 
                 <div class="dropdown-menu">
-                    <a href="{% url 'biometrics' %}" >BioMetriics</a>
-                    <a href="{% url 'calorie-tracker' %}" >KCAL</a>
+                    <a href="{% url 'biometrics' %}" >BioMetrics</a>
+                    <a href="{% url 'calorie-tracker' %}" >KCALendar</a>
 
                 </div>
             </div>

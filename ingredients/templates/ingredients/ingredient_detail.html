@@ -11,6 +11,10 @@
 <link rel="stylesheet" href="{% static 'css/ingredient_styles.css' %}">
 <link rel="stylesheet" href="{% static 'css/ingredient_forms_styles.css' %}">
 
+{% include 'ingredients/delete_ingredient_modal.html' %}
+<script src="{% static 'js/crud/delete_popup.js' %}" defer></script>
+
+
 <div class="container-content">
     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
         <a href="javascript:history.back()" class="btn">Back</a>
@@ -20,8 +24,6 @@
     <button class="btn btn-danger" style="margin-left: auto;" onclick="openDeleteModal('ingredient', {{ ingredient.id }}, '{{ ingredient.name|escapejs }}')">Delete</button>
 </div>
 
-
-{% include 'ingredients/delete_ingredient_modal.html' %}
 
 
 <div class="container-content">
@@ -154,6 +156,5 @@
         <a href="{% url 'manage_ingredients' %}" class="btn">All Ingredients</a>
     </div>
 
-<script src="{% static 'js/delete_popup.js' %}"></script>
 
 {% endblock %}

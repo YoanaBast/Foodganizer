@@ -55,7 +55,8 @@ footer a:hover {
 .footer-bottom {
     margin-top: 2rem;
     font-size: 1rem;
-    color: var(--wine);
+    color: var(--bg-secondary-green);
+    font-weight: 500;
 }
 
 
@@ -63,7 +64,7 @@ footer ul, footer p {
     list-style: none;
     align-self: flex-start;
     font-size: 0.875rem;
-    color: var(--bg-secondary-green)
+    color: var(--bg-secondary-green);
 
 
 }

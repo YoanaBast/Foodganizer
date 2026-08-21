@@ -8,6 +8,14 @@ Add Recipe
 
 {% block content %}
 
+{% include 'recipes/add_ingredients_to_recipe_modal.html' %}
+{% include 'global_reusable/_quick_add_modal.html' %}
+{% include 'global_reusable/_manage_list_modal.html' %}
+
+<script src="{% static 'js/recipe/add_recipe_handler.js' %}" defer></script>
+<script src="{% static 'js/zero_inputt_handler.js' %}" defer></script>
+<script src="{% static 'js/fetch_and_manage.js' %}" defer></script>
+
 <div id="recipe-meta"
      data-mode="add"
      style="display:none;">
@@ -70,14 +78,6 @@ Add Recipe
 
     </form>
 </div>
-
-{% include 'recipes/add_ingredients_to_recipe_modal.html' %}
-{% include 'global_reusable/_quick_add_modal.html' %}
-{% include 'global_reusable/_manage_list_modal.html' %}
-
-<script src="{% static 'js/add_recipe_handler.js' %}"></script>
-<script src="{% static 'js/zero_inputt_handler.js' %}"></script>
-<script src="{% static 'js/fetch_and_manage.js' %}"></script>
 
 
 {% endblock %}

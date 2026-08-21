@@ -19,9 +19,9 @@ class HomepageView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['cards'] = [
             {"url_name": "generate_grocery_list", "title": "Get Grocery List",
-             "description": "Save yourself the cognitive load and hours wondering in the store, generate a grocery list from your favourite recipes!"},
+             "description": "Save yourself the cognitive load and hours wondering in the store, generate a planner list from your favourite recipes!"},
             {"url_name": "user_grocery_list", "title": "My Grocery List",
-             "description": "Check what you have in your grocery list and start shopping! You can move items from this list to your fridge to keep track of your ingredients."},
+             "description": "Check what you have in your planner list and start shopping! You can move items from this list to your fridge to keep track of your ingredients."},
             {"url_name": "biometrics", "title": "BMI + TDEE Calculator",
              "description": "BMR and TDEE calculator. Set your data and start tracking!"},
             {"url_name": "meal_suggestions", "title": "Get Meal Suggestions",

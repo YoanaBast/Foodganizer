@@ -8,6 +8,7 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/recipe_styles.css' %}">
 
+<script src="{% static 'js/crud/delete_popup.js' %}" defer></script>
 
 <div class="container-home" style="max-width: 800px; margin: 2rem auto; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
@@ -90,8 +91,5 @@
         <a href="{% url 'manage_recipes' %}" class="btn">All Recipes</a>
     </div>
 
-
-
-<script src="{% static 'js/delete_popup.js' %}"></script>
 
 {% endblock %}

@@ -4,6 +4,7 @@
 {% block title %}KCALendar{% endblock %}
 
 {% block content %}
+<script src="{% static 'js/planner/kcal_calnedar_handler.js' %}" defer></script>
 
 <div class="container-home" style="padding-bottom: 2rem;">
 
@@ -179,6 +180,5 @@
 <script>
     const CSRF = '{{ csrf_token }}';
 </script>
-<script src="{% static 'js/kcal_calnedar_handler.js' %}"></script>
 
 {% endblock %}

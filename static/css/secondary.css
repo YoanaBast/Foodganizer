@@ -1,3 +1,4 @@
+/* ROOT VARIABLES */
 :root {
     --bg-primary-ivory: #FBF7EE;
     --bg-gray: #F5F1ED;
@@ -5,16 +6,13 @@
     --mint: #c5e8db;
     --wine: #D88895;
 }
+
+
+/* TYPOGRAPHY */
 .ranchers-regular {
   font-family: "Ranchers", sans-serif;
   font-weight: 400;
   font-style: normal;
-}
-
-.container-home {
-    display: flex;
-    flex-direction: column;
-    padding: 4rem;
 }
 
 .section-title {
@@ -25,7 +23,14 @@
 
 .section-description {
     color: var(--wine);
+}
 
+
+/* LAYOUT / CONTAINERS */
+.container-home {
+    display: flex;
+    flex-direction: column;
+    padding: 4rem;
 }
 
 .section-header {
@@ -33,9 +38,17 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 4rem;
-
 }
 
+.card p {
+    padding: 10px 15px; /* top/bottom 10px, left/right 15px */
+    margin: 0;          /* remove default p margin */
+    font-size: 2rem;    /* smaller text */
+    text-align: left;   /* align text to left if you want */
+}
+
+
+/* BUTTONS & LINKS (general) */
 .a-btn {
     text-decoration: none;
     text-transform: uppercase;
@@ -46,16 +59,32 @@
     font-weight: 700;
 }
 
-.searchbar, .search_filter select {
+
+/* SEARCH & FILTER BAR */
+.search_filter form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 4rem;
+    align-items: center;
+}
+
+.search_filter form > div {
+    position: relative;
+}
+
+.searchbar, .search_filter select, .form-filter-button {
     background: var(--mint);
     padding: 0.6rem 0.75rem;
     border-radius: 0.5rem;
     border: none;
+    color: color-mix(in srgb, var(--bg-secondary-green) 70%, black);
+    font-weight: 700;
 }
 
 .searchbar {
-    width: 100%;
-
+    flex: 1 1 200px;   /* grow to fill space, shrink no smaller than 200px */
+    min-width: 0;      /* allows it to actually shrink on small screens instead of overflowing */
+    width: auto;       /* remove the old width:100% */
 }
 
 .searchbar:focus {
@@ -63,10 +92,377 @@
     outline: none;
 }
 
-.search_filter form{
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 4rem;
-
+.search_filter select,
+.form-filter-button,
+.filter-submit,
+.search_filter form > div {
+    flex: none;        /* don't grow/shrink — stay at natural content size */
 }
 
+.filter-submit {
+    background: color-mix(in srgb, var(--wine) 50%, white);
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.5rem;
+    border: none;
+    display: inline-block;
+    font: inherit;
+    font-size: 1rem;
+    line-height: 1;
+    text-decoration: none;
+    color: white;
+    font-weight: 800;
+    box-sizing: border-box;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+
+/* TAG DROPDOWN */
+.tag-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 0.5rem;
+    background: var(--bg-primary-ivory);
+    border: 1px solid var(--mint);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    min-width: 180px;
+}
+
+.tag-dropdown.open {
+    display: block;
+}
+
+.tag-dropdown label {
+    display: block;
+    padding: 0.25rem 0;
+    white-space: nowrap;
+}
+
+
+/* TABLE */
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 1rem;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(216, 136, 149, 0.5);
+}
+
+.data-table th,
+.data-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(216, 136, 149, 0.5);
+    border-right: 1px solid rgba(216, 136, 149, 0.5);
+}
+
+.data-table th:last-child,
+.data-table td:last-child {
+    border-right: none;
+}
+
+.data-table thead {
+    background: var(--mint);
+    color: color-mix(in srgb, var(--bg-secondary-green) 70%, black);
+}
+
+.data-table th {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.data-table tr:hover {
+    background: var(--bg-secondary);
+}
+
+.data-table tbody tr:nth-child(even) {
+    background-color: var(--bg-gray);
+}
+
+.data-table tbody tr:nth-child(odd) {
+    background-color: color-mix(in srgb, var(--wine) 20%, white);
+}
+
+td[data-label="Ingredient Name"],
+td[data-label="Ingredient"] {
+    color: #4CAF50;
+    font-weight: 600;
+}
+
+td[data-label="Ingredient Name"]:hover,
+td[data-label="Ingredient"]:hover {
+    color: #81C784;
+    cursor: pointer;
+}
+
+/* Responsive table — card layout on mobile */
+@media screen and (max-width: 768px) {
+    .data-table thead {
+        display: none;
+    }
+
+    .data-table,
+    .data-table tbody,
+    .data-table tr,
+    .data-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .data-table tr {
+        background-color: transparent;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .data-table td {
+        background-color: transparent;
+        text-align: right;
+        padding: 0.75rem 1rem;
+        position: relative;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .data-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        color: #666;
+    }
+
+    .data-table td[data-label="Actions"] {
+        justify-content: center;
+        background-color: transparent;
+        gap: 0.5rem;
+        padding: 16px;
+        margin-top: 5px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .data-table td[data-label="Actions"]::before {
+        display: none;
+    }
+
+    .container-home {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
+
+/* TABLE ACTION ICONS (heart / edit / info / delete) */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* Heart button */
+.btn-heart {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.btn-heart img {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+/* Trash/delete icon button */
+.icon-delete-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-delete-btn img {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+/* Details/Edit icon links */
+.icon-table {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.icon-table i {
+    font-size: 18px;
+    display: block;
+}
+
+.icon-table .fa-circle-info {
+    color: var(--bg-secondary-green);
+}
+
+.icon-table .fa-pen-to-square {
+    color: #4A4A4A;
+}
+
+.icon-table .fa-utensils {
+    color: #4A4A4A;
+}
+
+/* PAGINATION */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+}
+
+.pagination a,
+.pagination .page-current,
+.pagination .page-ellipsis,
+.pagination .page-disabled {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.7rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.pagination a:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: #fff;
+}
+
+.pagination .page-current {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    font-weight: 700;
+    cursor: default;
+    pointer-events: none;
+}
+
+.pagination .page-ellipsis,
+.pagination .page-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pagination .page-prev,
+.pagination .page-next {
+    padding: 0 1rem;
+    letter-spacing: 0.01em;
+}
+
+
+/* DELETE CONFIRMATION MODAL */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.open {
+    display: flex;
+}
+
+.delete-modal {
+    background: var(--bg-primary-ivory);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.delete-modal h3 {
+    color: var(--wine);
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+}
+
+.delete-modal p {
+    color: #4A4A4A;
+    margin-bottom: 1.5rem;
+}
+
+.close-button {
+    position: absolute;
+    top: 0.75rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #4A4A4A;
+}
+
+.close-button:hover {
+    color: var(--wine);
+}
+
+.btn-danger {
+    background: var(--wine);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.25rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-right: 0.5rem;
+}
+
+.btn-danger:hover {
+    background: #c76e7e;
+}

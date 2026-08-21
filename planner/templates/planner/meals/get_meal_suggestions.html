@@ -1,22 +1,24 @@
 {% extends "base.html" %}
-
-{% block title %}Meal Suggestions{% endblock %}
+{% load static %}
 {% load custom_filters %}
 {% load core_filters %}
 
-{% block content %}
+{% block title %}Meal Suggestions{% endblock %}
 
-<div class="container-home" style="margin-top: 1rem;">
-    <h2>Meal Suggestions</h2>
-    <p style="margin-bottom: 2rem;">Get meal suggestions based on what’s currently in your fridge.</p>
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/secondary.css' %}">
+
+<div class="container-home">
+    <h2 class="section-title ranchers-regular">Meal Suggestions</h2>
+    <p class="section-description">Get meal suggestions based on what’s currently in your fridge.</p>
 
 
 {% if messages %}
     {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}"
-             style="background:#22c55e; color:white; font-size:18px; padding:12px 16px; border-radius:8px; margin:12px 0; font-weight:600;">
+        <div class="message alert alert-{{ message.tags }}"
+             >
 
-            <span style="color:white;">
+            <span>
                 {{ message|safe }}
             </span>
 
@@ -24,7 +26,6 @@
     {% endfor %}
 {% endif %}
 
-<hr style="border: none; height: 2px; background: #0f3d2e; margin-bottom: 50px;">
 
     {% if suggestions %}
 
@@ -48,9 +49,9 @@
 
                     <td>
                         {% if s.can_make %}
-                            <span style="color:lightgreen;">✔ Can Make</span>
+                            <span">✔ Can Make</span>
                         {% else %}
-                            <span style="color:#ff6b6b;">Missing Items</span>
+                            <span>Missing Items</span>
                         {% endif %}
                     </td>
 
@@ -76,22 +77,31 @@
                         {% endif %}
                     </td>
                     <td>
-                        <a href="{% url 'recipe_detail' s.recipe.id %}" class="btn btn-secondary btn-small">View</a>
+                        <div class="action-buttons">
 
-                    {% if s.can_make %}
-                    <form action="{% url 'make_recipe' s.recipe.id %}" method="post" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-secondary btn-small">Make</button>
-                    </form>
-                    {% endif %}
+                            {% if s.can_make %}
+                            <form action="{% url 'make_recipe' s.recipe.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="icon-table" title="Make">
+                                    <i class="fa-solid fa-utensils"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            <a href="{% url 'recipe_detail' s.recipe.id %}" class="icon-table" title="View">
+                                <i class="fa-solid fa-circle-info"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
 
             </tbody>
         </table>
+
+<!-- Pagination -->
 {% if page_obj.has_other_pages %}
-<div class="pagination" style="margin-top:1rem; text-align:center;">
+<div class="pagination">
     {% if page_obj.has_previous %}
         <a href="?page={{ page_obj.previous_page_number }}">« Prev</a>
     {% endif %}
@@ -107,9 +117,6 @@
         <p>No suggestions available.</p>
     {% endif %}
 
-        <div style="text-align: center; margin-top: 1rem;">
-    <img src="/static/images/title_line.svg" alt="title_line" style="width: 400px; height: auto;">
-    </div>
 
 </div>
 {% endblock %}

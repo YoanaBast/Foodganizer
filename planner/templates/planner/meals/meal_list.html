@@ -1,16 +1,19 @@
 {% extends "base.html" %}
+{% load static %}
 {% load core_filters %}
 
-{% block title %}
-My Meal History
-{% endblock %}
+{% block title %} My Meal History {% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'css/secondary.css' %}">
 
-<div class="container-home" style="margin-top: 1rem;">
+{% include 'messages/_anon_warning.html' with section_name="meals list" %}
 
-    <h2>My Meal History</h2>
-    <p style="margin-bottom: 2rem;">
+<div class="container-home">
+
+
+    <h2 class="section-title ranchers-regular">My Meal History</h2>
+    <p class="section-description">
       A log of all the recipes you've made in the
       <a href="{% url 'meal_suggestions' %}">Meal Suggestions</a>.
     </p>
@@ -21,9 +24,7 @@ My Meal History
         {% endfor %}
     {% endif %}
 
-    {% include 'messages/_anon_warning.html' with section_name="meals list" %}
-
-    <hr style="border: none; height: 2px; background: #0f3d2e; margin-bottom: 50px;">
+<!-- Table -->
 
     {% if request.user.is_authenticated %}
         {% if meals %}
@@ -43,21 +44,23 @@ My Meal History
                         <td>{{ forloop.counter }}</td>
                         <td>
                             {% if entry.recipe %}{{ entry.recipe.name|title_except }}
-                            {% else %}<em style="color:#aaa;">Recipe deleted</em>{% endif %}
+                            {% else %}<em>Recipe deleted</em>{% endif %}
                         </td>
                         <td>{{ entry.made_at|date:"Y-m-d H:i" }}</td>
                         <td>{{ entry.recipe.nutrients_with_units.kcal }}</td>
                         <td>
                             {% if entry.recipe %}
                                 <a href="{% url 'recipe_detail' entry.recipe.id %}" class="btn btn-secondary btn-small">View</a>
-                            {% else %}<span style="color:#aaa;">—</span>{% endif %}
+                            {% else %}<span>—</span>{% endif %}
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+
+    <!-- Pagination -->
             {% if page_obj.has_other_pages %}
-            <div class="pagination" style="margin-top:1rem; text-align:center;">
+            <div class="pagination">
                 {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">« Prev</a>{% endif %}
                 <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
                 {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Next »</a>{% endif %}
@@ -85,14 +88,16 @@ My Meal History
                         <td>{{ forloop.counter }}</td>
                         <td>
                             {% if entry.recipe %}{{ entry.recipe.name|title_except }}
-                            {% else %}<em style="color:#aaa;">Recipe deleted</em>{% endif %}
+                            {% else %}<em>Recipe deleted</em>{% endif %}
                         </td>
                         <td>{{ entry.made_at }}</td>
                         <td>{% if entry.recipe %}{{ entry.recipe.nutrients_with_units.kcal }}{% endif %}</td>
                         <td>
                             {% if entry.recipe %}
-                                <a href="{% url 'recipe_detail' entry.recipe.id %}" class="btn btn-secondary btn-small">View</a>
-                            {% else %}<span style="color:#aaa;">—</span>{% endif %}
+                           <a href="{% url 'recipe_detail' entry.recipe.id %}" class="icon-table" title="View">
+                                <i class="fa-solid fa-circle-info"></i>
+                            </a>
+                            {% else %}<span>—</span>{% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -102,10 +107,6 @@ My Meal History
             <p>You haven't made any recipes yet. Head to <a href="{% url 'meal_suggestions' %}">Meal Suggestions</a> to get started!</p>
         {% endif %}
     {% endif %}
-
-        <div style="text-align: center; margin-top: 1rem;">
-    <img src="/static/images/title_line.svg" alt="title_line" style="width: 400px; height: auto;">
-    </div>
 
 
 </div>

@@ -7,6 +7,12 @@
     --wine: #D88895;
 }
 
+.ranchers-regular {
+  font-family: "Ranchers", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
 html, body {
     margin: 0;
     padding: 0;
@@ -30,218 +36,111 @@ main {
     margin-top: 3rem;
 
 }
-/*a {*/
-/*    text-decoration: none;*/
-/*    color: #4caf50;*/
-/*}*/
 
-/*a:hover {*/
-/*    color: #66bb6a;*/
-/*}*/
+.margin-top-3rem {
+    margin-top: 3rem;
+}
 
-/*label {*/
-/*    display: block;*/
-/*    margin-bottom: 0.25rem;*/
-/*    font-weight: 500;*/
-/*    color: var(--text-primary);*/
-/*}*/
+.icon-help-btn {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--bg-secondary-green);
+    color: white;
+    border: none;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 900;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
 
+.icon-help-btn:hover {
+    transform: scale(1.08);
+    background: color-mix(in srgb, var(--bg-secondary-green) 85%, black);
+}
 
-/*!* ============================================================*/
-/*   LAYOUT CONTAINERS*/
-/*   ============================================================ *!*/
-/*.container {*/
-/*    max-width: 1200px;*/
-/*    margin: 0 auto;*/
-/*    padding: 0 1.5rem;*/
-/*}*/
+.icon-help-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
 
-/*.container-home {*/
-/*    position: relative;*/
-/*    z-index: 2;*/
-/*    max-width: 1200px;*/
-/*    margin-left: auto;*/
-/*    margin-right: auto;*/
-/*}*/
+.icon-help-modal.open {
+    display: block;
+}
 
-/*.container-content {*/
-/*    max-width: 800px;*/
-/*    position: relative;*/
-/*    z-index: 2;*/
-/*    margin: 2rem auto;*/
-/*    display: flex;*/
-/*    gap: 0.5rem;*/
-/*    flex-wrap: wrap;*/
-/*    align-items: center;*/
-/*        padding: 0 1rem;*/
-/*}*/
+.icon-help-modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-primary-ivory);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 340px;
+    width: 90%;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
 
-/*.container-content:has(.grid-container) {*/
-/*    display: block;*/
-/*}*/
+.icon-help-modal-content h3 {
+    color: var(--bg-secondary-green);
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+}
 
-/*.grid-container {*/
-/*    display: grid;*/
-/*    grid-template-columns: 1fr 1fr;*/
-/*    gap: 2rem;*/
-/*    margin-bottom: 2rem;*/
-/*}*/
+.icon-help-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
 
-/*.grid-item {*/
-/*    background: #111;*/
-/*    padding: 1rem;*/
-/*    border-radius: 6px;*/
-/*}*/
+.icon-help-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--mint);
+    color: #4A4A4A;
+    font-size: 0.9375rem;
+}
 
-/*@media (max-width: 768px) {*/
-/*    .grid-container {*/
-/*        grid-template-columns: 1fr;*/
-/*    }*/
-/*}*/
+.icon-help-list li:last-child {
+    border-bottom: none;
+}
 
+.icon-help-list i {
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
 
+.icon-help-list .fa-circle-info {
+    color: var(--bg-secondary-green);
+}
 
-
-
-
-
-/*!* ============================================================*/
-/*   TYPOGRAPHY*/
-/*   ============================================================ *!*/
-
-/*.small-gray {*/
-/*    font-size: 0.8rem; !* smaller text *!*/
-/*    color: gray;*/
-/*}*/
-
-/*.section-title {*/
-/*    font-size: 2rem;*/
-/*    font-weight: 700;*/
-/*    margin-bottom: 0rem;*/
-/*    letter-spacing: -0.02em;*/
-/*}*/
-
-/*.section-description {*/
-/*    color: var(--text-secondary);*/
-/*    margin-bottom: 2rem;*/
-/*    font-size: 1rem;*/
-/*}*/
-
-/*.container-home h2,*/
-/*.container-home h1,*/
-/*.container-content h2,*/
-/*.container-content h1 {*/
-/*    font-size: 2rem;*/
-/*    margin-bottom: 1.5rem;*/
-/*    color: var(--accent);*/
-/*}*/
-
-/*.container-home h1 {*/
-/*    font-size: 3rem;*/
-/*}*/
+.icon-help-list .fa-pen-to-square {
+    color: #4A4A4A;
+}
 
 
-/*!* ============================================================*/
-/*   BUTTONS*/
-/*   ============================================================ *!*/
-/*.btn, button {*/
-/*    display: inline-block;*/
-/*    padding: 0.5rem 1rem;*/
-/*    background: #333;*/
-/*    color: #fff;*/
-/*    border-radius: 4px;*/
-/*    text-decoration: none;*/
-/*    margin-right: 0.5rem;*/
-/*    border: none;*/
-/*    outline: none;*/
-/*    box-shadow: none;*/
-/*    font-size: 1rem;*/
-/*    line-height: 1.4;*/
-/*    vertical-align: middle;*/
-/*}*/
-
-/*.btn:hover {*/
-/*    background: var(--accent-hover);*/
-/*    transform: translateY(-1px);*/
-/*}*/
-
-/*.btn-secondary {*/
-/*    background: var(--bg-secondary);*/
-/*    color: var(--text-primary);*/
-/*    border: 1px solid var(--border);*/
-/*}*/
-
-/*.btn-secondary:hover {*/
-/*    background: var(--bg-tertiary);*/
-/*}*/
-
-/*.btn-danger {*/
-/*    background: #333;*/
-/*    color: #fff;*/
-/*    border: none;*/
-/*}*/
-
-/*.btn-danger:hover {*/
-/*    background: #dc2626;*/
-/*}*/
-
-/*.btn-small {*/
-/*    padding: 0.5rem 0.875rem;*/
-/*    font-size: 0.75rem;*/
-
-/*}*/
-
-/*.btn-round {*/
-/*    border-radius: 999px;*/
-/*    margin-right: 0rem;*/
-
-/*}*/
-
-/*!* Heart button *!*/
-/*.btn-heart {*/
-/*    background: none;*/
-/*    border: none;*/
-/*    padding: 0;*/
-/*    cursor: pointer;*/
-/*}*/
-
-/*.btn-heart img {*/
-/*    width: 24px;*/
-/*    height: 24px;*/
-/*    display: block;*/
-/*}*/
-
-/*!* Trash/delete icon button *!*/
-/*.icon-delete-btn {*/
-/*    background: none;*/
-/*    border: none;*/
-/*    padding: 0;*/
-/*    cursor: pointer;*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    justify-content: center;*/
-/*}*/
-
-/*.icon-delete-btn img {*/
-/*    width: 24px;*/
-/*    height: 24px;*/
-/*    display: block;*/
-/*}*/
-
-/*!* Add ingredient + button *!*/
-/*#addIngredientBtn {*/
-/*    background: none;*/
-/*    border: none;*/
-/*    padding: 0;*/
-/*    cursor: pointer;*/
-/*}*/
-
-/*#addIngredientBtn img {*/
-/*    width: 24px;*/
-/*    height: 24px;*/
-/*    display: block;*/
-/*}*/
-
+.icon-help-list img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
 
 /*!* ============================================================*/
 /*   FORMS*/
@@ -519,113 +418,6 @@ main {
 /*}*/
 
 
-/*!* ============================================================*/
-/*   TABLE*/
-/*   ============================================================ *!*/
-/*.data-table {*/
-/*    width: 100%;*/
-/*    border-collapse: collapse;*/
-/*    margin-top: 1rem;*/
-/*}*/
-
-/*.data-table th,*/
-/*.data-table td {*/
-/*    padding: 1rem;*/
-/*    text-align: left;*/
-/*    border-bottom: 1px solid var(--border);*/
-/*}*/
-
-/*.data-table th {*/
-/*    font-weight: 600;*/
-/*    font-size: 0.875rem;*/
-/*    color: var(--text-secondary);*/
-/*    text-transform: uppercase;*/
-/*    letter-spacing: 0.05em;*/
-/*}*/
-
-/*.data-table tr:hover {*/
-/*    background: var(--bg-secondary);*/
-/*}*/
-
-/*.action-buttons {*/
-/*    display: flex;*/
-/*    gap: 0.5rem;*/
-/*    align-items: center;*/
-/*}*/
-
-/*td[data-label="Ingredient Name"],*/
-/*td[data-label="Ingredient"] {*/
-/*    color: #4CAF50;*/
-/*    font-weight: 600;*/
-/*}*/
-
-/*td[data-label="Ingredient Name"]:hover,*/
-/*td[data-label="Ingredient"]:hover {*/
-/*    color: #81C784;*/
-/*    cursor: pointer;*/
-/*}*/
-
-/*!* Responsive table — card layout on mobile *!*/
-/*@media screen and (max-width: 768px) {*/
-/*    .data-table thead {*/
-/*        display: none;*/
-/*    }*/
-
-/*    .data-table,*/
-/*    .data-table tbody,*/
-/*    .data-table tr,*/
-/*    .data-table td {*/
-/*        display: block;*/
-/*        width: 100%;*/
-/*    }*/
-
-/*    .data-table tr {*/
-/*        background-color: transparent;*/
-/*        margin-bottom: 1.5rem;*/
-/*        border: 1px solid #e0e0e0;*/
-/*        border-radius: 8px;*/
-/*        overflow: hidden;*/
-/*        box-shadow: 0 2px 5px rgba(0,0,0,0.05);*/
-/*    }*/
-
-/*    .data-table td {*/
-/*        background-color: transparent;*/
-/*        text-align: right;*/
-/*        padding: 0.75rem 1rem;*/
-/*        position: relative;*/
-/*        border-bottom: 1px solid #f0f0f0;*/
-/*        display: flex;*/
-/*        justify-content: space-between;*/
-/*        align-items: center;*/
-/*    }*/
-
-/*    .data-table td::before {*/
-/*        content: attr(data-label);*/
-/*        font-weight: 700;*/
-/*        text-transform: uppercase;*/
-/*        font-size: 0.8rem;*/
-/*        color: #666;*/
-/*    }*/
-
-/*    .data-table td[data-label="Actions"] {*/
-/*        justify-content: center;*/
-/*        background-color: transparent;*/
-/*        gap: 0.5rem;*/
-/*        padding: 16px;*/
-/*        margin-top: 5px;*/
-/*        border-top: 1px solid #f0f0f0;*/
-/*    }*/
-
-/*    .data-table td[data-label="Actions"]::before {*/
-/*        display: none;*/
-/*    }*/
-
-/*    .container-home {*/
-/*        padding-left: 15px;*/
-/*        padding-right: 15px;*/
-/*    }*/
-/*}*/
-
 
 /*!* ============================================================*/
 /*   MODALS*/
@@ -814,76 +606,5 @@ main {
 /*.message.error {*/
 /*    background-color: #3d1f1f;*/
 /*    color: #ff6b6b;*/
-/*}*/
-
-
-/*!* ============================================================*/
-/*   PAGINATION*/
-/*   ============================================================ *!*/
-/*.pagination {*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    justify-content: center;*/
-/*    gap: 0.3rem;*/
-/*    margin: 1.5rem 0;*/
-/*    flex-wrap: wrap;*/
-/*}*/
-
-/*.pagination a,*/
-/*.pagination .page-current,*/
-/*.pagination .page-ellipsis,*/
-/*.pagination .page-disabled {*/
-/*    display: inline-flex;*/
-/*    align-items: center;*/
-/*    justify-content: center;*/
-/*    min-width: 2.25rem;*/
-/*    height: 2.25rem;*/
-/*    padding: 0 0.7rem;*/
-/*    border-radius: 6px;*/
-/*    font-size: 0.8125rem;*/
-/*    font-weight: 500;*/
-/*    line-height: 1;*/
-/*    text-decoration: none;*/
-/*    border: 1px solid var(--border);*/
-/*    background: var(--bg-secondary);*/
-/*    color: var(--text-primary);*/
-/*    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;*/
-/*    white-space: nowrap;*/
-/*    cursor: pointer;*/
-/*}*/
-
-/*.pagination a:hover {*/
-/*    background: var(--accent-hover);*/
-/*    border-color: var(--accent-hover);*/
-/*    color: #fff;*/
-/*}*/
-
-/*.pagination .page-current {*/
-/*    background: var(--accent);*/
-/*    border-color: var(--accent);*/
-/*    color: #000;*/
-/*    font-weight: 700;*/
-/*    cursor: default;*/
-/*    pointer-events: none;*/
-/*}*/
-
-/*.pagination .page-ellipsis,*/
-/*.pagination .page-disabled {*/
-/*    opacity: 0.35;*/
-/*    cursor: not-allowed;*/
-/*    pointer-events: none;*/
-/*}*/
-
-/*.pagination .page-prev,*/
-/*.pagination .page-next {*/
-/*    padding: 0 1rem;*/
-/*    letter-spacing: 0.01em;*/
-/*}*/
-
-/*.card p {*/
-/*    padding: 10px 15px; !* top/bottom 10px, left/right 15px *!*/
-/*    margin: 0;          !* remove default p margin *!*/
-/*    font-size: 2rem;    !* smaller text *!*/
-/*    text-align: left;   !* align text to left if you want *!*/
 /*}*/
 

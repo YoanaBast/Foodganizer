@@ -19,7 +19,7 @@ from recipes.models import Recipe, RecipeIngredient
 
 
 class ManageFridgeView(ListView):
-    template_name = 'planner/manage_fridge.html'
+    template_name = 'planner/fridge/manage_fridge.html'
     context_object_name = 'fridge'
     paginate_by = 10
 
@@ -109,7 +109,7 @@ class AddFridgeItemView(View):
 class EditFridgeItemView(UpdateView):
     model = UserFridge
     form_class = UserFridgeForm
-    template_name = 'planner/edit_fridge.html'
+    template_name = 'planner/fridge/edit_fridge.html'
     pk_url_kwarg = 'item_id'
     success_url = reverse_lazy('manage_fridge')
 
@@ -146,7 +146,7 @@ class EditAnonFridgeItemView(View):
             'anon_index': index,
         }
 
-        return render(request, 'planner/edit_fridge.html', context)
+        return render(request, 'planner/fridge/edit_fridge.html', context)
 
     def post(self, request, index):
         fridge = request.session.get('anon_fridge', [])
@@ -470,7 +470,7 @@ Older views:
 #             messages.info(request, "You already have all the ingredients in your fridge!")
 #             return redirect('generate_grocery_list')
 #
-#         # ADD to existing grocery list quantities instead of overwriting
+#         # ADD to existing planner list quantities instead of overwriting
 #         for ing_data in final_needed.values():
 #             existing = UserGroceryList.objects.filter(
 #                 user=user,
