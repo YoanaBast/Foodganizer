@@ -4,13 +4,20 @@
 {% load core_filters %}
 
 {% block content %}
+
+{% if request.user.is_authenticated %}
+    <script src="{% static 'js/fridge/edit_fridge_handler.js' %}" defer></script>
+{% else %}
+    <script src="{% static 'js/fridge/edit_fridge_anon_handler.js' %}"defer></script>
+{% endif %}
+
 <div class="container-home" style="margin-top: 1rem;">
 
     <h2>{{ item.ingredient.name|title_except }} Stock</h2>
 
     <form method="post" novalidate>
         {% csrf_token %}
-                {% include "errors_label.html" %}
+                {% include "messages/errors_label.html" %}
 <!--AUTH-->
         {% if request.user.is_authenticated %}
 
@@ -72,11 +79,5 @@
     </form>
 </div>
 
-
-{% if request.user.is_authenticated %}
-    <script src="{% static 'js/edit_fridge_handler.js' %}"></script>
-{% else %}
-    <script src="{% static 'js/edit_fridge_anon_handler.js' %}"></script>
-{% endif %}
 
 {% endblock %}

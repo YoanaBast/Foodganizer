@@ -11,6 +11,13 @@
 
     <meta name="description" content="{% block description %}Plan meals, track calories, and organize recipes with Foodganizer. Simple nutrition tracking from ingredients.{% endblock %}">
 
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ranchers&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
     <!-- Open Graph -->
     <meta property="og:title" content="{% block og_title %}Foodganizer{% endblock %}">
     <meta property="og:description" content="{% block og_description %}Meal planner and nutrition tracker{% endblock %}">
@@ -18,14 +25,36 @@
 
     <link rel="canonical" href="{{ request.build_absolute_uri }}">
 
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/main/styles.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon/favicon.ico' %}">
 </head>
+
+<script src="{% static 'js/icon_help.js' %}" defer></script>
+
+<!-- Floating help button -->
+<button id="iconHelpButton" class="icon-help-btn" title="What do these icons mean?">
+    <i class="fa-regular fa-circle-question"></i>
+</button>
+
+<div id="iconHelpModal" class="icon-help-modal">
+    <div class="icon-help-modal-content">
+        <button class="close-button" onclick="closeIconHelp()">&times;</button>
+        <h3 class="ranchers-regular">Icon Guide</h3>
+        <ul class="icon-help-list">
+            <li><i class="fa-solid fa-circle-info"></i> <span>View details about an item</span></li>
+            <li><i class="fa-solid fa-pen-to-square"></i> <span>Edit an item</span></li>
+            <li><img src="{% static 'images/delete-trash.svg' %}" alt=""> <span>Delete an item</span></li>
+            <li><img src="{% static 'images/full_heart.svg' %}" alt=""> <span>Remove from favourites</span></li>
+            <li><img src="{% static 'images/empty_heart.svg' %}" alt=""> <span>Add to favourites</span></li>
+            <li><i class="fa-solid fa-utensils"></i> <span>Make a meal (adds it to Meals List and removes the needed ingredients from the Fridge).</span></li>
+
+        </ul>
+    </div>
+</div>
 
 <body>
 
    {% include 'header.html' %}
-   {% include 'bubble_menu.html' %}
 
 
 <main>
@@ -40,3 +69,5 @@
 </body>
 
 </html>
+
+

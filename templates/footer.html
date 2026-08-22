@@ -1,9 +1,22 @@
- <footer class="footer">
-        <div class="container footer-grid">
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/main/footer.css' %}">
+
+ <footer>
+        <div class="footer-top">
             <div>
-                <h4>Foodganizer</h4>
-                <p>Say "Goodbye" to meal-planning anxiety! </p>
-                <p>Track your favourite recipes and plan your meals in one place!</p>
+            <a href="{% url 'homepage' %}">
+                <img
+                    class="footer-logo"
+                    src="{% static 'images/simple_logo.svg' %}"
+                    alt="Foodganizer logo"
+                >
+            </a>
+
+                <ul>
+                    <li>Say "Goodbye" to meal-planning anxiety!</li>
+                    <li>Track your favourite recipes and plan your meals in one place!</li>
+
+                </ul>
             </div>
 
             <div>
@@ -11,17 +24,15 @@
                 <ul>
                     <li><a  href="{% url 'how_it_works' %}">How it works</a></li>
                     <li><a  href="{% url 'swagger-ui' %}">API</a></li>
+                    <li><a href="https://github.com/YoanaBast/healthy_meals">GitHub</a></li>
 
                 </ul>
             </div>
 
-            <div>
-                <h4>Contact</h4>
-                <p><a href="https://github.com/YoanaBast/healthy_meals">GitHub</a></p>
-            </div>
+
         </div>
 
         <div class="footer-bottom">
             © {% now "Y" %} Foodganizer. All rights reserved.
         </div>
-    </footer>
+</footer>

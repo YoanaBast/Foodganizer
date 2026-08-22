@@ -1,10 +1,54 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+<link rel="stylesheet" href="{% static 'css/main/auth.css' %}">
+<link rel="stylesheet" href="{% static 'css/main/header.css' %}">
 
+<script src="{% static 'js/navbarDropdownHandler.js' %}" defer></script>
 
-
-<header class="main-header">
+<header>
     <div class="tab-nav">
+
+        <div class="tab-buttons-container">
+
+            <div class="tab-dropdown">
+                <button class="tab-button">
+                    Create
+                </button>
+
+                <div class="dropdown-menu">
+                    <a href="{% url 'manage_ingredients' %}">Manage Ingredients</a>
+                    <a href="{% url 'manage_recipes' %}">Manage Recipes</a>
+
+                </div>
+            </div>
+
+            <div class="tab-dropdown">
+                <button class="tab-button">
+                    Cook
+                </button>
+
+                <div class="dropdown-menu">
+                    <a href="{% url 'meal_suggestions' %}">Get Meal Ideas</a>
+                    <a href="{% url 'generate_grocery_list' %}">Get Grocery List</a>
+                    <a href="{% url 'manage_fridge' %}">Manage Fridge</a>
+                    <a href="{% url 'meal_list' %}">Meals List</a>
+                    <a href="{% url 'user_grocery_list' %}">Grocery List</a>
+
+                </div>
+            </div>
+
+            <div class="tab-dropdown">
+                <button class="tab-button">
+                    Track
+                </button>
+
+                <div class="dropdown-menu">
+                    <a href="{% url 'biometrics' %}" >BioMetrics</a>
+                    <a href="{% url 'calorie-tracker' %}" >KCALendar</a>
+
+                </div>
+            </div>
+
+        </div>
 
         <div class="logo">
             <a href="{% url 'homepage' %}">
@@ -13,44 +57,39 @@
             </a>
         </div>
 
+{% if request.user.is_authenticated %}
+    <div class="nav-links">
 
-        <div class="tab-buttons-container">
-            <a href="{% url 'manage_ingredients' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_ingredients' %}active{% endif %}">Ingredients</a>
-<p style="color: gray;" class="hide-mobile">•</p>
-            <a href="{% url 'manage_recipes' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_recipes' %}active{% endif %}">Recipes</a>
-<p style="color: gray;" class="hide-mobile">•</p>
-            <a href="{% url 'manage_fridge' %}" class="tab-button {% if request.resolver_match.url_name == 'manage_fridge' %}active{% endif %}">Fridge</a>
-<p style="color: gray;" class="hide-mobile">•</p>
-            <a href="{% url 'meal_suggestions' %}" class="tab-button {% if request.resolver_match.url_name == 'meal_suggestions' %}active{% endif %}">Get Meal Ideas</a>
-<p style="color: gray;" class="hide-mobile">•</p>
-            <a href="{% url 'generate_grocery_list' %}" class="tab-button {% if request.resolver_match.url_name == 'generate_grocery_list' %}active{% endif %}">Get Grocery List</a>
+        <a href="{% url 'profile' %}" class="nav-user-icon">
+            <i class="fa-solid fa-user"></i>
+        </a>
 
-        </div>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="nav-logout-icon">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </form>
 
-                {% if request.user.is_authenticated %}
-                    <div class="nav-top-links">
+    </div>
 
-                    <a href="{% url 'profile' %}">
-                    <img src="{% static 'images/profile.svg' %}" width="50" height="30">
-                    </a>
+{% else %}
+    <div class="nav-links">
 
+        <li>
+            <a href="{% url 'login' %}" class="nav-login-icon">
+                <i class="fa-solid fa-right-to-bracket"></i>
+            </a>
+        </li>
 
-                    <form method="post" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-invisible">
-                            <img src="{% static 'images/logout.svg' %}" width="50" height="30">
-                        </button>
-                    </form>
-                </div>
+        <li>
+            <a href="{% url 'register' %}" class="nav-register-icon">
+                <i class="fa-solid fa-user-plus"></i>
+            </a>
+        </li>
 
-                {% else %}
-                    <div class="nav-links">
-
-                    <li><a href="{% url 'login' %}" class="nav-auth-link">Login</a></li>
-                    <li><a href="{% url 'register' %}" class="nav-auth-link">Register</a></li>
-                </div>
-
-                {% endif %}
+    </div>
+{% endif %}
 
 
 

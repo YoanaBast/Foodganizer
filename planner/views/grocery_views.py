@@ -16,7 +16,7 @@ from recipes.models import Recipe, RecipeIngredient
 
 
 class GenerateGroceryListView(View):
-    template_name = 'planner/generate_grocery_list.html'
+    template_name = 'planner/grocery/generate_grocery_list.html'
 
     def get_recipes(self, user, show_favs):
         recipes = Recipe.objects.prefetch_related(
@@ -127,7 +127,7 @@ class GenerateGroceryListView(View):
 
 
 class UserGroceryListView(View):
-    template_name = 'planner/user_grocery_list.html'
+    template_name = 'planner/grocery/user_grocery_list.html'
 
     def get_history_data(self, user):
         raw_history = GroceryListGeneration.objects.filter(user=user).prefetch_related(

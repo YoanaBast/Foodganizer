@@ -1,225 +1,259 @@
-/* RESET */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+:root {
+    --bg-primary-ivory: #FBF7EE;
+    --bg-gray: #F5F1ED;
+    --bg-secondary-green: #20B486;
+    --mint: #c5e8db;
+    --wine: #D88895;
+}
+.ranchers-regular {
+  font-family: "Ranchers", sans-serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
-/* HERO */
-.container-home-head {
-  display: grid;
-  gap: 10px;
-  padding: 20px;
-  max-width: 1200px;
-  margin: 20px auto;
-  justify-items: center;
-  border-radius: 15px;
-  color: white;
-  text-align: center;
 
-    background: linear-gradient(
-      to right,
-      rgba(15, 61, 46, 0) 0%,
-      rgba(15, 61, 46, 0.5) 50%,
-      rgba(15, 61, 46, 0) 100%
-    );
-}
+/* HERO LOGO BUTTONS TOP */
 
-.container-home-head h2 {
-  font-size: 2rem;
-}
-
-.container-home-head p {
-  font-size: 1.1rem;
-  color: #d4f0d4;
-}
-
-/* CARDS CONTAINER (CENTERED) */
-.cards {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 25px;
-  margin: 30px auto;
-}
-
-/* CARD */
-.card {
-  width: 1200px;   /* longer */
-  height: 250px;  /* slightly taller */
-  background: #2b452e;
-  border-radius: 18px;
-  overflow: hidden;
-  position: relative;
-  cursor: pointer;
-  transition: 0.4s;
-  text-decoration: none;
-}
-
-/* HOVER */
-.card:hover {
-  transform: scale(1.05);
-}
-
-.cards .card:hover ~ .card,
-.cards .card:has(~ .card:hover) {
-  filter: blur(6px);
-  transform: scale(0.95);
-}
-/* INNER LAYOUT */
-.card-inner {
-  display: flex;
-  height: 100%;
-}
-
-/* IMAGE LEFT */
-.card-img {
-  width: 40%;
-  position: relative;
-}
-
-.card-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* IMAGE FADE */
-.card-img::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 70px;
-  height: 100%;
-  background: linear-gradient(to right, transparent, #2b452e);
-}
-
-/* TEXT */
-.card-content {
-    width: 60%;
-    padding: 20px;
-    color: #bff597;
+.hero {
     display: flex;
-    align-items: flex-start;      /* top instead of center */
-    justify-content: flex-start;
-    font-size: 12px;              /* smaller */
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem 2rem;
+    text-align: center;
+    flex-wrap: wrap;
+    container-type: inline-size;
+    gap: 3rem;
+}
+
+.hero-logo {
+    flex-shrink: 0;
+    width: clamp(200px, 50vw, 670px);
+    aspect-ratio: 1920 / 1080;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.hero-logo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.hero h1 {
+    color: var(--wine);
+    font-size: 2rem;
     text-align: left;
 }
 
-.card-content p {
-  font-size: 1.5rem;
-  margin: 0;
-  padding: 0;
+.highlight {
+    color: #20B486;
 }
 
-/* WAVE TITLE */
-.card-wave {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 140px;
-    background: #bff597;          /* lighter green */
-    clip-path: path("M0,130 C150,120 350,130 600,60 C750,20 900,80 1200,50 L1200,140 L0,140 Z");
+.hero-text-btn {
     display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-    padding-right: 30px;
-    padding-bottom: 15px;
-    z-index: 1;
-    border-top: 2px solid #11482a;  /* border same color as old wave */
+    flex-direction: column;
+    gap: 0.5rem;
+
+}
+
+.hero-text-btn p {
+    padding: 0rem;
+    margin: 0rem;
+    text-align: start;
+    color: var(--wine);
+    margin-bottom: 1rem;
+    overflow-wrap: break-word;
+    max-width: 20rem;
+
+
+}
+
+.btns-home {
+    display: flex;
+    gap: 1rem;
+    text-transform: uppercase;
+
+}
+
+.btns-home a {
+    padding: 1rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.btns-home .primary {
+    background-color: var(--bg-secondary-green);
+    color: var(--mint);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.btns-home .secondary {
+    background-color: var(--mint);
+    color: var(--bg-secondary-green);
 }
 
 
-.card-wave .title {
-  color: black;
-  font-weight: bold;
-  font-size: 1.6rem;
-  position: relative;
-  z-index: 2;
+
+.card-section {
+    width: 100%;
+    overflow: hidden;
 }
 
-/* MOBILE */
-@media (max-width: 700px) {
-  .card {
-    width: 90%;
-    height: 180px;
-  }
-
-  .card-content {
-    font-size: 13px;
-  }
+.cards {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - 2rem) / 3);
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1rem 0 1.5rem;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-@media (max-width: 700px) {
-    .cards .card:hover ~ .card,
-    .cards .card:has(~ .card:hover) {
-        filter: none;
-        transform: none;
+.card {
+    min-width: 0;
+    scroll-snap-align: start;
+    text-decoration: none;
+    background: color-mix(in srgb, var(--mint) 60%, white);
+    border-radius: 5px;
+
+    .card-content {
+        color: var(--bg-secondary-green)
+    }
+
+    .card-title {
+        color: var(--wine)
     }
 }
 
-#back-to-top {
-    position: fixed;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
+.cards .card:nth-child(3n) {
+    background: color-mix(in srgb, var(--wine) 60%, white);
+
+    .card-content {
+        color: color-mix(in srgb, var(--mint) 60%, white);
+    }
+
+    .card-title {
+        color: color-mix(in srgb, var(--mint) 60%, white);
+
+    }
+}
+
+.card-title {
+    font-size: 1.8rem;
+    }
+.card-inner {
+    height: 100%;
+    box-sizing: border-box;
+    padding: 1rem;
+}
+
+
+.cards::-webkit-scrollbar {
+    height: 6px;
+}
+
+
+@media (max-width: 768px) {
+    .cards {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        overflow-x: hidden;
+        overflow-y: visible;
+        padding-bottom: 1rem;
+    }
+
+    .card {
+        width: 100%;
+    }
+}
+
+.slider-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 1rem;
+}
+
+.slider-dots button {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--bg-gray);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.slider-dots button.active {
+    width: 28px;
+    background: var(--bg-secondary-green);
+}
+
+
+
+@media (max-width: 768px) {
+    .slider-dots {
+        display: none; /* no sliding on mobile, so no dots */
+    }
+}
+
+.slider-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 2rem;
+}
+
+.slider-wrap .cards {
+    flex: 1;
+    min-width: 0;
+}
+
+.slider-arrow {
+    flex-shrink: 0;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
+    background: transparent;
+    border: none;
+    color: var(--bg-secondary-green);
+    font-size: 3.5rem;
+    line-height: 1;
     cursor: pointer;
+    display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 999;
-    padding: 0;
+    transition: 0.2s ease;
 }
 
-#back-to-top:hover {
-    background: var(--accent);
+.slider-arrow:hover {
+    color: var(--wine);
+
 }
 
-@media (max-width: 700px) {
-    .container-home-head {
-        padding: 1rem;
-    }
-
-    .container-home-head h2 {
-        font-size: 1.3rem;
-    }
-
-    .container-home-head ul {
-        font-size: 0.85rem;
-        padding-left: 2rem;
-
-    }
-
-    .container-home-head p {
-    font-size: 0.9rem;
-    padding: 0 0.5rem;
-    }
+.slider-arrow:disabled {
+    opacity: 0.3;
+    cursor: default;
 }
 
-@media (max-width: 700px) {
-    .card-content p {
-        font-size: 0.85rem;
-    }
+
+.cards::-webkit-scrollbar {
+    display: none;                /* Chrome/Safari — replaces your old scrollbar-thumb rules */
 }
 
-@media (max-width: 700px) {
-    .card-wave {
-        height: 30px;
-        clip-path: none;
-        justify-content: center;
-        padding: 0;
-        align-items: flex-end;
-        overflow: visible;
-    }
-
-    .card-wave .title {
-        font-size: 0.9rem;
-        color: black;
-        margin-bottom: -5px;
+@media (max-width: 768px) {
+    .slider-arrow {
+        display: none;   /* no arrows on mobile stacked layout */
     }
 }

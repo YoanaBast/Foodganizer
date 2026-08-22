@@ -1,5 +1,8 @@
 {% load static %}
 {% load core_filters %}
+<!--CSS-->
+<link rel="stylesheet" href="{% static 'css/planner_styles.css' %}">
+<link rel="stylesheet" href="{% static 'css/main/styles.css' %}">
 
 <div id="addFridgeItemModal" class="recipe-modal" style="display:none;">
     <div class="recipe-modal-content">
@@ -7,7 +10,7 @@
 
         <form id="addFridgeItemForm" method="post" action="{% url 'add_fridge_item' %}" novalidate>
             {% csrf_token %}
-            {% include "errors_label.html" %}
+            {% include "messages/errors_label.html" %}
 
             <label>Ingredient</label>
             <div class="searchable-select" id="fridgeIngredientDropdown">
@@ -34,44 +37,15 @@
             <label for="unitSelect">Unit</label>
             <select id="unitSelect" name="unit"></select>
 
-            <div style="margin-top: 1rem;">
-                <button type="submit" class="btn btn-success">Add to Fridge</button>
-                <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancel</button>
+            <div class="margin-top-3rem">
+                <button class="filter-submit" type="submit">Add to Fridge</button>
+                <button class="filter-submit" type="button" onclick="closeModal()">Cancel</button>
             </div>
         </form>
     </div>
 </div>
 
-<style>
-    .searchable-select {
-    position: relative;
-}
 
-.searchable-options {
-    display: none;
-    position: absolute;
-    background: #2a2a2a;
-    border: 1px solid #444;
-    border-radius: 4px;
-    max-height: 200px;
-    overflow-y: auto;
-    width: 100%;
-    z-index: 1000;
-}
-
-.searchable-options.open {
-    display: block;
-}
-
-.search-option {
-    padding: 8px 12px;
-    cursor: pointer;
-}
-
-.search-option:hover, .search-option.selected {
-    background: #3a3a3a;
-}
-</style>
 <script>
     function openFridgeDropdown() {
     document.getElementById('fridgeIngredientOptions').classList.add('open');

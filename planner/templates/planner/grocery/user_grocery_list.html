@@ -9,6 +9,11 @@ Grocery List
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/planner_styles.css' %}">
 
+{% include 'planner/grocery/delete_grocery_modal.html' %}
+
+<script src="{% static 'js/crud/delete_popup.js' %}" defer></script>
+<script src="{% static 'js/planner/grocery_list_modals.js' %}"defer></script>
+
 <div class="container-home" style="margin-top: 1rem;">
     <h2>My Grocery List</h2>
     <p style="margin-bottom: 1rem;">Enjoy a personalized grocery list from the <a href="{% url 'generate_grocery_list' %}">grocery list generator</a>.</p>    {% if messages %}
@@ -21,7 +26,7 @@ Grocery List
         {% endfor %}
     {% endif %}
 
-    {% include '_anon_warning.html' with section_name="grocery list" %}
+    {% include 'messages/_anon_warning.html' with section_name="grocery list" %}
 
 
 <hr style="border: none; height: 2px; background: #0f3d2e; margin-bottom: 50px;">
@@ -133,11 +138,5 @@ Grocery List
 
 
 </div>
-
-{% include 'planner/delete_grocery_modal.html' %}
-
-<script src="{% static 'js/delete_popup.js' %}"></script>
-<script src="{% static 'js/grocery_list_modals.js' %}"></script>
-
 
 {% endblock %}

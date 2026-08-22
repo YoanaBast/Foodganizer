@@ -4,6 +4,15 @@
 
 {% block content %}
 
+{% include 'recipes/add_ingredients_to_recipe_modal.html' %}
+{% include 'global_reusable/_quick_add_modal.html' %}
+{% include 'global_reusable/_manage_list_modal.html' %}
+
+<script src="{% static 'js/recipe/add_recipe_handler.js' %}" defer></script>
+<script src="{% static 'js/zero_inputt_handler.js' %}" defer></script>
+<script src="{% static 'js/fetch_and_manage.js' %}" defer></script>
+
+
 <div id="recipe-meta"
      data-mode="edit"
      data-recipe-id="{{ recipe.pk }}"
@@ -25,8 +34,8 @@
         <!-- Recipe fields -->
         <div style="max-width: 800px; margin: 2rem auto;">
             <h2>Edit Recipe</h2>
-        {% include "errors_label.html" with form=recipe_form %}
-        {% include "formset_errors.html" with formset=ingredient_formset %}
+        {% include "messages/errors_label.html" with form=recipe_form %}
+        {% include "messages/formset_errors.html" with formset=ingredient_formset %}
 
             <div class="grid-container">
                 <div class="grid-item info">
@@ -92,7 +101,7 @@
                     <p style="color: var(--text-secondary); font-style: italic;">No ingredients yet.</p>
                 {% endif %}
 
-                {% include 'add_button.html' %}
+                {% include 'global_reusable/add_button.html' %}
 
             </div>
         </div>
@@ -105,16 +114,8 @@
 
     </form>
 
-{% include 'recipes/add_ingredients_to_recipe_modal.html' %}
-{% include '_quick_add_modal.html' %}
-{% include '_manage_list_modal.html' %}
-
 </div>
 
-
-<script src="{% static 'js/add_recipe_handler.js' %}"></script>
-<script src="{% static 'js/zero_inputt_handler.js' %}"></script>
-<script src="{% static 'js/fetch_and_manage.js' %}"></script>
 
 
 {% endblock %}

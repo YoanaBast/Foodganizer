@@ -40,7 +40,7 @@ urlpatterns = [
     path('fridge/', include(fridge_patterns)),
     path('fridge/empty/', EmptyFridgeView.as_view(), name='empty_fridge'),
 
-    path('grocery-list/', include(grocery_patterns)),
+    path('planner-list/', include(grocery_patterns)),
     path('calorie-tracker/', views.calorie_tracker, name='calorie-tracker'),
     path('suggestions/', views.get_meal_suggestions, name='meal_suggestions'),
     path('make/<int:id>/', MakeRecipeView.as_view(), name='make_recipe'),
@@ -51,9 +51,9 @@ urlpatterns = [
     # urls.py
     path('fridge/anon/delete/<int:index>/', views.DeleteAnonFridgeItemView.as_view(), name='delete_anon_fridge_item'),
     path('fridge/anon/edit/<int:index>/', views.EditAnonFridgeItemView.as_view(), name='edit_anon_fridge_item'),
-    path('grocery/anon/delete/<int:index>/', views.DeleteAnonGroceryItemView.as_view(), name='delete_anon_grocery_item'),
-    path('grocery/anon/add-to-fridge/<int:index>/', views.AddAnonGroceryToFridgeView.as_view(), name='add_anon_grocery_to_fridge'),
-    path('grocery/anon/add-all-to-fridge/', views.AddAllAnonGroceryToFridgeView.as_view(), name='add_all_anon_grocery_to_fridge'),
+    path('planner/anon/delete/<int:index>/', views.DeleteAnonGroceryItemView.as_view(), name='delete_anon_grocery_item'),
+    path('planner/anon/add-to-fridge/<int:index>/', views.AddAnonGroceryToFridgeView.as_view(), name='add_anon_grocery_to_fridge'),
+    path('planner/anon/add-all-to-fridge/', views.AddAllAnonGroceryToFridgeView.as_view(), name='add_all_anon_grocery_to_fridge'),
     path('biometrics/', views.BiometricsView.as_view(), name='biometrics'),
     path('calendar/', CalendarView.as_view(), name='calendar'),
     path('calendar/data/', CalendarDataView.as_view(), name='calendar_data'),

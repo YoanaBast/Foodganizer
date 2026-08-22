@@ -1,0 +1,23 @@
+
+.message {
+    background: color-mix(in srgb, var(--wine) 15%, white);
+    border: 1px solid var(--wine);
+    border-radius: 8px;
+    padding: 0.85rem 1.25rem;
+    margin: 1.5rem;
+
+    color: #4A4A4A;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+}
+
+.message a {
+    color: var(--wine);
+    font-weight: 700;
+    text-decoration: underline;
+    margin-left: 0.25rem;
+}
+
+.message a:hover {
+    color: color-mix(in srgb, var(--wine) 70%, black);
+}

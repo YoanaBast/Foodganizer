@@ -1,0 +1,10 @@
+{% load static %}
+<!--CSS-->
+<link rel="stylesheet" href="{% static 'css/messages.css' %}">
+
+{% if not request.user.is_authenticated %}
+    <div class="message">
+        ⚠️ You are not logged in. Your {{ section_name }} is temporary and will be lost when you close the browser.
+        <a href="{% url 'register' %}">Register now to save it.</a>
+    </div>
+{% endif %}

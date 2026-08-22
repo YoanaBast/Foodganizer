@@ -87,7 +87,7 @@ def get_meal_suggestions(request):
     paginator = Paginator(suggestions, 10)
     page_obj = paginator.get_page(request.GET.get('page'))
 
-    return render(request, "planner/get_meal_suggestions.html", {
+    return render(request, "planner/meals/get_meal_suggestions.html", {
         "suggestions": page_obj,
         "page_obj": page_obj,
     })
@@ -161,7 +161,7 @@ class MakeRecipeView(View):
 
 
 class MealListView(ListView):
-    template_name = 'planner/meal_list.html'
+    template_name = 'planner/meals/meal_list.html'
     context_object_name = 'meals'
     paginate_by = 10
 
