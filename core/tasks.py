@@ -1,3 +1,6 @@
+# CURRENTLY UNUSED AS THE WORKERS ON RENDER ARE NOT FREE, GOOD ON AWS DELPOYMENT
+
+
 from celery import shared_task
 
 from django.contrib.auth import get_user_model

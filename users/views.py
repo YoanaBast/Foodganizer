@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
@@ -5,26 +7,35 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView
 
-# Create your views here.
-
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse_lazy
 
 from planner.helpers import transfer_session_to_user
-from core.tasks import send_welcome_email_task
+from users.emails import send_welcome_email
 from .forms import RegisterForm, ProfileEditForm
 from .models import Profile
 
+logger = logging.getLogger(__name__)
 
 class RegisterView(CreateView):
     form_class = RegisterForm
     template_name = 'users/register.html'
     success_url = reverse_lazy('login')
 
+    # def form_valid(self, form):
+    #     response = super().form_valid(form)
+    #     transfer_session_to_user(self.object, self.request.session)
+    #     send_welcome_email_task.delay(self.object.id)
+    #     return response
+
+
     def form_valid(self, form):
         response = super().form_valid(form)
         transfer_session_to_user(self.object, self.request.session)
-        send_welcome_email_task.delay(self.object.id)
+        try:
+            send_welcome_email(self.object)
+        except Exception:
+            logger.exception("Failed to send welcome email to user %s", self.object.id)
         return response
 
 
