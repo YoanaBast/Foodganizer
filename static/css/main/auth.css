@@ -1,16 +1,13 @@
-/*input[type="email"],*/
-/*input[type="password"],*/
-/*input[type="text"] {          !* add text for username field *!*/
-/*    padding: 0.6rem 0.75rem;*/
-/*    border: 1px solid var(--border);*/
-/*    border-radius: 0.5rem;*/
-/*    background: var(--bg-tertiary);*/
-/*    color: var(--text-primary);*/
-/*    font-size: 0.875rem;*/
-/*    font-family: inherit;*/
-/*    box-sizing: border-box;*/
-/*    width: 100%;              !* changed: was 50%, now matches errorlist *!*/
-/*}*/
+
+:root {
+    --bg-primary-ivory: #FBF7EE;
+    --bg-gray: #F5F1ED;
+    --bg-secondary-green: #20B486;
+    --mint: #c5e8db;
+    --wine: #D88895;
+}
+
+
 
 ul.errorlist {
     list-style: none;
@@ -58,4 +55,132 @@ ul.errorlist {
 .nav-top-links form {
     display: flex;
     align-items: center;
+}
+
+
+
+
+.double-trouble {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    min-height: 100%;
+
+
+    .hero-logo {
+    flex: 1 1 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 5rem;
+
+    }
+
+    .hero-logo img {
+        max-width: 80%;
+        height: auto;
+    }
+
+
+}
+
+/* LOGIN / AUTH FORM */
+.creds-form {
+    width: 100%;
+    flex: 1 1 50%;
+    background: color-mix(in srgb, var(--mint) 60%, white);
+    padding: 2.5rem 2rem;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media screen and (max-width: 900px) {
+    .creds-form,
+    .hero-logo {
+        flex: 1 1 100%;
+    }
+}
+.creds-form > div {
+    width: 100%;
+    max-width: 360px;
+}
+
+.form-group {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--bg-secondary-green);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.4rem;
+}
+
+.creds-form input[type="email"],
+.creds-form input[type="password"],
+.creds-form input[type="text"] {
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--mint);
+    border-radius: 0.5rem;
+    background: var(--bg-gray);
+    color: #333;
+    font-size: 0.9375rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    width: 100%;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.creds-form input[type="email"]:focus,
+.creds-form input[type="password"]:focus,
+.creds-form input[type="text"]:focus {
+    outline: none;
+    border-color: var(--wine);
+    background: #fff;
+}
+
+.creds-form .btn {
+    width: 100%;
+    background: var(--bg-secondary-green);
+    color: #fff;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.creds-form .btn:hover {
+    background: color-mix(in srgb, var(--bg-secondary-green) 85%, black);
+    transform: translateY(-1px);
+}
+
+.creds-form p {
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+    color: #4A4A4A;
+    text-align: center;
+}
+
+.creds-form p a {
+    color: var(--wine);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.creds-form p a:hover {
+    text-decoration: underline;
 }

@@ -339,7 +339,6 @@ td[data-label="Ingredient"]:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.3rem;
     margin: 1.5rem 0;
     flex-wrap: wrap;
 }
@@ -353,30 +352,25 @@ td[data-label="Ingredient"]:hover {
     justify-content: center;
     min-width: 2.25rem;
     height: 2.25rem;
-    padding: 0 0.7rem;
     border-radius: 6px;
     font-size: 0.8125rem;
     font-weight: 500;
     line-height: 1;
     text-decoration: none;
-    border: 1px solid var(--border);
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    border: none;
+    background: transparent;
+    color: var(--wine);
+    transition: background 0.15s ease, color 0.15s ease;
     white-space: nowrap;
     cursor: pointer;
 }
 
 .pagination a:hover {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
-    color: #fff;
+    color: var(--bg-secondary-green);
 }
 
 .pagination .page-current {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #000;
+    color: var(--bg-secondary-green);
     font-weight: 700;
     cursor: default;
     pointer-events: none;
@@ -394,7 +388,6 @@ td[data-label="Ingredient"]:hover {
     padding: 0 1rem;
     letter-spacing: 0.01em;
 }
-
 
 /* DELETE CONFIRMATION MODAL */
 .modal-overlay {

@@ -59,8 +59,29 @@ header li a {
     text-decoration: none;
     white-space: nowrap;
     text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
 }
 
+.tab-button::after {
+    content: "\f078"; /* fa-chevron-down */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 0.8em;
+    height: 0.8em;
+    font-size: 0.7em;
+    line-height: 1;
+    transform-origin: 50% 50%;
+    transition: transform 0.2s ease;
+}
+
+.tab-dropdown.open .tab-button::after {
+    transform: rotate(180deg);
+}
 .tab-button:hover {
     background-color: transparent;
     color: var(--bg-secondary-green);
@@ -76,6 +97,7 @@ header li a {
     background-color: #15803d;
     border-radius: 2px;
 }
+
 
 .tab-dropdown {
     display: flex;

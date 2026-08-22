@@ -3,25 +3,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register</title>
-  <link rel="stylesheet" href="{% static 'css/main/styles.css' %}">
-  <link rel="stylesheet" href="{% static 'css/main/auth.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="{% static 'css/main/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/homepage_styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main/auth.css' %}">
 
 </head>
 <body>
-<div class="container-home" style="padding-top: 2rem; padding-bottom: 2rem;">
-    <h2>Create an Account</h2>
 
-    <form method="post">
-        {% csrf_token %}
+<main style="margin-top: 10rem">
+    <div class="double-trouble">
+        <div class="creds-form">
+            <div class="creds-form-inner">
+                <form method="post" novalidate>
+                    {% csrf_token %}
 
-        {{ form.as_p }}
+                    {% for field in form %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {{ field.errors }}
+                        </div>
+                    {% endfor %}
 
-        <button type="submit" class="btn">Register</button>
-    </form>
+                    {{ form.non_field_errors }}
 
-</div>
+                    <button type="submit" class="btn">Register</button>
+                </form>
+
+                <p>
+                    Already have an account? <a href="{% url 'login' %}">Login here</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="hero-logo">
+            <img src="{% static 'images/circle-logo.svg' %}" alt="foodganizer-logo">
+        </div>
+
+    </div>
+</main>
+
 </body>
 </html>

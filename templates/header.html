@@ -11,7 +11,7 @@
 
             <div class="tab-dropdown">
                 <button class="tab-button">
-                    Create <span class="arrow">⌄</span>
+                    Create
                 </button>
 
                 <div class="dropdown-menu">
@@ -23,7 +23,7 @@
 
             <div class="tab-dropdown">
                 <button class="tab-button">
-                    Cook <span class="arrow">⌄</span>
+                    Cook
                 </button>
 
                 <div class="dropdown-menu">
@@ -38,7 +38,7 @@
 
             <div class="tab-dropdown">
                 <button class="tab-button">
-                    Track <span class="arrow">⌄</span>
+                    Track
                 </button>
 
                 <div class="dropdown-menu">
@@ -58,7 +58,7 @@
         </div>
 
 {% if request.user.is_authenticated %}
-    <div class="nav-top-links">
+    <div class="nav-links">
 
         <a href="{% url 'profile' %}" class="nav-user-icon">
             <i class="fa-solid fa-user"></i>
