@@ -1,73 +1,91 @@
 {% load static %}
 {% load form_extras %}
+{% load compress %}
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}Foodganizer – Meal Planner & Nutrition Tracker{% endblock %}</title>
+        <title>{% block title %}Foodganizer – Meal Planner & Nutrition Tracker{% endblock %}</title>
 
-    <meta name="description" content="{% block description %}Plan meals, track calories, and organize recipes with Foodganizer. Simple nutrition tracking from ingredients.{% endblock %}">
+    <!-- SEO -->
+        <link rel="canonical" href="https://foodganizer.com{{ request.path }}">
+        <meta name="description" content="{% block description %}Plan meals, track calories, and organize recipes with Foodganizer. Simple nutrition tracking from ingredients.{% endblock %}">
+        <meta property="og:title" content="{% block og_title %}Foodganizer{% endblock %}">
+        <meta property="og:description" content="{% block og_description %}Meal planner and nutrition tracker{% endblock %}">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://foodganizer.com{{ request.path }}">
+        <meta property="og:image" content="{% block og_image %}https://foodganizer.com{% static 'images/og-default.png' %}{% endblock %}">
 
+        <!-- GFonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Ranchers&display=swap" rel="stylesheet">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ranchers&display=swap" rel="stylesheet">
+        <!-- Icons -->
+       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+        <!-- Favicon -->
+        <link rel="icon" type="image/x-icon" href="{% static 'favicon/favicon.ico' %}">
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="{% block og_title %}Foodganizer{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Meal planner and nutrition tracker{% endblock %}">
-    <meta property="og:type" content="website">
+        <!-- Styles -->
+        {% compress css %}
+            <link rel="stylesheet" href="{% static 'css/main/styles.css' %}">
+            <link rel="stylesheet" href="{% static 'css/main/secondary.css' %}">
 
-    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+            <link rel="stylesheet" href="{% static 'css/main/header.css' %}">
+            <link rel="stylesheet" href="{% static 'css/main/footer.css' %}">
 
-    <link rel="stylesheet" href="{% static 'css/main/styles.css' %}">
-    <link rel="icon" type="image/x-icon" href="{% static 'favicon/favicon.ico' %}">
-</head>
+            <link rel="stylesheet" href="{% static 'css/main/pagonation.css' %}">
+            <link rel="stylesheet" href="{% static 'css/main/auth.css' %}">
+            <link rel="stylesheet" href="{% static 'css/main/messages.css' %}">
+            <link rel="stylesheet" href="{% static 'css/main/table.css' %}">
+            <link rel="stylesheet" href="{% static 'css/main/buttons_links.css' %}">
+            <link rel="stylesheet" href="{% static 'css/main/interactive_fields.css' %}">
 
-<script src="{% static 'js/icon_help.js' %}" defer></script>
+            <link rel="stylesheet" href="{% static 'css/homepage_styles.css' %}">
+            <link rel="stylesheet" href="{% static 'css/planner_styles.css' %}">
+            <link rel="stylesheet" href="{% static 'css/ingredients.css' %}">
+            <link rel="stylesheet" href="{% static 'css/recipes.css' %}">
+        {% endcompress %}
+    </head>
 
-<!-- Floating help button -->
-<button id="iconHelpButton" class="icon-help-btn" title="What do these icons mean?">
-    <i class="fa-regular fa-circle-question"></i>
-</button>
+    <body>
 
-<div id="iconHelpModal" class="icon-help-modal">
-    <div class="icon-help-modal-content">
-        <button class="close-button" onclick="closeIconHelp()">&times;</button>
-        <h3 class="ranchers-regular">Icon Guide</h3>
-        <ul class="icon-help-list">
-            <li><i class="fa-solid fa-circle-info"></i> <span>View details about an item</span></li>
-            <li><i class="fa-solid fa-pen-to-square"></i> <span>Edit an item</span></li>
-            <li><img src="{% static 'images/delete-trash.svg' %}" alt=""> <span>Delete an item</span></li>
-            <li><img src="{% static 'images/full_heart.svg' %}" alt=""> <span>Remove from favourites</span></li>
-            <li><img src="{% static 'images/empty_heart.svg' %}" alt=""> <span>Add to favourites</span></li>
-            <li><i class="fa-solid fa-utensils"></i> <span>Make a meal (adds it to Meals List and removes the needed ingredients from the Fridge).</span></li>
+        {% include 'header.html' %}
+        <script src="{% static 'js/icon_help.js' %}" defer></script>
 
-        </ul>
-    </div>
-</div>
+        <!-- Floating help button -->
+        <button id="iconHelpButton" class="icon-help-btn" title="What do these icons mean?">
+            <i class="fa-regular fa-circle-question"></i>
+        </button>
 
-<body>
+        <div id="iconHelpModal" class="icon-help-modal">
+            <div class="icon-help-modal-content">
+                <button class="close-button" onclick="closeIconHelp()">&times;</button>
+                <h3 class="ranchers-regular">Icon Guide</h3>
+                <ul class="icon-help-list">
+                    <li><i class="fa-solid fa-circle-info"></i> <span>View details about an item</span></li>
+                    <li><i class="fa-solid fa-pen-to-square"></i> <span>Edit an item</span></li>
+                    <li><img src="{% static 'images/delete-trash.svg' %}" alt=""> <span>Delete an item</span></li>
+                    <li><img src="{% static 'images/full_heart.svg' %}" alt=""> <span>Remove from favourites</span></li>
+                    <li><img src="{% static 'images/empty_heart.svg' %}" alt=""> <span>Add to favourites</span></li>
+                    <li><i class="fa-solid fa-utensils"></i> <span>Make a meal (adds it to Meals List and removes the needed ingredients from the Fridge).</span></li>
 
-   {% include 'header.html' %}
+                </ul>
+            </div>
+        </div>
 
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
 
-<main>
+           {% include 'footer.html' %}
 
-    {% block content %}
-    {% endblock %}
-
-</main>
-
-       {% include 'footer.html' %}
-
-</body>
-
+    </body>
 </html>
 
 

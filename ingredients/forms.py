@@ -3,10 +3,10 @@ from django.core.validators import MinValueValidator
 
 from core.constants import NUTRIENTS, NUTRIENT_UNITS
 from .models import Ingredient, IngredientMeasurementUnit
-from core.mixins import ErrorMessagesMixin
+from core.mixins import ErrorMessagesMixin, StyledFormMixin
 
 
-class IngredientFormBase(ErrorMessagesMixin, forms.ModelForm):
+class IngredientFormBase(StyledFormMixin, ErrorMessagesMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -22,7 +22,7 @@ class IngredientFormBase(ErrorMessagesMixin, forms.ModelForm):
             self.fields[field].required = False
             self.fields[field].initial = 0
             self.fields[field].widget = forms.NumberInput(
-                attrs={'class': 'form-input nutrient-input', 'step': 'any', 'min': 0}
+                attrs={'class': 'form-input nutrient-input styled-input', 'step': 'any', 'min': 0}
             )
 
     def clean_name(self):
@@ -77,8 +77,9 @@ class IngredientEditForm(IngredientFormBase):
         if self.instance.pk:
             self.fields['created_by'].initial = self.instance.created_by or '-'
             self.fields['updated_by'].initial = self.instance.updated_by or '-'
-            self.fields['created_by'].widget.attrs['class'] = 'form-input'
-            self.fields['updated_by'].widget.attrs['class'] = 'form-input'
+            self.fields['created_by'].widget.attrs['class'] = 'form-input styled-input'
+            self.fields['updated_by'].widget.attrs['class'] = 'form-input styled-input'
+
 
     def clean_name(self):
         """
@@ -93,7 +94,7 @@ class IngredientEditForm(IngredientFormBase):
         return name
 
 
-class IngredientDetailForm(forms.Form):
+class IngredientDetailForm(StyledFormMixin, forms.Form):
     def __init__(self, ingredient, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ingredient = ingredient

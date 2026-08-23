@@ -1,8 +1,9 @@
 from django import forms
 from .models import UserFridge, UserBiometrics
 from core.mixins import ErrorMessagesMixin
+from core.mixins import StyledFormMixin
 
-class UserFridgeForm(ErrorMessagesMixin, forms.ModelForm):
+class UserFridgeForm(StyledFormMixin, ErrorMessagesMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.apply_error_messages(['quantity', 'unit'])
@@ -18,7 +19,14 @@ class UserFridgeForm(ErrorMessagesMixin, forms.ModelForm):
         exclude = ['user', 'ingredient']
 
 
-class BiometricsForm(forms.ModelForm):
+class BiometricsForm(StyledFormMixin, forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            existing = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = (existing + ' styled-input').strip()
+
     # display-only fields for imperial input
     weight_lbs = forms.FloatField(
         required=False,

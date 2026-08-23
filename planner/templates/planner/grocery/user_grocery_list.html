@@ -7,14 +7,13 @@ Grocery List
 {% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/planner_styles.css' %}">
 
 {% include 'planner/grocery/delete_grocery_modal.html' %}
 
 <script src="{% static 'js/crud/delete_popup.js' %}" defer></script>
 <script src="{% static 'js/planner/grocery_list_modals.js' %}"defer></script>
 
-<div class="container-home" style="margin-top: 1rem;">
+<div class="main-first-child-container-padding" style="margin-top: 1rem;">
     <h2>My Grocery List</h2>
     <p style="margin-bottom: 1rem;">Enjoy a personalized grocery list from the <a href="{% url 'generate_grocery_list' %}">grocery list generator</a>.</p>    {% if messages %}
 
@@ -66,7 +65,7 @@ Grocery List
                             <button type="submit" class="btn btn-sm">→ Fridge</button>
                         </form>
                         <button type="button"
-                                class="btn btn-sm btn-danger"
+                                class="btn btn-sm btn-wine-small"
                                 onclick="openGroceryDeleteModal({{ item.id }}, '{{ item.ingredient.name }}')">
                             Delete
                         </button>
@@ -77,7 +76,7 @@ Grocery List
                         </form>
                         <form method="POST" action="{% url 'delete_anon_grocery_item' item.index %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            <button type="submit" class="btn btn-sm btn-wine-small">Delete</button>
                         </form>
                     {% endif %}
                 </td>

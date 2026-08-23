@@ -130,6 +130,10 @@
     .card-title {
         color: var(--wine)
     }
+
+    p {
+        font-size: 1.2rem;
+    }
 }
 
 .cards .card:nth-child(3n) {

@@ -1,0 +1,37 @@
+.styled-input,
+.creds-form input[type="email"],
+.creds-form input[type="password"],
+.creds-form input[type="text"],
+.creds-form input[type="number"],
+.creds-form select,
+.creds-form textarea,
+.biometrics-form-block input[type="text"],
+.biometrics-form-block input[type="number"],
+.biometrics-form-block input[type="email"],
+.biometrics-form-block select,
+.biometrics-form-block textarea,
+.profile-info input,
+.profile-info textarea {
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--mint);
+    border-radius: 0.5rem;
+    background: var(--bg-gray);
+    color: #333;
+    font-size: 0.9375rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    width: 100%;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.styled-input:focus,
+.creds-form input:focus,
+.biometrics-form-block input:focus,
+.biometrics-form-block select:focus,
+.biometrics-form-block textarea:focus,
+.profile-info input:focus,
+.profile-info textarea:focus {
+    outline: none;
+    border-color: var(--wine);
+    background: #fff;
+}

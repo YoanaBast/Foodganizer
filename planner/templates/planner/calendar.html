@@ -6,12 +6,12 @@
 {% block content %}
 <script src="{% static 'js/planner/kcal_calnedar_handler.js' %}" defer></script>
 
-<div class="container-home" style="padding-bottom: 2rem;">
+<div class="main-first-child-container-padding" style="padding-bottom: 2rem;">
 
 {% if request.user.is_authenticated %}
 
     <!-- TITLE + EDIT -->
-    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+    <div class="flex-row-space-between" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
         <div>
             <h2 class="section-title">Deficit Calculator</h2>
             <p class="section-description">See the actual % of fat that you have lost/gained over a period of time.</p>
@@ -72,8 +72,8 @@
     </div>
 
 <!-- KCALENDAR -->
-<div class="container-home" style="padding-top: 2rem; padding-bottom: 2rem;">
-    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+<div class="main-first-child-container-padding" style="padding-top: 2rem; padding-bottom: 2rem;">
+    <div class="flex-row-space-between" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
         <div>
             <h2 class="section-title">KCALendar (Calorie Tracker Calendar)</h2>
             <p class="section-description">Track your daily calories and meals.</p>
@@ -152,7 +152,7 @@
             <div id="edit-fields"></div>
             <div style="display:flex; gap:0.5rem; margin-top:1rem;">
                 <button class="btn" onclick="submitEdit()">Save</button>
-                <button class="btn btn-danger" onclick="submitDelete()">Delete</button>
+                <button class="btn btn-wine-small" onclick="submitDelete()">Delete</button>
                 <button class="btn btn-secondary" onclick="closeEdit()">Cancel</button>
             </div>
         </div>
@@ -172,7 +172,7 @@
 {% endif %}
 
 
-</div> <!-- container-home -->
+</div> <!-- main-first-child-container-padding -->
     <div style="text-align: center; margin-top: 1rem;">
     <img src="/static/images/title_line.svg" alt="fooganizer_ui_image" style="width: 400px; height: auto;">
     </div>

@@ -7,9 +7,7 @@
 
 {% block content %}
 
-<!--CSS-->
-<link rel="stylesheet" href="{% static 'css/secondary.css' %}">
-<link rel="stylesheet" href="{% static 'css/planner_styles.css' %}">
+
 
 <!--templates-->
 {% include 'planner/fridge/add_fridge_item_modal.html' %}
@@ -30,12 +28,12 @@
 <script src="{% static 'js/search_filter/tag_dropdown.js' %}" defer></script>
 
 
-<div class="container-home">
+<div class="main-first-child-container-padding">
 
     <div id="manage-fridge" class="tab-content active">
 
 <!-- Title + Button Row -->
-            <div class="section-header">
+            <div class="flex-row-space-between">
                 <div>
                     <h2 class="section-title ranchers-regular">Manage Your Fridge</h2>
                     <p class="section-description">View and update the ingredients in your fridge here.</p>
@@ -75,23 +73,23 @@
                                 <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
                             {% endfor %}
                     </select>
+                    <div class="tag-filter-group">
+                        <button type="button" onclick="this.nextElementSibling.classList.toggle('open')"
+                            class="form-filter-button">
+                            Tags {% if selected_tags %}({{ selected_tags|length }}){% endif %} ▾
+                        </button>
 
-                    <button type="button" onclick="this.nextElementSibling.classList.toggle('open')"
-                        class="form-filter-button">
-                        Tags {% if selected_tags %}({{ selected_tags|length }}){% endif %} ▾
-                    </button>
+                        <div class="tag-dropdown">
+                            {% for tag in tags %}
+                            <label>
+                                <input type="checkbox" name="tag" value="{{ tag.id }}"
+                                    {% if tag.id|stringformat:"s" in selected_tags %}checked{% endif %}>
+                                {{ tag.name }}
+                            </label>
+                            {% endfor %}
+                        </div>
 
-                    <div class="tag-dropdown">
-                        {% for tag in tags %}
-                        <label>
-                            <input type="checkbox" name="tag" value="{{ tag.id }}"
-                                {% if tag.id|stringformat:"s" in selected_tags %}checked{% endif %}>
-                            {{ tag.name }}
-                        </label>
-                        {% endfor %}
                     </div>
-
-
                     <select name="sort" class="form-select">
                         <option value="">Sort: Default</option>
                         <option value="qty_asc" {% if selected_sort == 'qty_asc' %}selected{% endif %}>Quantity ↑</option>

@@ -28,7 +28,9 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-default-for-lo
 
 # SECURITY WARNING: don't run with debug turned on in production!
 ENV = os.environ.get('ENVIRONMENT', 'DEV')
+
 DEBUG = ENV != 'PROD'
+# DEBUG = True
 
 SESSION_COOKIE_SECURE = False  # must be False for HTTP localhost. Also setting to false for Cloudflare
 CSRF_COOKIE_SECURE = False     # must be False for HTTP localhost
@@ -90,8 +92,18 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'django_celery_beat',
     'django.contrib.sitemaps',
+    'compressor',
 
     ] + PROJECT_APPS
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+]
+
+COMPRESS_ENABLED = True          # set True even in DEBUG to test it locally
+COMPRESS_OFFLINE = True          # precompress at deploy time (recommended for production)
 
 # Celery
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://redis:6379/0')
@@ -189,6 +201,7 @@ else:
             "OPTIONS": {"sslmode": os.getenv("LOCAL_DB_SSLMODE", "disable")}
         }
     }
+print(DATABASES)
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

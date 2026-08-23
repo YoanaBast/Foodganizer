@@ -8,153 +8,147 @@
 {% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/ingredient_styles.css' %}">
-<link rel="stylesheet" href="{% static 'css/ingredient_forms_styles.css' %}">
+
 
 {% include 'ingredients/delete_ingredient_modal.html' %}
 <script src="{% static 'js/crud/delete_popup.js' %}" defer></script>
 
-
-<div class="container-content">
-    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        <a href="javascript:history.back()" class="btn">Back</a>
-        <a href="{% url 'edit_ingredient' ingredient.id %}" class="btn">Edit</a>
-        <a href="{% url 'manage_ingredients' %}" class="btn">All Ingredients</a>
+<div class="main-first-child-container-padding">
+    <div class="flex-row-space-between">
+        <div>
+            <a href="javascript:history.back()" class="btn-mint-small">Back</a>
+            <a href="{% url 'edit_ingredient' ingredient.id %}" class="btn-mint-small">Edit</a>
+            <a href="{% url 'manage_ingredients' %}" class="btn-mint-small">All Ingredients</a>
+        </div>
+        <button class="btn-wine-small" onclick="openDeleteModal('ingredient', {{ ingredient.id }}, '{{ ingredient.name|escapejs }}')">Delete</button>
     </div>
-    <button class="btn btn-danger" style="margin-left: auto;" onclick="openDeleteModal('ingredient', {{ ingredient.id }}, '{{ ingredient.name|escapejs }}')">Delete</button>
-</div>
+
+    <div>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
 
 
-
-<div class="container-content">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="message {{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-
-
-    <div class="grid-container">
-        <div class="grid-item info">
-            <h1 class="section-title">{{ ingredient.name|title_except }} </h1>
-
+        <div>
 <!-- Details Table -->
-                <table class="data-table">
-                    <tbody>
+            <div>
+                <h2 class="section-title ranchers-regular">{{ ingredient.name|title_except }} </h2>
 
-                        <tr>
-                            <th>Category</th>
-                            <td>{{ ingredient.category|default:"-" }}</td>
-                        </tr>
+                    <table class="data-table">
+                        <tbody>
+                            <tr>
+                                <th>Category</th>
+                                <td>{{ ingredient.category|default:"-" }}</td>
+                            </tr>
 
-                        <tr>
-                            <th>Base Quantity</th>
-                            <td>{{ ingredient.base_quantity }}</td>
-                        </tr>
+                            <tr>
+                                <th>Base Quantity</th>
+                                <td>{{ ingredient.base_quantity }}</td>
+                            </tr>
 
-                        <tr>
-                            <th>Default Unit</th>
-                            <td>{{ ingredient.default_unit|default:"-" }}</td>
-                        </tr>
+                            <tr>
+                                <th>Default Unit</th>
+                                <td>{{ ingredient.default_unit|default:"-" }}</td>
+                            </tr>
 
-                        <tr>
-                            <th>All Units</th>
-                            <td>
-                                {% for mu in ingredient.measurement_units.all %}
-                                    {{ mu.unit.name_singular }} ({{ mu.unit.code }}) — {{ mu.conversion_to_base }} per base
-                                    {% if not forloop.last %}<br>{% endif %}
-                                {% empty %}
-                                    -
-                                {% endfor %}
-                            </td>
-                        </tr>
+                            <tr>
+                                <th>All Units</th>
+                                <td>
+                                    {% for mu in ingredient.measurement_units.all %}
+                                        {{ mu.unit.name_singular }} ({{ mu.unit.code }}) — {{ mu.conversion_to_base }} per base
+                                        {% if not forloop.last %}<br>{% endif %}
+                                    {% empty %}
+                                        -
+                                    {% endfor %}
+                                </td>
+                            </tr>
 
-                        <tr>
-                            <th>Dietary Information</th>
-                            <td>{{ ingredient.dietary_info|default:"-" }}</td>
-                        </tr>
+                            <tr>
+                                <th>Dietary Information</th>
+                                <td>{{ ingredient.dietary_info|default:"-" }}</td>
+                            </tr>
 
 
-                        <tr>
-                            <th>Created by</th>
-                            <td>{{ ingredient.created_by|default:"-" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Updated by</th>
-                            <td>{{ ingredient.updated_by|default:"-" }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-</div>
-
-<!-- Unit Selection  -->
-        <div class="grid-item info">
-        <h1 class="section-title">View Settings </h1>
-
-            <div class="nutrients-section" style="display: flex; flex-direction: column; gap: 1.5rem;">
-                <form method="post" class="styled-form" novalidate>
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <p style="margin-bottom: 1rem;" class="small-gray">Choose the amount (quantity in units) to represent the nutritional values. Select 'Show' and check the updated table!</p>
-
-                        <label>Measurement unit:</label>
-
-                        <select name="unit">
-                            {% for mu in ingredient.measurement_units.all %}
-                                <option value="{{ mu.id }}" {% if mu == selected_imu %}selected{% endif %}>
-                                    {{ mu.unit.name_singular }} ({{ mu.unit.code }})
-                                </option>
-                            {% empty %}
-                                <option disabled>No units defined</option>
-                            {% endfor %}
-                        </select>
-
-                    </div>
-
-                        <label>Quantity:</label>
-                        <div class="form-group">
-                            <input type="number" name="quantity" step="0.01" min="0.01" required placeholder="Quantity" value="{{ quantity }}">
-                        </div>
-
-                    <button type="submit" class="btn btn-secondary btn-small">Show</button>
-
-                </form>
-            </div>
+                            <tr>
+                                <th>Created by</th>
+                                <td>{{ ingredient.created_by|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Updated by</th>
+                                <td>{{ ingredient.updated_by|default:"-" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
         </div>
 
-<!-- nutrients table -->
-    <div style="margin-top: 1rem;" class="nutrients-tables">
-        <h1 class="section-title">Nutrients for {{ quantity }} {{ unit_name }}:</h1>
+    <!-- Unit Selection  -->
+            <div class="no-flex-padding-row-div">
+            <h1 class="section-title ranchers-regular">View Settings </h1>
+            <p  class="small-gray">Choose the amount (quantity in units) to represent the nutritional values. Select 'Show' and check the updated table!</p>
 
-<!--        <h2 style="font-size: 18px;">Nutrients for {{ quantity }} {{ unit_name }}:</h2>-->
+                <div class="search_filter flex-row-space-between" style="margin-bottom:0rem;">
+                    <form  style="margin-bottom:0rem;" method="post" novalidate>
+                        {% csrf_token %}
+                            <label>Measurement unit:</label>
 
-            <table class="nutrients-table">
-                <thead>
-                    <tr><th>Nutrient</th><th>Amount</th></tr>
-                </thead>
-                <tbody>
-                    {% for n, value in nutrients.items %}
-                        <tr>
-                            <td>{{ n|nice_name }}</td>
-                            <td>{{ value }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr><td colspan="2">No nutrient info.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            <select name="unit">
+                                {% for mu in ingredient.measurement_units.all %}
+                                    <option value="{{ mu.id }}" {% if mu == selected_imu %}selected{% endif %}>
+                                        {{ mu.unit.name_singular }} ({{ mu.unit.code }})
+                                    </option>
+                                {% empty %}
+                                    <option disabled>No units defined</option>
+                                {% endfor %}
+                            </select>
 
+                            <label>Quantity:</label>
+                            <input type="number" name="quantity" step="0.01" min="0.01" required placeholder="Quantity" value="{{ quantity }}">
 
-
-    </div>
-    <br>
+                            <button type="submit" class="btn-mint-small">Show</button>
 
 
 
-    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        <a href="javascript:history.back()" class="btn">Back</a>
-        <a href="{% url 'manage_ingredients' %}" class="btn">All Ingredients</a>
-    </div>
+                    </form>
+                </div>
+
+            </div>
+            <h2 class="section-title ranchers-regular">Nutrients for {{ quantity }} {{ unit_name }}:</h2>
+
+    <!-- nutrients table -->
+        <div class="nutrients-tables">
+
+    <!--        <h2 style="font-size: 18px;">Nutrients for {{ quantity }} {{ unit_name }}:</h2>-->
+
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Nutrient</th><th>Amount</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for n, value in nutrients.items %}
+                            <tr>
+                                <td>{{ n|nice_name }}</td>
+                                <td>{{ value }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="2">No nutrient info.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+        </div>
+
+        <br>
+
+
+
+        <div class="flex-row-flex-end">
+            <a href="javascript:history.back()" class="btn-wine-small">Back</a>
+            <a href="{% url 'manage_ingredients' %}" class="btn-mint-small">All Ingredients</a>
+        </div>
+
+</div>
 
 
 {% endblock %}

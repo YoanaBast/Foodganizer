@@ -1,0 +1,187 @@
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 1rem;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(216, 136, 149, 0.5);
+}
+
+.data-table th,
+.data-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(216, 136, 149, 0.5);
+    border-right: 1px solid rgba(216, 136, 149, 0.5);
+}
+
+.data-table th:last-child,
+.data-table td:last-child {
+    border-right: none;
+}
+
+.data-table thead {
+    background: var(--mint);
+    color: color-mix(in srgb, var(--bg-secondary-green) 70%, black);
+}
+
+.data-table th {
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.data-table tr:hover {
+    background: var(--bg-secondary);
+}
+
+.data-table tbody tr:nth-child(even) {
+    background-color: var(--bg-gray);
+}
+
+.data-table tbody tr:nth-child(odd) {
+    background-color: color-mix(in srgb, var(--wine) 20%, white);
+}
+
+td[data-label="Ingredient Name"],
+td[data-label="Ingredient"] {
+    color: #4CAF50;
+    font-weight: 600;
+}
+
+td[data-label="Ingredient Name"]:hover,
+td[data-label="Ingredient"]:hover {
+    color: #81C784;
+    cursor: pointer;
+}
+
+/* Responsive table — card layout on mobile */
+@media screen and (max-width: 768px) {
+    .data-table thead {
+        display: none;
+    }
+
+    .data-table,
+    .data-table tbody,
+    .data-table tr,
+    .data-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .data-table tr {
+        background-color: transparent;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .data-table td {
+        background-color: transparent;
+        text-align: right;
+        padding: 0.75rem 1rem;
+        position: relative;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .data-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        color: #666;
+    }
+
+    .data-table td[data-label="Actions"] {
+        justify-content: center;
+        background-color: transparent;
+        gap: 0.5rem;
+        padding: 16px;
+        margin-top: 5px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .data-table td[data-label="Actions"]::before {
+        display: none;
+    }
+
+    .main-first-child-container-padding {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
+
+/* TABLE ACTION ICONS (heart / edit / info / delete) */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* Heart button */
+.btn-heart {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.btn-heart img {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+/* Trash/delete icon button */
+.icon-delete-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-delete-btn img {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+/* Details/Edit icon links */
+.icon-table {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.icon-table i {
+    font-size: 18px;
+    display: block;
+}
+
+.icon-table .fa-circle-info {
+    color: var(--bg-secondary-green);
+}
+
+.icon-table .fa-pen-to-square {
+    color: #4A4A4A;
+}
+
+.icon-table .fa-utensils {
+    color: #4A4A4A;
+}

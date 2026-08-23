@@ -21,11 +21,11 @@ Add Recipe
      style="display:none;">
 </div>
 
-<div class="container-home" style="padding-top: 2rem; padding-bottom: 2rem;">
+<div class="main-first-child-container-padding" style="padding-top: 2rem; padding-bottom: 2rem;">
     <a href="javascript:history.back()" class="btn">Back</a>
 </div>
 
-<div class="container-home">
+<div class="main-first-child-container-padding">
     <form method="post" action="{% url 'add_recipe' %}" novalidate>
         {% csrf_token %}
         {% include "messages/errors_label.html" with form=recipe_form %}

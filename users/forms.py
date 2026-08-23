@@ -2,8 +2,10 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User, Group
 from django import forms
 from .models import Profile
+from core.mixins import StyledFormMixin
 
-class RegisterForm(UserCreationForm):
+
+class RegisterForm(StyledFormMixin, UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=False)
     last_name = forms.CharField(required=False)
@@ -28,7 +30,7 @@ class RegisterForm(UserCreationForm):
     #     return user
 
 
-class LoginForm(AuthenticationForm):
+class LoginForm(StyledFormMixin, AuthenticationForm):
     error_messages = {
         'invalid_login': "Wrong username or password.",
         'inactive': "This account is inactive.",
@@ -43,7 +45,7 @@ class LoginForm(AuthenticationForm):
         widget=forms.PasswordInput(attrs={'class': 'form-input', 'placeholder': 'Password'})
     )
 
-class ProfileEditForm(forms.ModelForm):
+class ProfileEditForm(StyledFormMixin, forms.ModelForm):
     first_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-input'}))
     last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-input'}))
 

@@ -4,19 +4,23 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-<div class="container-home" style="padding-top: 2rem; padding-bottom: 2rem;">
 
-    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+<link rel="stylesheet" href="{% static 'css/main/secondary.css' %}">
+
+
+<div class="main-first-child-container-padding">
+
+    <div class="flex-row-space-between">
         <div>
-            <h2 class="section-title">Profile</h2>
+            <h2 class="section-title ranchers-regular">Profile</h2>
             <p class="section-description">Your account information</p>
         </div>
-        <a href="{% url 'edit_profile' %}" class="btn">Edit Profile</a>
+        <a href="{% url 'edit_profile' %}" class="a-btn">Edit Profile</a>
     </div>
 
     {% include 'users/_profile_card.html' %}
 
-<a href="{% url 'biometrics' %}" class="btn">Biometrics</a>
+    <a href="{% url 'biometrics' %}" class="filter-submit btn-small-fixed">Biometrics</a>
 
 </div>
 {% endblock %}

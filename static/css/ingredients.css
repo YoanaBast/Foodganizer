@@ -1,0 +1,41 @@
+
+.half-width {
+    width: 50%;
+}
+
+.nutrient-input {
+    width: 100%;
+}
+
+.nutrients-tables {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-left: 0;
+    max-width: 500px;
+}
+
+#add-ingredient-form {
+    .flex-row-flex-start {
+        margin-bottom: 2rem;
+    }
+
+
+}
+
+.section-title {
+    margin-bottom: 2rem;
+
+}
+
+.nutrients-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 600px) {
+    .nutrients-grid {
+        grid-template-columns: 1fr;
+    }
+}

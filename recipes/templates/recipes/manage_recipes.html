@@ -6,7 +6,7 @@
 {% block title %}Manage Recipes{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/secondary.css' %}">
+<link rel="stylesheet" href="{% static 'css/main/secondary.css' %}">
 
 {% include 'recipes/delete_recipe_modal.html' %}
 
@@ -15,11 +15,11 @@
 <script src="{% static 'js/recipe/recipe_favourites.js' %}" defer></script>
 <script src="{% static 'js/search_filter/live_search.js' %}" defer></script>
 
-<div class="container-home">
+<div class="main-first-child-container-padding">
     <div id="manage-ingredients" class="tab-content active">
 
         <!-- Title + Button Row -->
-        <div class="section-header">
+        <div class="flex-row-space-between">
             <div>
                 <h2 class="section-title ranchers-regular">Manage Recipes</h2>
                 <p class="section-description">Introduce the Foodganizer to new tasty recipes!</p>
@@ -40,7 +40,7 @@
                         {% endfor %}
                 </select>
 
-                <div>
+                <div class="tag-filter-group">
                     <button type="button" onclick="this.nextElementSibling.classList.toggle('open')"
                         class="form-filter-button">
                         Tags {% if selected_tags %}({{ selected_tags|length }}){% endif %} ▾

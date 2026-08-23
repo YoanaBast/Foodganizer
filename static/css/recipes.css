@@ -1,3 +1,8 @@
+/* Used on hours, minutes, and servings fields */
+.small-width {
+    width: 80px;
+}
+
 .nutrients-tables {
     display: grid;
     grid-template-columns: 1fr 1fr;

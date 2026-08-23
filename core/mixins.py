@@ -1,3 +1,14 @@
+class StyledFormMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if name == 'profile_picture':
+                continue  # leave the file input untouched — custom upload button handles its styling
+            existing = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = (existing + ' styled-input').strip()
+
+
+
 class ErrorMessagesMixin:
     default_error_messages = {
         'name': {

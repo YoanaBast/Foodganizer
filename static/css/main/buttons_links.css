@@ -1,0 +1,61 @@
+
+.a-btn {
+    text-decoration: none;
+    text-transform: uppercase;
+    color: var(--bg-secondary-green);
+    background: var(--mint);
+    padding: 1rem 1.5rem;
+    border-radius: 3px;
+    font-weight: 700;
+}
+
+
+.btn-wine-small, .btn-mint-small {
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    background: #333;
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-right: 0.5rem;
+}
+
+.btn-wine-small:hover {
+    background: var(--wine);
+}
+
+.btn-mint-small:hover {
+    background: var(--mint);
+}
+
+.btn-small-fixed {
+    width: 140px;
+    text-align: center;
+    margin-top: 3rem;
+
+    .a-btn {
+        border: none;
+        outline: none;
+    }
+}
+
+.btn-small-round {
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    background-color: color-mix(in srgb, var(--mint) 50%, white);
+    color: var(--bg-secondary-green);
+    display: inline-block;
+    padding: 0.5rem;
+    border-radius:50%;
+    text-decoration: none;
+    margin-right: 0.2rem;
+    margin-left: 0.2rem;
+    width: 1.8rem;
+    height: 1.8rem;
+    font-size: 0.7rem;
+    text-align: center;
+}
