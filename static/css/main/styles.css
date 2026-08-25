@@ -80,6 +80,14 @@ main {
 .mr-8  { margin-right: 3rem; }
 
 
+.hyperlink {
+    text-decoration: none;
+    color: var(--wine);
+}
+
+.hyperlink:hover {
+    color: var(--mint);
+}
 
 .icon-help-btn {
     position: fixed;

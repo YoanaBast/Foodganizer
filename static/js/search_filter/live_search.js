@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchInput = form.querySelector('.searchbar');
     const selects = form.querySelectorAll('select');
     const tagCheckboxes = form.querySelectorAll('.tag-dropdown input[type="checkbox"]');
+    const favsCheckbox = form.querySelector('input[name="favs"]');
 
     let debounceTimer;
     const DEBOUNCE_DELAY = 500;
@@ -31,6 +32,11 @@ document.addEventListener('DOMContentLoaded', function () {
     tagCheckboxes.forEach(function (checkbox) {
         checkbox.addEventListener('change', submitPreservingScroll);
     });
+
+    // Favourites checkbox: instant
+    if (favsCheckbox) {
+        favsCheckbox.addEventListener('change', submitPreservingScroll);
+    }
 });
 
 // Restore scroll position after reload, if one was saved

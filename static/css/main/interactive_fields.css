@@ -1,5 +1,45 @@
 
 /* FORM INPUTS, SELECTS, TEXTAREAS — scoped to .styled-input */
+
+.styled-input,
+.creds-form input[type="email"],
+.creds-form input[type="password"],
+.creds-form input[type="text"],
+.creds-form input[type="number"],
+.creds-form select,
+.creds-form textarea,
+.biometrics-form-block input[type="text"],
+.biometrics-form-block input[type="number"],
+.biometrics-form-block input[type="email"],
+.biometrics-form-block select,
+.biometrics-form-block textarea,
+.profile-info input,
+.profile-info textarea {
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--mint);
+    border-radius: 0.5rem;
+    background: var(--bg-gray);
+    color: var(--bg-secondary-green);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    width: 100%;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    text-transform: uppercase;
+}
+
+.styled-input:focus,
+.creds-form input:focus,
+.biometrics-form-block input:focus,
+.biometrics-form-block select:focus,
+.biometrics-form-block textarea:focus,
+.profile-info input:focus,
+.profile-info textarea:focus {
+    outline: none;
+    border-color: var(--wine);
+    background: #fff;
+}
+
 input.styled-input,
 select.styled-input,
 textarea.styled-input {
@@ -7,13 +47,14 @@ textarea.styled-input {
     padding: 0.6rem 0.9rem;
     font-size: 1rem;
     font-family: inherit;
-    color: var(--text-primary, #222);
+    color: var(--bg-secondary-green);
     background-color: var(--mint);
     border: 1px solid rgba(216, 136, 149, 0.5);
     border-radius: 8px;
     transition: border-color 0.2s, box-shadow 0.2s;
     box-sizing: border-box;
 }
+
 
 input.styled-input:focus,
 select.styled-input:focus,

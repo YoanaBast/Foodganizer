@@ -111,7 +111,7 @@ class RecipeForm(forms.ModelForm):
 class RecipeIngredientForm(forms.ModelForm):
     class Meta:
         model = RecipeIngredient
-        exclude = ['ingredientRecipe']
+        exclude = ['recipe']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

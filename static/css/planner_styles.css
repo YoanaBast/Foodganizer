@@ -113,3 +113,8 @@
 .biometrics-results-block, .biometrics-form-block {
     color: var(--bg-secondary-green);
 }
+
+.fav-star {
+    color: var(--wine);
+}
+

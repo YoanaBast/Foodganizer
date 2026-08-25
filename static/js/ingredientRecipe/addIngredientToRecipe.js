@@ -1,4 +1,4 @@
-const meta = document.getElementById('ingredientRecipe-meta');
+const meta = document.getElementById('recipe-meta');
 const mode = meta.dataset.mode;
 
 // ---------- Modal open/close ----------
