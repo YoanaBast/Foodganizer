@@ -42,10 +42,12 @@ class ManageRecipesView(ListView):
         if category:
             qs = qs.filter(category__id=category)
         if tags:
-            qs = qs.filter(
-                recipe_ingredient__ingredient__dietary_tag__id__in=tags
-            ).distinct()
-
+            for tag_id in tags:
+                qs = qs.exclude(
+                    recipe_ingredient__in=RecipeIngredient.objects.exclude(
+                        ingredient__dietary_tag__id=tag_id
+                    )
+                )
         if sort == 'kcal_asc':
             qs = sorted(qs, key=lambda r: r.kcal_per_serving)
         elif sort == 'kcal_desc':
@@ -76,7 +78,7 @@ class ManageRecipesView(ListView):
 class RecipeDetailView(DetailView):
     model = Recipe
     template_name = 'recipes/recipe_detail.html'
-    context_object_name = 'recipe'
+    context_object_name = 'ingredientRecipe'
 
 
 class AddRecipeView(LoginRequiredMixin, View):
@@ -143,7 +145,7 @@ class EditRecipeView(LoginRequiredMixin, View):
             'recipe_form': recipe_form,
             'ingredient_formset': ingredient_formset,
             'ingredients': Ingredient.objects.prefetch_related('measurement_units__unit').exclude(id__in=existing_ids),
-            'recipe': recipe,
+            'ingredientRecipe': recipe,
             'default_url': reverse_lazy('manage_recipes'),
         }
 
@@ -200,7 +202,7 @@ class AddIngredientToRecipeView(View):
             recipe = Recipe.objects.get(pk=pk)
 
             if not is_moderator(request.user) and recipe.created_by != request.user:
-                return JsonResponse({"success": False, "error": "You do not have permission to edit this recipe."})
+                return JsonResponse({"success": False, "error": "You do not have permission to edit this ingredientRecipe."})
 
             ingredient_id = data.get("ingredient_id")
             quantity = data.get("quantity")
@@ -333,8 +335,8 @@ Older views:
 
 
 # def recipe_detail(request, pk):
-#     recipe = get_object_or_404(Recipe, pk=pk)
-#     return render(request, 'recipes/recipe_detail.html', {'recipe': recipe})
+#     ingredientRecipe = get_object_or_404(Recipe, pk=pk)
+#     return render(request, 'recipes/recipe_detail.html', {'ingredientRecipe': ingredientRecipe})
 
 
 # def add_recipe(request):
@@ -346,21 +348,21 @@ Older views:
 #
 #         if recipe_form.is_valid() and ingredient_formset.is_valid():
 #             try:
-#                 recipe = recipe_form.save(commit=False)
+#                 ingredientRecipe = recipe_form.save(commit=False)
 #
-#                 recipe.name = recipe.name.strip().lower()
-#                 recipe.save()
+#                 ingredientRecipe.name = ingredientRecipe.name.strip().lower()
+#                 ingredientRecipe.save()
 #             except IntegrityError:
-#                 messages.error(request, f'"{recipe.name}" already exists.')
+#                 messages.error(request, f'"{ingredientRecipe.name}" already exists.')
 #                 return render(request, 'recipes/add_recipe.html', {
 #                     'recipe_form': recipe_form,
 #                     'ingredient_formset': ingredient_formset,
 #                     'ingredients': ingredients,
 #                 })
 #
-#             ingredient_formset.instance = recipe
+#             ingredient_formset.instance = ingredientRecipe
 #             ingredient_formset.save()
-#             return redirect('recipe_detail', pk=recipe.pk)
+#             return redirect('recipe_detail', pk=ingredientRecipe.pk)
 #         else:
 #             # Catch duplicate caught at form validation level
 #             name_errors = recipe_form.errors.get('name', [])
@@ -379,18 +381,18 @@ Older views:
 
 
 # def delete_recipe(request, pk):
-#     recipe = get_object_or_404(Recipe, pk=pk)
-#     recipe.delete()
+#     ingredientRecipe = get_object_or_404(Recipe, pk=pk)
+#     ingredientRecipe.delete()
 #     return redirect('manage_recipes')
 
 
 # def edit_recipe(request, pk):
 #     default_url = reverse('manage_recipes')
-#     recipe = get_object_or_404(Recipe, pk=pk)
+#     ingredientRecipe = get_object_or_404(Recipe, pk=pk)
 #
 #     if request.method == 'POST':
-#         recipe_form = RecipeForm(request.POST, instance=recipe)
-#         ingredient_formset = RecipeIngredientFormSet(request.POST, instance=recipe)
+#         recipe_form = RecipeForm(request.POST, instance=ingredientRecipe)
+#         ingredient_formset = RecipeIngredientFormSet(request.POST, instance=ingredientRecipe)
 #
 #         if recipe_form.is_valid() and ingredient_formset.is_valid():
 #             try:
@@ -398,7 +400,7 @@ Older views:
 #                 updated_recipe.name = updated_recipe.name.strip().lower()
 #                 updated_recipe.save()
 #                 ingredient_formset.save()
-#                 return redirect('recipe_detail', pk=recipe.pk)
+#                 return redirect('recipe_detail', pk=ingredientRecipe.pk)
 #             except IntegrityError:
 #                 messages.error(request, f'"{updated_recipe.name}" already exists.')
 #         else:
@@ -407,8 +409,8 @@ Older views:
 #                 name = request.POST.get('name', '').strip().lower()
 #                 messages.error(request, f'"{name}" already exists.')
 #     else:
-#         recipe_form = RecipeForm(instance=recipe)
-#         ingredient_formset = RecipeIngredientFormSet(instance=recipe)
+#         recipe_form = RecipeForm(instance=ingredientRecipe)
+#         ingredient_formset = RecipeIngredientFormSet(instance=ingredientRecipe)
 #
 #     existing_ids = [form.instance.ingredient_id for form in ingredient_formset.forms if form.instance.pk]
 #     ingredients_add = Ingredient.objects.prefetch_related('measurement_units__unit').exclude(id__in=existing_ids)
@@ -417,7 +419,7 @@ Older views:
 #         'recipe_form': recipe_form,
 #         'ingredient_formset': ingredient_formset,
 #         'ingredients': ingredients_add,
-#         'recipe': recipe,
+#         'ingredientRecipe': ingredientRecipe,
 #         'default_url': default_url,
 #     }
 #     return render(request, 'recipes/edit_recipe.html', context)

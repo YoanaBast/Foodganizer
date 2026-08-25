@@ -10,9 +10,8 @@
 
 {% include 'recipes/delete_recipe_modal.html' %}
 
-<script src="{% static 'js/zero_inputt_handler.js' %}" defer></script>
 <script src="{% static 'js/crud/delete_popup.js' %}" defer></script>
-<script src="{% static 'js/recipe/recipe_favourites.js' %}" defer></script>
+<script src="{% static 'js/ingredientRecipe/recipeFavouriteHandler.js' %}" defer></script>
 <script src="{% static 'js/search_filter/live_search.js' %}" defer></script>
 
 <div class="main-first-child-container-padding">
@@ -28,7 +27,7 @@
         </div>
 
 <!-- Search/filter -->
-        <div class="search_filter">
+        <div class="search_filter mb-8 mt-8">
             <form method="get">
 
                 <input class="searchbar" type="text" name="search" value="{{ search }}" placeholder="Search by name...">

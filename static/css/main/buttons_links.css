@@ -59,3 +59,8 @@
     font-size: 0.7rem;
     text-align: center;
 }
+
+.small-round-buttons-parent {
+    display: flex;
+    align-items: flex-start
+}

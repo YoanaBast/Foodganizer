@@ -8,9 +8,8 @@
 {% include 'global_reusable/_quick_add_modal.html' %}
 {% include 'global_reusable/_manage_list_modal.html' %}
 
-<script src="{% static 'js/recipe/add_recipe_handler.js' %}" defer></script>
-<script src="{% static 'js/zero_inputt_handler.js' %}" defer></script>
-<script src="{% static 'js/fetch_and_manage.js' %}" defer></script>
+<script src="{% static 'js/ingredientRecipe/addIngredientToRecipe.js' %}" defer></script>
+<script src="{% static 'js/crud/fetch_and_manage.js' %}" defer></script>
 
 
 <div id="recipe-meta"
@@ -22,68 +21,84 @@
 
 <div class="main-first-child-container-padding">
 
-    <div style="max-width: 800px; margin: 2rem auto;">
-        <a href="javascript:history.back()" class="btn">← Back</a>
-        <a href="{% url 'recipe_detail' recipe.pk %}" class="btn">Details</a>
-        <a href="{% url 'manage_recipes' %}" class="btn">All Recipes</a>
+    <div class="flex-row-flex-end">
+        <a href="javascript:history.back()" class="btn-wine-small">← Back</a>
+        <a href="{% url 'recipe_detail' recipe.pk %}" class="btn-mint-small">Details</a>
+        <a href="{% url 'manage_recipes' %}" class="btn-mint-small">All Recipes</a>
     </div>
 
     <form method="post" action="{% url 'edit_recipe' recipe.pk %}" novalidate>
         {% csrf_token %}
 
         <!-- Recipe fields -->
-        <div style="max-width: 800px; margin: 2rem auto;">
-            <h2>Edit Recipe</h2>
-        {% include "messages/errors_label.html" with form=recipe_form %}
-        {% include "messages/formset_errors.html" with formset=ingredient_formset %}
+            <h2 class="section-huge-title ranchers-regular">Edit Recipe</h2>
+            {% include "messages/errors_label.html" with form=recipe_form %}
+            {% include "messages/formset_errors.html" with formset=ingredient_formset %}
 
-            <div class="grid-container">
-                <div class="grid-item info">
-
-                    <p>{{ recipe_form.name.label_tag }} {{ recipe_form.name }}</p>
-
-                        <p>
-                            {{ recipe_form.category.label_tag }}
-                            <div style="display:flex; align-items:center; gap:0.4rem;">
-                                {{ recipe_form.category }}
-                                <button type="button" style="margin-bottom: 1rem;" class="btn btn-small btn-round" title="Add new category"
-                                    onclick="openQuickModal('Add Recipe Category', '{% url "add_recipe_category_ajax" %}', 'id_category')">+</button>
-                                <button type="button" style="margin-bottom: 1rem;" class="btn btn-small btn-round" title="Manage categories"
-                                    onclick="fetchAndManage('{% url "list_recipe_categories_ajax" %}', 'Manage Categories')">⋯</button>
-                            </div>
-                        </p>
-
-                    <p>
-                        <label>Cooking Time:</label>
-                        <span class="time-inputs">
-                            {{ recipe_form.hours }} h
-                            {{ recipe_form.minutes }} m
-                        </span>
-                    </p>
-
+        <div class="flex-row-flex-start" style="align-items: flex-start">
+            <div class="form-group">
+                <div class="mb-6">
+                    {{ recipe_form.name.label_tag }} {{ recipe_form.name }}
                 </div>
 
-                <div class="grid-item info">
-                    <p>{{ recipe_form.servings.label_tag }} {{ recipe_form.servings }}</p>
-                    <p>{{ recipe_form.instructions.label_tag }} {{ recipe_form.instructions }}</p>
 
-                    <p>{{ recipe_form.created_by.label_tag }} {{ recipe_form.created_by }}</p>
-                    <p>{{ recipe_form.updated_by.label_tag }} {{ recipe_form.updated_by }}</p>
+                <div class="mb-6">
+                    {{ recipe_form.category.label_tag }}
+                    <div class="flex-row-flex-start mt-3" style="align-items: flex-start; gap: 0rem;">
+                        {{ recipe_form.category }}
+                        <button type="button" class="btn-small-round" title="Add new category"
+                            onclick="openQuickModal('Add Recipe Category', '{% url "add_recipe_category_ajax" %}', 'id_category')">+</button>
+                        <button type="button" class="btn-small-round" title="Manage categories"
+                            onclick="fetchAndManage('{% url "list_recipe_categories_ajax" %}', 'Manage Categories')">⋯</button>
+                    </div>
+                </div>
 
+                <div class="mb-6">
+                    <label>Cooking Time:</label>
+                    <span class="time-inputs">
+                        {{ recipe_form.hours }} h
+                        {{ recipe_form.minutes }} m
+                    </span>
+                </div>
+
+                <div class="mb-6">
+                        {{ recipe_form.servings.label_tag }} {{ recipe_form.servings }}
+               </div>
+
+                <div class="mb-6">
+                    {{ recipe_form.created_by.label_tag }} {{ recipe_form.created_by }}
+                </div>
+
+                <div class="mb-6">
+                    {{ recipe_form.updated_by.label_tag }} {{ recipe_form.updated_by }}
                 </div>
 
             </div>
+
+            <div class="form-group flex-column-flex-start">
+
+                    <div class="mb-6">
+                        {{ recipe_form.instructions.label_tag }} {{ recipe_form.instructions }}
+                    </div>
+
+            </div>
+
+
         </div>
 
+            <div class="grid-container">
+
+
+
         <!-- Ingredients -->
-        <div style="max-width: 800px; margin: 2rem auto;">
+        <div>
             {{ ingredient_formset.management_form }}
 
             <h3>Ingredients</h3>
             <div id="ingredientsContainer">
                 {% if ingredient_formset.forms %}
                     {% for form in ingredient_formset.forms %}
-                        <div class="ingredient-line">
+                        <div class="search_filter flex-row-flex-start mb-3">
                             {{ form.id }}
                             {{ form.ingredient.label_tag }} {{ form.ingredient }}
                             {{ form.quantity.label_tag }} {{ form.quantity }}
@@ -91,14 +106,14 @@
                     {% if form.instance.pk %}
                         <input type="checkbox" name="{{ form.DELETE.html_name }}"
                                id="{{ form.DELETE.id_for_label }}"
-                               onchange="this.closest('.ingredient-line').style.opacity = this.checked ? '0.3' : '1'">
+                               onchange="this.closest('.search_filter').style.opacity = this.checked ? '0.3' : '1'">
                         <label for="{{ form.DELETE.id_for_label }}">Delete</label>
                     {% endif %}
                         </div>
                     {% endfor %}
 
                 {% else %}
-                    <p style="color: var(--text-secondary); font-style: italic;">No ingredients yet.</p>
+                    <p style="color: var(--wine); font-style: italic;">No ingredients yet.</p>
                 {% endif %}
 
                 {% include 'global_reusable/add_button.html' %}
@@ -107,9 +122,9 @@
         </div>
 
         <!-- Save / Cancel -->
-        <div style="max-width: 800px; margin: 2rem auto;">
-            <button type="submit" class="btn btn-success">Save Recipe</button>
-            <a href="{{ request.META.HTTP_REFERER|default:default_url }}" class="btn btn-secondary">Cancel</a>
+        <div class="flex-row-flex-end">
+            <button type="submit" class="btn btn-mint-small">Save Recipe</button>
+            <button type="button" class="btn-wine-small" onclick="window.location.href='{{ request.META.HTTP_REFERER|default:default_url }}'">Cancel</button>
         </div>
 
     </form>

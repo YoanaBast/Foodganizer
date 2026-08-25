@@ -43,3 +43,33 @@
         grid-template-columns: 1fr;
     }
 }
+
+
+.searchable-select {
+    position: relative;
+}
+
+.searchable-options {
+    display: none;
+    position: absolute;
+    background: var(--mint);
+    border: 1px solid #444;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+    z-index: 1000;
+}
+
+.searchable-options.open {
+    display: block;
+}
+
+.search-option {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.search-option:hover, .search-option.selected {
+    background: #3a3a3a;
+}

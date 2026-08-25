@@ -1,4 +1,4 @@
-// this is used to handle the more (...) menu next to Categories and Dietary Tags in recipe/ingredient creation and edition
+// this is used to handle the more (...) menu next to Categories and Dietary Tags in ingredientRecipe/ingredient creation and edition
 
 let _pendingDeleteFn = null;
 let _pendingEditFn = null;
@@ -12,7 +12,9 @@ function showManageMsg(msg, isError) {
     el.style.background = isError ? '#3a1a1a' : '#1a3a1a';
     el.style.border = `1px solid ${isError ? '#a33' : '#3a3'}`;
     el.style.color = isError ? '#f88' : '#8f8';
-    setTimeout(() => { el.style.display = 'none'; }, 3000);
+    setTimeout(() => {
+        el.style.display = 'none';
+    }, 3000);
 }
 
 function confirmDeleteYes() {
@@ -29,7 +31,9 @@ function confirmDeleteNo() {
 function confirmEditYes() {
     const inputs = document.querySelectorAll('#manageListEditFields input');
     const data = {};
-    inputs.forEach(input => { data[input.name] = input.value.trim(); });
+    inputs.forEach(input => {
+        data[input.name] = input.value.trim();
+    });
     document.getElementById('manageListEdit').style.display = 'none';
     if (_pendingEditFn) _pendingEditFn(data);
     _pendingEditFn = null;
@@ -58,7 +62,10 @@ function askEdit(fields, fn) {
         input.placeholder = f.placeholder || f.key;
         input.value = f.value || '';
         input.style.cssText = 'width:100%; box-sizing:border-box; margin-bottom:0.4rem;';
-        if (i === 0) setTimeout(() => { input.focus(); input.select(); }, 50);
+        if (i === 0) setTimeout(() => {
+            input.focus();
+            input.select();
+        }, 50);
         container.appendChild(input);
     });
 
@@ -67,7 +74,7 @@ function askEdit(fields, fn) {
     _pendingEditFn = fn;
 }
 
-document.getElementById('manageListEdit').addEventListener('keydown', function(e) {
+document.getElementById('manageListEdit').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') confirmEditYes();
     if (e.key === 'Escape') confirmEditNo();
 });
@@ -98,8 +105,10 @@ function openManageModal(title, items, selectId) {
         nameSpan.style.flex = '1';
 
         const editBtn = document.createElement('button');
-        editBtn.textContent = '✎';
-        editBtn.className = 'btn btn-small';
+        editBtn.type = 'button';
+        editBtn.className = 'icon-table';
+        editBtn.title = 'Edit';
+        editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
         editBtn.onclick = () => {
             askEdit(item.edit_fields, (data) => {
                 fetch(item.edit_url, {
@@ -115,7 +124,6 @@ function openManageModal(title, items, selectId) {
                         nameSpan.textContent = result.name;
                         showManageMsg(`Updated to "${result.name}"`, false);
                         _manageHasChanges = true;
-                        // Only update the specific select this modal was opened for
                         if (_manageSelectId) {
                             const select = document.getElementById(_manageSelectId);
                             if (select) {
@@ -129,8 +137,10 @@ function openManageModal(title, items, selectId) {
         };
 
         const delBtn = document.createElement('button');
-        delBtn.textContent = '×';
-        delBtn.className = 'btn btn-wine-smallbtn-small';
+        delBtn.type = 'button';
+        delBtn.className = 'icon-delete-btn';
+        delBtn.title = 'Delete';
+        delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
         delBtn.onclick = () => {
             askConfirm(`Delete "${nameSpan.textContent}"?`, () => {
                 fetch(item.delete_url, {
@@ -142,7 +152,6 @@ function openManageModal(title, items, selectId) {
                         document.getElementById(`manage-row-${item.id}`)?.remove();
                         showManageMsg('Deleted.', false);
                         _manageHasChanges = true;
-                        // Only remove from the specific select this modal was opened for
                         if (_manageSelectId) {
                             const select = document.getElementById(_manageSelectId);
                             if (select) {
@@ -169,6 +178,9 @@ function closeManageModal() {
     if (_manageHasChanges) location.reload();
 }
 
-document.getElementById('manageListModal').addEventListener('click', function(e) {
+document.getElementById('manageListModal').addEventListener('click', function (e) {
     if (e.target === this) closeManageModal();
 });
+
+
+

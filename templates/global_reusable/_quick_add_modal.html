@@ -1,17 +1,14 @@
 {% load static %}
 
-<div id="quick-add-modal" style="
-    display:none; position:fixed; inset:0; z-index:1000;
-    background:rgba(0,0,0,0.55); align-items:center; justify-content:center;">
-    <div style="
-        background:#1e1e2e; border:1px solid #444; border-radius:8px;
-        padding:2rem; min-width:320px; max-width:420px; width:90%;">
-        <h3 id="modal-title" style="margin-top:0;">Add New</h3>
+<div id="quick-add-modal" class="modal-overlay">
+    <div class="form-group" style="background: var(--bg-primary-ivory); border-radius: 0.5rem; padding: 2rem; max-width: 420px; margin: 0 auto;">
+        <h3 id="modal-title">Add New</h3>
         <div id="modal-fields"></div>
         <div id="modal-error" style="color:#ff6b6b; margin-bottom:0.75rem; display:none;"></div>
         <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
-            <button class="btn btn-wine-small" onclick="closeQuickModal()">Cancel</button>
-            <button class="btn" onclick="submitQuickModal()">Save</button>
+            <button class="btn-mint-small" onclick="submitQuickModal()">Save</button>
+            <button class="btn-wine-small" onclick="closeQuickModal()">Cancel</button>
+
         </div>
     </div>
 </div>

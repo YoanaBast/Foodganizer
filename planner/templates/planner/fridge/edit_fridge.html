@@ -13,9 +13,9 @@
 
 <div class="main-first-child-container-padding" style="margin-top: 1rem;">
 
-    <h2>{{ item.ingredient.name|title_except }} Stock</h2>
+    <h2 class="section-title ranchers-regular">{{ item.ingredient.name|title_except }} Stock</h2>
 
-    <form method="post" novalidate>
+    <form class="form-group search_filter" method="post" novalidate>
         {% csrf_token %}
                 {% include "messages/errors_label.html" %}
 <!--AUTH-->
@@ -42,38 +42,37 @@
             </select>
 <!--ANON-->
 
-{% else %}
-    <label>Quantity</label>
-    <input type="number" id="quantityInput"
-           value="{{ quantity|floatformat:2 }}"
-           step="0.01" min="0">
+        {% else %}
+            <label>Quantity</label>
+            <input type="number" id="quantityInput"
+                   value="{{ quantity|floatformat:2 }}"
+                   step="0.01" min="0">
 
-    <input type="hidden" id="quantityTrue"
-           name="quantity"
-           value="{{ quantity }}">
-
-
-
-    {# Make anon_index available to JS #}
-    <input type="hidden" id="anonIndex" value="{{ anon_index }}">
+            <input type="hidden" id="quantityTrue"
+                   name="quantity"
+                   value="{{ quantity }}">
 
 
-    <label style="margin-top: 1rem;">Unit</label>
-    <select id="unitSelect" name="unit" onchange="convertQuantity(this)">
-        {% for mu in ingredient_units %}
-            <option value="{{ mu.unit.id }}"
-                    data-conversion="{{ mu.conversion_to_base }}"
-                    {% if mu.unit.id == unit_id %}selected{% endif %}>
-                {{ mu.unit.name_singular }}
-            </option>
-        {% endfor %}
-    </select>
-{% endif %}
+
+            {# Make anon_index available to JS #}
+            <input type="hidden" id="anonIndex" value="{{ anon_index }}">
+
+
+            <label style="margin-top: 1rem;">Unit</label>
+            <select id="unitSelect" name="unit" onchange="convertQuantity(this)">
+                {% for mu in ingredient_units %}
+                    <option value="{{ mu.unit.id }}"
+                            data-conversion="{{ mu.conversion_to_base }}"
+                            {% if mu.unit.id == unit_id %}selected{% endif %}>
+                        {{ mu.unit.name_singular }}
+                    </option>
+                {% endfor %}
+            </select>
+        {% endif %}
 
         <div style="margin-top: 2rem;">
-
-        <button type="submit" class="btn btn-success">Save</button>
-        <a href="{% url 'manage_fridge' %}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn-mint-small">Save</button>
+            <button type="button" class="btn-wine-small" onclick="window.location.href='{% url 'manage_fridge' %}'">Cancel</button>
         </div>
 
     </form>

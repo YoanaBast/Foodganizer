@@ -22,15 +22,21 @@ class RecipeFormAdmin(forms.ModelForm):
 class RecipeForm(forms.ModelForm):
     category = forms.ModelChoiceField(
         queryset=RecipeCategory.objects.all().order_by('name'),
-        required=False
+        required=False,
+        widget=forms.Select(attrs={'class': 'styled-input'})
     )
 
-    created_by = forms.CharField(required=False, disabled=True, label='Created by')
-    updated_by = forms.CharField(required=False, disabled=True, label='Last updated by')
-
+    created_by = forms.CharField(
+        required=False, disabled=True, label='Created by',
+        widget=forms.TextInput(attrs={'class': 'styled-input'})
+    )
+    updated_by = forms.CharField(
+        required=False, disabled=True, label='Last updated by',
+        widget=forms.TextInput(attrs={'class': 'styled-input'})
+    )
     hours = forms.IntegerField(
         min_value=0, max_value=23, required=True, label="Hours", initial=0,
-        widget=forms.NumberInput(attrs={'class': 'form-input small-width', 'min': 0}),
+        widget=forms.NumberInput(attrs={'class': 'small-width styled-input', 'min': 0}),
         error_messages={
             'required': 'Please enter the cooking hours.',
             'min_value': 'Hours cannot be negative.',
@@ -40,7 +46,7 @@ class RecipeForm(forms.ModelForm):
     )
     minutes = forms.IntegerField(
         min_value=0, max_value=59, required=True, label="Minutes", initial=0,
-        widget=forms.NumberInput(attrs={'class': 'form-input small-width', 'min': 0}),
+        widget=forms.NumberInput(attrs={'class': 'small-width styled-input', 'min': 0}),
         error_messages={
             'required': 'Please enter the cooking minutes.',
             'max_value': 'Minutes cannot exceed 59.',
@@ -49,7 +55,7 @@ class RecipeForm(forms.ModelForm):
     )
     servings = forms.IntegerField(
         min_value=1, initial=1,
-        widget=forms.NumberInput(attrs={'class': 'form-input small-width', 'min': 1, 'step': 1}),
+        widget=forms.NumberInput(attrs={'class': 'small-width styled-input', 'min': 1, 'step': 1}),
         error_messages={
             'required': 'Please enter the number of servings.',
             'min_value': 'Servings must be at least 1.',
@@ -57,16 +63,14 @@ class RecipeForm(forms.ModelForm):
         }
     )
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         if self.instance and self.instance.pk:
             self.fields['created_by'].initial = self.instance.created_by or '-'
             self.fields['updated_by'].initial = self.instance.updated_by or '-'
-            self.fields['created_by'].widget.attrs['class'] = 'form-input'
-            self.fields['updated_by'].widget.attrs['class'] = 'form-input'
-
+            self.fields['created_by'].widget.attrs['class'] = 'styled-input'
+            self.fields['updated_by'].widget.attrs['class'] = 'styled-input'
 
         if self.instance and self.instance.cooking_time:
             self.fields['hours'].initial = self.instance.cooking_time.hour
@@ -98,11 +102,16 @@ class RecipeForm(forms.ModelForm):
     class Meta:
         model = Recipe
         exclude = ['cooking_time', 'ingredients', 'favourited_by', 'created_by', 'updated_by']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'styled-input'}),
+            'instructions': forms.Textarea(attrs={'class': 'styled-input', 'style': "height: 35rem;"}),
+        }
+
 
 class RecipeIngredientForm(forms.ModelForm):
     class Meta:
         model = RecipeIngredient
-        exclude = ['recipe']
+        exclude = ['ingredientRecipe']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -128,6 +137,7 @@ class RecipeIngredientForm(forms.ModelForm):
         if quantity is not None and quantity <= 0:
             raise forms.ValidationError("Quantity must be greater than 0.")
         return quantity
+
 
 
 RecipeIngredientFormSet = inlineformset_factory(

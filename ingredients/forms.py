@@ -22,7 +22,7 @@ class IngredientFormBase(StyledFormMixin, ErrorMessagesMixin, forms.ModelForm):
             self.fields[field].required = False
             self.fields[field].initial = 0
             self.fields[field].widget = forms.NumberInput(
-                attrs={'class': 'form-input nutrient-input styled-input', 'step': 'any', 'min': 0}
+                attrs={'class': ' nutrient-input styled-input', 'step': 'any', 'min': 0}
             )
 
     def clean_name(self):
@@ -55,11 +55,11 @@ class IngredientFormBase(StyledFormMixin, ErrorMessagesMixin, forms.ModelForm):
         )
 
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-input'}),
+            'name': forms.TextInput(attrs={'class': ''}),
             'category': forms.Select(attrs={'class': 'form-select'}),
             'dietary_tag': forms.CheckboxSelectMultiple(),
-            'default_unit': forms.Select(attrs={'class': 'form-select half-width'}),
-            'base_quantity': forms.NumberInput(attrs={'class': 'form-input half-width', 'min': 0.01}),
+            'default_unit': forms.Select(attrs={'class': 'form-select'}),
+            'base_quantity': forms.NumberInput(attrs={'min': 0.01}),
         }
 
 
@@ -77,8 +77,8 @@ class IngredientEditForm(IngredientFormBase):
         if self.instance.pk:
             self.fields['created_by'].initial = self.instance.created_by or '-'
             self.fields['updated_by'].initial = self.instance.updated_by or '-'
-            self.fields['created_by'].widget.attrs['class'] = 'form-input styled-input'
-            self.fields['updated_by'].widget.attrs['class'] = 'form-input styled-input'
+            self.fields['created_by'].widget.attrs['class'] = ' styled-input'
+            self.fields['updated_by'].widget.attrs['class'] = ' styled-input'
 
 
     def clean_name(self):
@@ -114,7 +114,7 @@ class IngredientDetailForm(StyledFormMixin, forms.Form):
             'invalid': 'Please enter a valid quantity.',
             'min_value': 'Quantity must be greater than 0.',
         },
-        widget=forms.NumberInput(attrs={'class': 'form-input', 'step': 'any', 'min': 0.01})
+        widget=forms.NumberInput(attrs={'class': '', 'step': 'any', 'min': 0.01})
     )
     unit = forms.ModelChoiceField(
         queryset=IngredientMeasurementUnit.objects.none(),

@@ -1,35 +1,38 @@
 {% load static %}
 
-<div id="manageListModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:#1e1e2e; border:1px solid #444; border-radius:8px; padding:1.5rem; min-width:320px; max-width:480px; width:90%; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+<div id="manageListModal" class="modal-overlay">
+    <div class="form-group" style="background: var(--bg-primary-ivory); border-radius: 0.5rem; padding: 1.5rem; max-width: 480px; margin: 0 auto;">
         <h3 id="manageListTitle" style="margin-bottom:1rem; margin-top:0;"></h3>
 
         <!-- feedback message -->
         <div id="manageListMsg" style="display:none; padding:0.4rem 0.75rem; border-radius:4px; margin-bottom:0.75rem; font-size:0.9rem;"></div>
 
         <!-- inline edit bar (supports multiple fields) -->
-        <div id="manageListEdit" style="display:none; background:#1a2a1a; border:1px solid #3a3; border-radius:6px; padding:0.75rem; margin-bottom:0.75rem;">
-            <p style="margin:0 0 0.5rem 0; font-size:0.85rem; color:#aaa;">Editing:</p>
+        <div id="manageListEdit" style="display:none; background: var(--bg-gray); border:1px solid var(--bg-secondary-green); border-radius:6px; padding:0.75rem; margin-bottom:0.75rem;">
+            <p style="margin:0 0 0.5rem 0; font-size:0.85rem; color:#4A4A4A;">Editing:</p>
             <div id="manageListEditFields"></div>
             <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
-                <button class="btn btn-small" onclick="confirmEditYes()">Save</button>
-                <button class="btn btn-small" onclick="confirmEditNo()">Cancel</button>
+                <button class="btn-mint-small" onclick="confirmEditYes()">Save</button>
+                <button class="btn-wine-small" onclick="confirmEditNo()">Cancel</button>
+
             </div>
         </div>
 
         <!-- inline confirm bar -->
-        <div id="manageListConfirm" style="display:none; background:#2a1a1a; border:1px solid #a33; border-radius:6px; padding:0.75rem; margin-bottom:0.75rem;">
+        <div id="manageListConfirm" style="display:none; background: var(--bg-gray); border:1px solid var(--wine); border-radius:6px; padding:0.75rem; margin-bottom:0.75rem;">
             <p id="manageListConfirmMsg" style="margin:0 0 0.5rem 0; font-size:0.9rem;"></p>
             <div style="display:flex; gap:0.5rem;">
-                <button class="btn btn-wine-smallbtn-small" onclick="confirmDeleteYes()">Delete</button>
-                <button class="btn btn-small" onclick="confirmDeleteNo()">Cancel</button>
+                <button class="btn-wine-small" onclick="confirmDeleteYes()">Delete</button>
+                <button class="btn-mint-small" onclick="confirmDeleteNo()">Cancel</button>
             </div>
         </div>
 
         <div id="manageListItems" style="max-height:300px; overflow-y:auto; margin-bottom:1rem;"></div>
 
-        <button class="btn" onclick="closeManageModal()">Close</button>
+        <button class="btn-wine-small" onclick="closeManageModal()">Close</button>
     </div>
 </div>
 
 <script src="{% static 'js/_manage_list_modal.js' %}"></script>
+
+

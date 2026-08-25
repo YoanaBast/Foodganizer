@@ -38,22 +38,22 @@ class LoginForm(StyledFormMixin, AuthenticationForm):
 
     username = forms.CharField(
         label='Username',
-        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Username'})
+        widget=forms.TextInput(attrs={'class': '', 'placeholder': 'Username'})
     )
     password = forms.CharField(
         label='Password',
-        widget=forms.PasswordInput(attrs={'class': 'form-input', 'placeholder': 'Password'})
+        widget=forms.PasswordInput(attrs={'class': '', 'placeholder': 'Password'})
     )
 
 class ProfileEditForm(StyledFormMixin, forms.ModelForm):
-    first_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-input'}))
-    last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-input'}))
+    first_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': ''}))
+    last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': ''}))
 
     class Meta:
         model = Profile
         fields = ['profile_picture', 'bio']
         widgets = {
-            'bio': forms.Textarea(attrs={'class': 'form-input', 'rows': 4}),
+            'bio': forms.Textarea(attrs={'class': '', 'rows': 4}),
         }
 
     def __init__(self, *args, **kwargs):

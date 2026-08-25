@@ -30,27 +30,27 @@ class BiometricsForm(StyledFormMixin, forms.ModelForm):
     # display-only fields for imperial input
     weight_lbs = forms.FloatField(
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Weight (lbs)'})
+        widget=forms.NumberInput(attrs={'class': '', 'placeholder': 'Weight (lbs)'})
     )
     height_ft = forms.FloatField(
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Feet'})
+        widget=forms.NumberInput(attrs={'class': '', 'placeholder': 'Feet'})
     )
     height_in = forms.FloatField(
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Inches'})
+        widget=forms.NumberInput(attrs={'class': '', 'placeholder': 'Inches'})
     )
 
     class Meta:
         model = UserBiometrics
         fields = ['gender', 'age', 'weight_kg', 'height_cm', 'activity_level', 'unit_system', 'deficit_target']
         widgets = {
-            'gender': forms.Select(attrs={'class': 'form-input'}),
-            'age': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Age'}),
-            'weight_kg': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Weight (kg)'}),
-            'height_cm': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Height (cm)'}),
-            'activity_level': forms.Select(attrs={'class': 'form-input'}),
-            'unit_system': forms.Select(attrs={'class': 'form-input', 'id': 'id_unit_system'}),
+            'gender': forms.Select(attrs={'class': ''}),
+            'age': forms.NumberInput(attrs={'class': '', 'placeholder': 'Age'}),
+            'weight_kg': forms.NumberInput(attrs={'class': '', 'placeholder': 'Weight (kg)'}),
+            'height_cm': forms.NumberInput(attrs={'class': '', 'placeholder': 'Height (cm)'}),
+            'activity_level': forms.Select(attrs={'class': ''}),
+            'unit_system': forms.Select(attrs={'class': '', 'id': 'id_unit_system'}),
             'deficit_target': forms.RadioSelect(),
         }
 

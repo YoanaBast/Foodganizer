@@ -15,7 +15,6 @@
 {% include 'messages/_anon_warning.html' with section_name="fridge" %}
 
 <!--JS-->
-<script src="{% static 'js/zero_inputt_handler.js' %}" defer></script>
 
 {% if request.user.is_authenticated %}
     <script src="{% static 'js/crud/delete_popup.js' %}" defer></script>
@@ -25,7 +24,7 @@
 
 <script src="{% static 'js/fridge/fridge_modal.js' %}" defer></script>
 <script src="{% static 'js/fridge/fridge_ingredient_loader.js' %}" defer></script>
-<script src="{% static 'js/search_filter/tag_dropdown.js' %}" defer></script>
+<script src="{% static 'js/search_filter/live_search.js' %}" defer></script>
 
 
 <div class="main-first-child-container-padding">
@@ -62,7 +61,7 @@
 <!--  Search/filter -->
 
 {% if request.user.is_authenticated %}
-            <div class="search_filter">
+            <div class="search_filter mb-8 mt-8">
                 <form method="get">
 
                     <input class="searchbar" type="text" name="search" value="{{ search }}" placeholder="Search by name...">

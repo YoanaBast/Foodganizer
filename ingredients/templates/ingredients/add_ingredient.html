@@ -7,8 +7,8 @@
 {% include 'global_reusable/_quick_add_modal.html' %}
 {% include 'global_reusable/_manage_list_modal.html' %}
 
-<script src="{% static 'js/zero_inputt_handler.js' %}" defer></script>
-<script src="{% static 'js/fetch_and_manage.js' %}" defer></script>
+<script src="{% static 'js/zeroInputTableHandler.js' %}" defer></script>
+<script src="{% static 'js/crud/fetch_and_manage.js' %}" defer></script>
 
 
 
@@ -17,13 +17,13 @@
         <a href="javascript:history.back()" class="btn-wine-small">Back</a>
     </div>
 
-    <h2 class="section-title ranchers-regular">Add Ingredient</h2>
+    <h2 class="section-huge-title ranchers-regular">Add Ingredient</h2>
 
     <form id="add-ingredient-form" method="post" action="{% url 'add_ingredient' %}" novalidate>
         {% csrf_token %}
         {% include "messages/errors_label.html" %}
 
-        <div class="flex-row-flex-start" style="align-items: flex-start; gap: 2rem;">
+        <div class="flex-row-flex-start mb-6" style="align-items: flex-start;">
                 <div class="form-group">
 
                     <div class="flex-column-flex-start">
@@ -34,7 +34,7 @@
                         {{ form.category.label_tag }}
                         {{ form.category }}
 
-                        <div class="flex-row-flex-start" style="margin: 0rem; margin-top: 0.5rem;">
+                        <div class="small-round-buttons-parent mt-3 mb-8">
                             <button type="button" class="btn-small-round" title="Add new category"
                                 onclick="openQuickModal('Add Category', '{% url "add_category_ajax" %}', 'id_category')">+</button>
                             <button type="button" class="btn-small-round" title="Manage categories"
@@ -47,7 +47,7 @@
                             {{ form.dietary_tag.label_tag }}
                             {{ form.dietary_tag }}
                         </div>
-                        <div class="flex-row-flex-start" style="margin: 0rem; margin-top: 0.5rem;">
+                        <div class="small-round-buttons-parent mt-3 mb-8">
                             <button type="button" class="btn-small-round" title="Add new dietary tag""
                                 onclick="openQuickModal('Add Dietary Tag', '{% url "add_dietary_tag_ajax" %}', 'id_dietary_tag')">+</button>
                             <button type="button" class="btn-small-round" title="Manage dietary tags"
@@ -60,7 +60,7 @@
 
                         {{ form.default_unit.label_tag }}
                         {{ form.default_unit }}
-                        <div class="flex-row-flex-start" style="margin: 0rem; margin-top: 0.5rem;">
+                        <div class="small-round-buttons-parent mt-3 mb-8">
                             <button type="button" class="btn-small-round" title="Create new unit"
                                 onclick="openQuickModal(
                                     'Create Measurement Unit',
@@ -77,7 +77,7 @@
 
                     <div class="flex-column-flex-start">
                         {{ form.base_quantity.label_tag }} {{ form.base_quantity }}
-                        <p style="color: green">This is the reference amount all nutrient values are calculated for. For example, if base quantity is 100g, all nutrients below represent what's in 100g of this ingredient.</p>
+                        <p style="color: var(--wine)">This is the reference amount all nutrient values are calculated for. For example, if base quantity is 100g, all nutrients below represent what's in 100g of this ingredient.</p>
                     </div>
 
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-start; margin-top: 1rem;">
@@ -87,8 +87,7 @@
                 </div>
 
                 <div>
-
-                    <div class="nutrients-grid form-group" style="grid-template-columns: repeat(3, 1fr); min-width: 35rem">
+                    <div class="nutrient-inputs-grid form-group" style="grid-template-columns: repeat(3, 1fr); min-width: 35rem">
                         {% for nutrient in form %}
                             {% if "base_quantity_" in nutrient.name and nutrient.name != "base_quantity" %}
                             <div class="nutrient-item">
@@ -97,8 +96,6 @@
                             {% endif %}
                         {% endfor %}
                     </div>
-
-
                 </div>
         </div>
 

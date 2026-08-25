@@ -1,13 +1,4 @@
 
-:root {
-    --bg-primary-ivory: #FBF7EE;
-    --bg-gray: #F5F1ED;
-    --bg-secondary-green: #20B486;
-    --mint: #c5e8db;
-    --wine: #D88895;
-}
-
-
 
 ul.errorlist {
     list-style: none;
@@ -16,11 +7,6 @@ ul.errorlist {
     color: #ff6b6b;
     font-size: 0.875rem;
     /* removed width: 100% — it inherits from .form-group naturally */
-}
-
-.form-group {
-    width: 100%;
-    box-sizing: border-box;
 }
 
 .btn-invisible,
@@ -111,7 +97,6 @@ ul.errorlist {
 .form-group {
     width: 100%;
     box-sizing: border-box;
-    margin-bottom: 1.25rem;
 }
 
 .form-group label {

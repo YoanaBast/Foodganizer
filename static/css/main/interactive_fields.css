@@ -1,15 +1,5 @@
-/* ROOT VARIABLES */
-:root {
-    --bg-primary-ivory: #FBF7EE;
-    --bg-gray: #F5F1ED;
-    --bg-secondary-green: #20B486;
-    --mint: #c5e8db;
-    --wine: #D88895;
-}
-
 
 /* FORM INPUTS, SELECTS, TEXTAREAS — scoped to .styled-input */
-
 input.styled-input,
 select.styled-input,
 textarea.styled-input {
@@ -88,7 +78,6 @@ label.styled-label {
     margin-bottom: 1.2rem;
 }
 
-/* NUMBER INPUT — reuses your existing .half-width / .nutrient-input classes */
 .half-width {
     width: 50%;
 }

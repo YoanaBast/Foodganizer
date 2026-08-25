@@ -8,52 +8,96 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/recipe_styles.css' %}">
 
+{% include 'recipes/delete_recipe_modal.html' %}
+
 <script src="{% static 'js/crud/delete_popup.js' %}" defer></script>
 
-<div class="main-first-child-container-padding" style="max-width: 800px; margin: 2rem auto; display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-        <a href="javascript:history.back()" class="btn">← Back</a>
-        <a href="{% url 'edit_recipe' recipe.pk %}" class="btn">Edit</a>
-        <a href="{% url 'manage_recipes' %}" class="btn">All Recipes</a>
+<div class="main-first-child-container-padding">
+    <div class="flex-row-flex-end">
+        <a href="javascript:history.back()" class="btn-mint-small">← Back</a>
+        <a href="{% url 'edit_recipe' recipe.pk %}" class="btn-mint-small">Edit</a>
+        <a href="{% url 'manage_recipes' %}" class="btn-mint-small">All Recipes</a>
+        <button class="btn-wine-small" style="margin-left: auto;" onclick="openDeleteModal('recipe', {{ recipe.pk }}, '{{ recipe.name|escapejs }}')">Delete</button>
+
     </div>
 
-    <button class="btn btn-wine-small" style="margin-left: auto;" onclick="openDeleteModal('recipe', {{ recipe.pk }}, '{{ recipe.name|escapejs }}')">Delete</button>
-</div>
 
 
-    {% include 'recipes/delete_recipe_modal.html' %}
 
     <!-- Info + Ingredients Grid -->
-<div class="main-first-child-container-padding" style="max-width: 800px; margin: 2rem auto;">
-    <div class="grid-container">
-        <div class="grid-item info">
-            <h1>{{ recipe.name|title_except }}</h1>
-            <p><strong>Category:</strong> {{ recipe.category.name|default:"-"|title_except }}</p>
-            <p><strong>Dietary Info:</strong> {{ recipe.dietary_info|default:"-"|title_except }}</p>
-            <p><strong>Cooking Duration:</strong> {{ recipe.cooking_duration|default:"-" }}</p>
-            <p><strong>Kcal per Serving:</strong> {{ recipe.kcal_per_serving|default:"-" }}</p>
-            <p><strong>Servings:</strong> {{ recipe.servings|default:"-" }}</p>
-            <p><strong>Created by:</strong> {{ recipe.created_by|default:"-" }}</p>
-            <p><strong>Updated by:</strong> {{ recipe.updated_by|default:"-" }}</p>
-        </div>
-        <div class="grid-item ingredients">
-            <h2>Ingredients</h2>
-            <ul>
-              {% for ing, qtys in recipe.quantity_ingredients_list_all_units %}
-                  <li>{{ ing.name|title_except }} — {{ qtys }}</li>
-              {% empty %}
-                  <li>No ingredients added.</li>
-              {% endfor %}
-            </ul>
-        </div>
-    </div>
+        <h2 class="section-huge-title ranchers-regular">{{ recipe.name|title_except }}</h2>
+        <div class="flex-row-flex-start" style="align-items: flex-start;">
 
-    <h2>Instructions</h2>
-    <p>{{ recipe.instructions|capfirst|linebreaks }}</p>
+                <table class="data-table">
+                    <tbody>
+                        <tr>
+                            <th>Category</th>
+                            <td>{{ recipe.category.name|default:"-"|title_except }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Dietary Info</th>
+                            <td>{{ recipe.dietary_info|default:"-"|title_except }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Cooking Duration</th>
+                            <td>{{ recipe.cooking_duration|default:"-" }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Kcal per Serving</th>
+                            <td>{{ recipe.kcal_per_serving|default:"-" }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Servings</th>
+                            <td>{{ recipe.servings|default:"-" }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Created by</th>
+                            <td>{{ recipe.created_by|default:"-" }}</td>
+                        </tr>
+
+                       <tr>
+                            <th>Updated by</th>
+                            <td>{{ recipe.updated_by|default:"-" }}</td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+
+
+                <div style="min-width: 500px;">
+
+                    <h2 class="section-title ranchers-regular">Instructions</h2>
+                    <div style="color: color-mix(in srgb, var(--wine) 70%, black);">{{ recipe.instructions|capfirst|linebreaks }}</div>
+                </div>
+
+        </div>
+
+        <h2 class="section-title ranchers-regular">Ingredients</h2>
+        <table class="data-table">
+            <tbody>
+                {% for ing, qtys in recipe.quantity_ingredients_list_all_units %}
+                    <tr>
+                        <td>{{ ing.name|title_except }}</td>
+                        <td>{{ qtys }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="2">No ingredients added.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
     <!-- Nutrients Grid -->
-<div class="nutrients-tables">
-    <table class="nutrients-table">
+<h2 class="section-title ranchers-regular" style="margin-top: 3rem; margin-bottom: 0rem;">Nutrients</h2>
+
+<div class="nutrients-tables" style="max-width: 100%">
+    <table class="data-table">
         <thead>
             <tr><th colspan="2">Nutrients (Per Serving - 1/{{ recipe.servings|default:"-" }}) </th></tr>
         </thead>
@@ -69,7 +113,7 @@
         </tbody>
     </table>
 
-    <table class="nutrients-table">
+    <table class="data-table">
         <thead>
             <tr><th colspan="2">Nutrients (Total)</th></tr>
         </thead>
@@ -86,10 +130,11 @@
     </table>
 </div>
 
-    <div style="max-width: 800px; margin: 2rem auto;">
-        <a href="javascript:history.back()" class="btn">← Back</a>
-        <a href="{% url 'manage_recipes' %}" class="btn">All Recipes</a>
+    <div class="flex-row-flex-end mt-8">
+        <a href="javascript:history.back()" class="btn-wine-small">← Back</a>
+        <a href="{% url 'manage_recipes' %}" class="btn-mint-small">All Recipes</a>
     </div>
 
+</div>
 
 {% endblock %}
