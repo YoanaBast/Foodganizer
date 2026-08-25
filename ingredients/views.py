@@ -1,4 +1,5 @@
 import json
+import math
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -39,7 +40,9 @@ class ManageIngredientsView(ListView):
         if category:
             qs = qs.filter(category__id=category)
         if tags:
-            qs = qs.filter(dietary_tag__id__in=tags).distinct()
+            for tag_id in tags:
+                qs = qs.filter(dietary_tag__id=tag_id)
+            qs = qs.distinct()
         if sort == 'kcal_asc':
             qs = qs.order_by('base_quantity_kcal')
         elif sort == 'kcal_desc':
@@ -147,17 +150,26 @@ class IngredientDetailView(View):
         quantity = form.get_quantity()
         unit = form.get_unit()
         quantity = int(quantity) if quantity == int(quantity) else quantity
+        nutrients = form.get_nutrients()
+
+        nutrient_items = list(nutrients.items())
+        col_size = math.ceil(len(nutrient_items) / 3)
+        nutrient_columns = [
+            nutrient_items[i:i + col_size]
+            for i in range(0, len(nutrient_items), col_size)
+        ]
+
         return render(request, 'ingredients/ingredient_detail.html', {
             'ingredient': ingredient,
             'form': form,
             'unit_name': unit.name_for_quantity(quantity),
-            'nutrients': form.get_nutrients(),
+            'nutrients': nutrients,
+            'nutrient_columns': nutrient_columns,
             'quantity': quantity,
             'created_by': ingredient.created_by,
             'updated_by': ingredient.updated_by,
             'selected_imu': unit,
         })
-
 
 """
 INGREDIENT CATEGORY VIEWS

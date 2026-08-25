@@ -1,8 +1,9 @@
 from django import forms
 from .models import UserFridge, UserBiometrics
 from core.mixins import ErrorMessagesMixin
+from core.mixins import StyledFormMixin
 
-class UserFridgeForm(ErrorMessagesMixin, forms.ModelForm):
+class UserFridgeForm(StyledFormMixin, ErrorMessagesMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.apply_error_messages(['quantity', 'unit'])
@@ -18,31 +19,38 @@ class UserFridgeForm(ErrorMessagesMixin, forms.ModelForm):
         exclude = ['user', 'ingredient']
 
 
-class BiometricsForm(forms.ModelForm):
+class BiometricsForm(StyledFormMixin, forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            existing = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = (existing + ' styled-input').strip()
+
     # display-only fields for imperial input
     weight_lbs = forms.FloatField(
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Weight (lbs)'})
+        widget=forms.NumberInput(attrs={'class': '', 'placeholder': 'Weight (lbs)'})
     )
     height_ft = forms.FloatField(
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Feet'})
+        widget=forms.NumberInput(attrs={'class': '', 'placeholder': 'Feet'})
     )
     height_in = forms.FloatField(
         required=False,
-        widget=forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Inches'})
+        widget=forms.NumberInput(attrs={'class': '', 'placeholder': 'Inches'})
     )
 
     class Meta:
         model = UserBiometrics
         fields = ['gender', 'age', 'weight_kg', 'height_cm', 'activity_level', 'unit_system', 'deficit_target']
         widgets = {
-            'gender': forms.Select(attrs={'class': 'form-input'}),
-            'age': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Age'}),
-            'weight_kg': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Weight (kg)'}),
-            'height_cm': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': 'Height (cm)'}),
-            'activity_level': forms.Select(attrs={'class': 'form-input'}),
-            'unit_system': forms.Select(attrs={'class': 'form-input', 'id': 'id_unit_system'}),
+            'gender': forms.Select(attrs={'class': ''}),
+            'age': forms.NumberInput(attrs={'class': '', 'placeholder': 'Age'}),
+            'weight_kg': forms.NumberInput(attrs={'class': '', 'placeholder': 'Weight (kg)'}),
+            'height_cm': forms.NumberInput(attrs={'class': '', 'placeholder': 'Height (cm)'}),
+            'activity_level': forms.Select(attrs={'class': ''}),
+            'unit_system': forms.Select(attrs={'class': '', 'id': 'id_unit_system'}),
             'deficit_target': forms.RadioSelect(),
         }
 

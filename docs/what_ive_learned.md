@@ -34,4 +34,5 @@
 - vim
   > :wq  i can exit vim i can exit vim i can exit vim
 
+- django is difficult to customize for front end when it comes to ready html elements like forms and inputs
 

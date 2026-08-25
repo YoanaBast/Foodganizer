@@ -7,24 +7,21 @@
 
 {% block content %}
 
-<!--CSS-->
-<link rel="stylesheet" href="{% static 'css/secondary.css' %}">
 
 <!--templates-->
 {% include 'ingredients/delete_ingredient_modal.html' %}
 
 <!--JS-->
-<script src="{% static 'js/zero_inputt_handler.js' %}" defer></script>
 <script src="{% static 'js/crud/delete_popup.js' %}" defer></script>
 <script src="{% static 'js/search_filter/live_search.js' %}" defer></script>
 
 
-<div class="container-home">
+<div class="main-first-child-container-padding">
 
     <div id="manage-ingredients" class="tab-content active">
 
 <!-- Title + Button Row -->
-        <div class="section-header">
+        <div class="flex-row-space-between">
             <div>
                 <h2 class="section-title ranchers-regular">Manage Ingredients</h2>
                 <p class="section-description">What ingredients do you want to use? Manage them here!</p>
@@ -34,7 +31,7 @@
         </div>
 
 <!-- Search/filter -->
-        <div class="search_filter">
+        <div class="search_filter mb-8 mt-8">
             <form method="get">
 
                 <input class="searchbar" type="text" name="search" value="{{ search }}" placeholder="Search by name...">
@@ -46,22 +43,22 @@
                         {% endfor %}
                 </select>
 
+                <div class="tag-filter-group">
+                    <button type="button" onclick="this.nextElementSibling.classList.toggle('open')"
+                        class="form-filter-button">
+                        Tags {% if selected_tags %}({{ selected_tags|length }}){% endif %} ▾
+                    </button>
 
-                <button type="button" onclick="this.nextElementSibling.classList.toggle('open')"
-                    class="form-filter-button">
-                    Tags {% if selected_tags %}({{ selected_tags|length }}){% endif %} ▾
-                </button>
-
-                <div class="tag-dropdown">
-                    {% for tag in tags %}
-                        <label>
-                            <input type="checkbox" name="tag" value="{{ tag.id }}"
-                                {% if tag.id|stringformat:"s" in selected_tags %}checked{% endif %}>
-                                {{ tag.name }}
-                        </label>
-                    {% endfor %}
+                    <div class="tag-dropdown">
+                        {% for tag in tags %}
+                            <label>
+                                <input type="checkbox" name="tag" value="{{ tag.id }}"
+                                    {% if tag.id|stringformat:"s" in selected_tags %}checked{% endif %}>
+                                    {{ tag.name }}
+                            </label>
+                        {% endfor %}
+                    </div>
                 </div>
-
                 <select name="sort" class="form-select">
                     <option value="">Sort: Default</option>
                     <option value="kcal_asc" {% if selected_sort == 'kcal_asc' %}selected{% endif %}>Kcal ↑</option>

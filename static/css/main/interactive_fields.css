@@ -1,0 +1,128 @@
+
+/* FORM INPUTS, SELECTS, TEXTAREAS — scoped to .styled-input */
+
+.styled-input,
+.creds-form input[type="email"],
+.creds-form input[type="password"],
+.creds-form input[type="text"],
+.creds-form input[type="number"],
+.creds-form select,
+.creds-form textarea,
+.biometrics-form-block input[type="text"],
+.biometrics-form-block input[type="number"],
+.biometrics-form-block input[type="email"],
+.biometrics-form-block select,
+.biometrics-form-block textarea,
+.profile-info input,
+.profile-info textarea {
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--mint);
+    border-radius: 0.5rem;
+    background: var(--bg-gray);
+    color: var(--bg-secondary-green);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    width: 100%;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    text-transform: uppercase;
+}
+
+.styled-input:focus,
+.creds-form input:focus,
+.biometrics-form-block input:focus,
+.biometrics-form-block select:focus,
+.biometrics-form-block textarea:focus,
+.profile-info input:focus,
+.profile-info textarea:focus {
+    outline: none;
+    border-color: var(--wine);
+    background: #fff;
+}
+
+input.styled-input,
+select.styled-input,
+textarea.styled-input {
+    width: 100%;
+    padding: 0.6rem 0.9rem;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--bg-secondary-green);
+    background-color: var(--mint);
+    border: 1px solid rgba(216, 136, 149, 0.5);
+    border-radius: 8px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+
+input.styled-input:focus,
+select.styled-input:focus,
+textarea.styled-input:focus {
+    outline: none;
+    border-color: var(--mint, #a8e6c4);
+    box-shadow: 0 0 0 3px rgba(168, 230, 196, 0.35);
+}
+
+input.styled-input::placeholder,
+textarea.styled-input::placeholder {
+    color: #999;
+    opacity: 1;
+}
+
+input.styled-input:disabled,
+select.styled-input:disabled,
+textarea.styled-input:disabled {
+    background-color: #f0f0f0;
+    color: #999;
+    cursor: not-allowed;
+}
+
+textarea.styled-input {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* SELECT — custom dropdown arrow */
+select.styled-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%23555' d='M1 1l5 5 5-5'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    background-size: 12px 8px;
+    padding-right: 2.2rem;
+    cursor: pointer;
+}
+
+/* CHECKBOXES / RADIOS */
+input.styled-input[type="checkbox"],
+input.styled-input[type="radio"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--mint, #a8e6c4);
+    cursor: pointer;
+}
+
+/* LABELS */
+label.styled-label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* FORM GROUP SPACING */
+.form-group,
+.field-with-help {
+    margin-bottom: 1.2rem;
+}
+
+.half-width {
+    width: 50%;
+}
+
+.nutrient-input {
+    width: 100%;
+}

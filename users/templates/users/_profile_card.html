@@ -1,25 +1,28 @@
 {% load static %}
 
-<div class="grid-container">
-    <div class="grid-item info">
-        <p style="margin-bottom: 0.75rem;"><strong>Username:</strong> {{ request.user.username }}</p>
-        <p style="margin-bottom: 0.75rem;"><strong>Email:</strong> {{ request.user.email|default:"-" }}</p>
-        <p style="margin-bottom: 0.75rem;"><strong>First Name:</strong> {{ request.user.first_name|default:"-" }}</p>
-        <p style="margin-bottom: 0.75rem;"><strong>Last Name:</strong> {{ request.user.last_name|default:"-" }}</p>
-        <p style="margin-bottom: 0.75rem;"><strong>Bio:</strong> {{ request.user.profile.bio|default:"-" }}</p>
+<link rel="stylesheet" href="{% static 'css/main/secondary.css' %}">
+<link rel="stylesheet" href="{% static 'css/main/auth.css' %}">
+
+<div class="profile-card">
+    <div class="profile-info">
+        <p><strong>Username:</strong> {{ request.user.username }}</p>
+        <p><strong>Email:</strong> {{ request.user.email|default:"-" }}</p>
+        <p><strong>First Name:</strong> {{ request.user.first_name|default:"-" }}</p>
+        <p><strong>Last Name:</strong> {{ request.user.last_name|default:"-" }}</p>
+        <p><strong>Bio:</strong> {{ request.user.profile.bio|default:"-" }}</p>
         <p><strong>Member since:</strong> {{ request.user.date_joined|date:"d M Y" }}</p>
     </div>
 
-    <div class="grid-item info" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
+    <div class="profile-picture-block">
         {% if request.user.profile.profile_picture %}
             <img src="{{ request.user.profile.profile_picture.url }}"
                  alt="Profile Picture"
-                 style="width:150px; height:150px; border-radius:50%; object-fit:cover; border: 3px solid var(--accent);">
-                {% else %}
+                 class="profile-picture">
+        {% else %}
             <img src="{% static 'images/default_pfp_cat.png' %}"
                  alt="Default Profile Picture"
-                 style="width:150px; height:150px; border-radius:50%; object-fit:cover; border: 3px solid var(--border);">
-            <p class="small-gray">No profile picture uploaded</p>
+                 class="profile-picture profile-picture-default">
+            <p class="section-description">No profile picture uploaded</p>
         {% endif %}
     </div>
 </div>

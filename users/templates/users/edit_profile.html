@@ -4,21 +4,26 @@
 {% block title %}Edit Profile{% endblock %}
 
 {% block content %}
-<div class="container-home" style="padding-top: 2rem; padding-bottom: 2rem;">
 
-    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+
+
+<script src="{% static 'js/profile/fileUploadLablel.js' %}" defer></script>
+
+<div class="main-first-child-container-padding">
+
+    <div class="flex-row-space-between mb-6">
         <div>
-            <h2 class="section-title">Edit Profile</h2>
+            <h2 class="section-title ranchers-regular">Edit Profile</h2>
             <p class="section-description">Update your account information</p>
         </div>
-        <a href="{% url 'profile' %}" class="btn btn-secondary">Back</a>
+        <a href="{% url 'profile' %}" class="a-btn">Back</a>
     </div>
 
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
-        <div class="grid-container">
-            <div class="grid-item info">
+        <div class="profile-card">
+            <div class="profile-info">
                 <div class="form-group">
                     <label><strong>Username:</strong></label>
                     <p>{{ request.user.username }}</p>  {# not editable #}
@@ -42,34 +47,37 @@
                 <p><strong>Member since:</strong> {{ request.user.date_joined|date:"d M Y" }}</p>
             </div>
 
-            <div class="grid-item info" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
+            <div class="profile-picture-block">
                 {% if request.user.profile.profile_picture %}
                     <img src="{{ request.user.profile.profile_picture.url }}"
                          alt="Profile Picture"
-                         style="width:150px; height:150px; border-radius:50%; object-fit:cover; border: 3px solid var(--accent);">
+                         class="profile-picture">
                 {% else %}
                     <img src="{% static 'images/default_pfp_cat.png' %}"
                          alt="Default Profile Picture"
-                         style="width:150px; height:150px; border-radius:50%; object-fit:cover; border: 3px solid var(--border);">
+                         class="profile-picture profile-picture-default">
                 {% endif %}
-                <div class="form-group" style="width:100%;">
-                    {{ form.profile_picture.label_tag }}
+                <div class="form-group">
+                    <label for="id_profile_picture" class="custom-file-upload">
+                        Choose Profile Picture
+                    </label>
                     {{ form.profile_picture }}
                 </div>
+
             </div>
         </div>
 
         {% if form.errors %}
             {% for field in form %}
                 {% for error in field.errors %}
-                    <p class="message error">{{ error }}</p>
+                    <p class="message">{{ error }}</p>
                 {% endfor %}
             {% endfor %}
         {% endif %}
 
-        <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-            <button type="submit" class="btn">Save</button>
-            <a href="{% url 'profile' %}" class="btn btn-danger">Cancel</a>
+        <div class="edit-profile-actions">
+            <button type="submit" class="filter-submit">Save</button>
+            <a href="{% url 'profile' %}" class="filter-submit">Cancel</a>
         </div>
     </form>
 

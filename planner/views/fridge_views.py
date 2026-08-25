@@ -41,7 +41,9 @@ class ManageFridgeView(ListView):
         if category:
             qs = qs.filter(ingredient__category__id=category)
         if tags:
-            qs = qs.filter(ingredient__dietary_tag__id__in=tags).distinct()
+            for tag_id in tags:
+                qs = qs.filter(ingredient__dietary_tag__id=tag_id)
+            qs = qs.distinct()
 
         if sort == 'qty_asc':
             qs = qs.order_by('quantity')
@@ -338,7 +340,7 @@ Older views:
 
 # def meal_list(request):
 #     user, _ = User.objects.get_or_create(username="default")
-#     meals = UserMealList.objects.filter(user=user).select_related('recipe')
+#     meals = UserMealList.objects.filter(user=user).select_related('ingredientRecipe')
 #
 #     paginator = Paginator(meals, 10)
 #     page_number = request.GET.get('page')
@@ -397,8 +399,8 @@ Older views:
 #             'recipe_ingredient__unit'
 #         )
 #
-#         # Build needed dict keyed by ingredient id, tracking which recipe each line came from
-#         # needed[ing_id] = { ingredient, unit, recipes: { recipe: qty_in_base } }
+#         # Build needed dict keyed by ingredient id, tracking which ingredientRecipe each line came from
+#         # needed[ing_id] = { ingredient, unit, recipes: { ingredientRecipe: qty_in_base } }
 #         needed = {}
 #
 #         for rec in selected_recipes_qs:
@@ -495,7 +497,7 @@ Older views:
 #             for recipe_obj, qty in ing_data['by_recipe'].items():
 #                 GroceryListGenerationItem.objects.create(
 #                     generation=generation,
-#                     recipe=recipe_obj,
+#                     ingredientRecipe=recipe_obj,
 #                     ingredient=ing_data['ingredient'],
 #                     quantity=round(qty, 4),
 #                     unit=ing_data['unit'],
@@ -535,12 +537,12 @@ Older views:
 #         'items__recipe',
 #     )
 #
-#     # Group items by recipe in Python so the template stays simple
+#     # Group items by ingredientRecipe in Python so the template stays simple
 #     history_data = []
 #     for gen in raw_history:
 #         by_recipe = OrderedDict()
 #         for item in gen.items.all():
-#             recipe_name = item.recipe.name if item.recipe else "Unknown Recipe"
+#             recipe_name = item.ingredientRecipe.name if item.ingredientRecipe else "Unknown Recipe"
 #             if recipe_name not in by_recipe:
 #                 by_recipe[recipe_name] = []
 #             by_recipe[recipe_name].append(item)

@@ -8,67 +8,128 @@ Generate Grocery List
 
 {% block content %}
 
-<link rel="stylesheet" href="{% static 'css/planner_styles.css' %}">
-
 <script src="{% static 'js/planner/generate_grocery_item_handler.js' %}" defer></script>
+<script src="{% static 'js/search_filter/live_search.js' %}" defer></script>
 
+<div class="main-first-child-container-padding" style="margin-top: 1rem;">
+    <div class="flex-row-flex-end" style="margin-bottom: 0rem;">
+        <a href="{% url 'user_grocery_list' %}" class="btn-mint-small">Grocery List</a>
+        <a href="javascript:history.back()" class="btn-wine-small">Back</a>
+    </div>
 
-<div class="container-home" style="margin-top: 1rem;">
-
-    <h2>Generate Grocery List</h2>
-    <p style="margin-bottom: 1rem;">Create your very own <a href="{% url 'user_grocery_list' %}">Grocery List</a>.</p>
-    <p style="margin-bottom: 1rem;">Try searching for a recipe, or choose from your favourites! Select and generate!</p>
+    <h2 class="section-title ranchers-regular">Generate Grocery List</h2>
+    <p class="section-description">Try searching for a recipe, or choose from your favourites! Select and generate!</p>
 
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}"
-                 style="background:#22c55e; color:white; font-size:18px; padding:12px 16px; border-radius:8px; margin:12px 0; font-weight:600;">
-                {{ message }}
-            </div>
+            <div class="message {{ message.tags }}">{{ message }}</div>
         {% endfor %}
     {% endif %}
 
-    <hr style="border: none; height: 2px; background: #0f3d2e; margin-bottom: 50px;">
+<!-- Search/filter -->
+    <div class="search_filter mb-8 mt-8">
+        <form method="get">
 
-        <!-- Search & Filter -->
-        <div style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center;">
-            <input type="text" id="search-box" placeholder="Search by name..." oninput="filterRecipes()">
+            <input class="searchbar" type="text" name="search" value="{{ search }}" placeholder="Search by name...">
+
+            <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+
+            <div class="tag-filter-group">
+                <button type="button" onclick="this.nextElementSibling.classList.toggle('open')"
+                    class="form-filter-button">
+                    Tags {% if selected_tags %}({{ selected_tags|length }}){% endif %} ▾
+                </button>
+
+                <div class="tag-dropdown">
+                    {% for tag in tags %}
+                    <label>
+                        <input type="checkbox" name="tag" value="{{ tag.id }}"
+                            {% if tag.id|stringformat:"s" in selected_tags %}checked{% endif %}>
+                        {{ tag.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <select name="sort" class="form-select">
+                <option value="">Sort: Default</option>
+                <option value="kcal_asc" {% if selected_sort == 'kcal_asc' %}selected{% endif %}>Kcal ↑</option>
+                <option value="kcal_desc" {% if selected_sort == 'kcal_desc' %}selected{% endif %}>Kcal ↓</option>
+                <option value="popular" {% if selected_sort == 'popular' %}selected{% endif %}>Most Popular</option>
+            </select>
+
             {% if request.user.is_authenticated %}
-            <a href="?page=1{% if not show_favs %}&favs=1{% endif %}{% for r in selected_recipes %}&recipes={{ r }}{% endfor %}"
-               class="btn btn-small">
-                {% if show_favs %}Show All{% else %}Show Favourites Only{% endif %}
-            </a>
-            {% endif %}
-        </div>
-
-    <form method="POST" id="recipe-form">
-        {% csrf_token %}
-
-        {% for rec in page_obj %}
-        <div class="recipe-line"
-             data-fav="{{ rec.is_fav|yesno:'1,0' }}"
-                 data-name="{{ rec.name|lower }}">
-            <label>
-                <input type="checkbox"
-                       class="recipe-checkbox"
-                       name="recipes"
-                       value="{{ rec.id }}"
-                    {% if rec.id|stringformat:"s" in selected_recipes %}checked{% endif %}
-                    onchange="updateSelection(this)">
-                {{ rec.name|title_except }} - {{ rec.category.name|title_except  }} - {{ rec.nutrients_with_units.kcal|default:"0 kcal"}}  {% if rec.is_fav %}<span class="fav-star">♡</span>{% endif %}
+            <label style="display:inline-flex; align-items:center; gap:0.3rem; margin-left:0.5rem;">
+                <input type="checkbox" class="styled-input" name="favs" value="1" style="flex-shrink:0;" {% if show_favs %}checked{% endif %} onchange="this.form.submit()">
+                <span style="color: var(--bg-secondary-green); text-transform: uppercase; font-weight: 900;">Favourites</span>
             </label>
-            <a href="{% url 'recipe_detail' rec.id %}" class="btn btn-small btn-secondary">View</a>
+            {% endif %}
+            {% for r in selected_recipes %}
+                <input type="hidden" name="recipes" value="{{ r }}">
+            {% endfor %}
 
-        </div>
-        {% empty %}
-            <p style="color: var(--text-secondary); font-style: italic;">
-                {% if show_favs %}
-                    No favourite recipes found. <a href="?page=1">Show all recipes</a>.
-                {% else %}
-                    No recipes yet. <a href="{% url 'add_recipe' %}">Add your first recipe</a>.
-                {% endif %}
-            </p>
-        {% endfor %}
+            <a href="{% url 'generate_grocery_list' %}" class="filter-submit">Clear</a>
+
+        </form>
+    </div>
+
+   <form method="POST" id="recipe-form">
+    {% csrf_token %}
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Recipe Name</th>
+                    <th>Category</th>
+                    <th>Kcal per Serving</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rec in page_obj %}
+                <tr class="recipe-line"
+                    data-fav="{{ rec.is_fav|yesno:'1,0' }}"
+                    data-name="{{ rec.name|lower }}">
+                    <td data-label="Select">
+                        <input type="checkbox"
+                               class="recipe-checkbox"
+                               name="recipes"
+                               value="{{ rec.id }}"
+                            {% if rec.id|stringformat:"s" in selected_recipes %}checked{% endif %}
+                            onchange="updateSelection(this)">
+                    </td>
+                    <td data-label="Recipe Name">
+                        {{ rec.name|title_except }} {% if rec.is_fav %}<i class="fa-solid fa-heart fav-star ml-1"></i>{% endif %}
+                    </td>
+                    <td data-label="Category">{{ rec.category.name|title_except }}</td>
+                    <td data-label="Kcal per Serving">{{ rec.nutrients_per_serving_with_units.kcal|default:"0 kcal" }}</td>
+                    <td data-label="Actions">
+                        <div class="action-buttons">
+                            <a href="{% url 'recipe_detail' rec.id %}" class="icon-table" title="View">
+                                <i class="fa-solid fa-circle-info"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">
+                        {% if show_favs %}
+                            No favourite recipes found. <a href="?page=1">Show all recipes</a>.
+                        {% else %}
+                            No recipes yet. <a href="{% url 'add_recipe' %}">Add your first recipe</a>.
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
         {% for r in selected_recipes %}
             <input type="hidden" class="hidden-selection" name="recipes" value="{{ r }}">
@@ -77,25 +138,29 @@ Generate Grocery List
     </form>
 
     {% if page_obj.has_other_pages %}
-    <div class="pagination" style="text-align:center; margin-top:1rem;">
+    <nav class="pagination">
         {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}{% if show_favs %}&favs=1{% endif %}{% for r in selected_recipes %}&recipes={{ r }}{% endfor %}">« Prev</a>
+            <a class="page-prev" href="?page={{ page_obj.previous_page_number }}&search={{ search }}&category={{ selected_category }}{% for t in selected_tags %}&tag={{ t }}{% endfor %}&sort={{ selected_sort }}{% if show_favs %}&favs=1{% endif %}{% for r in selected_recipes %}&recipes={{ r }}{% endfor %}">← Prev</a>
+        {% else %}
+            <span class="page-disabled page-prev">← Prev</span>
         {% endif %}
-        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+        <span class="page-current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
         {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if show_favs %}&favs=1{% endif %}{% for r in selected_recipes %}&recipes={{ r }}{% endfor %}">Next »</a>
+            <a class="page-next" href="?page={{ page_obj.next_page_number }}&search={{ search }}&category={{ selected_category }}{% for t in selected_tags %}&tag={{ t }}{% endfor %}&sort={{ selected_sort }}{% if show_favs %}&favs=1{% endif %}{% for r in selected_recipes %}&recipes={{ r }}{% endfor %}">Next →</a>
+        {% else %}
+            <span class="page-disabled page-next">Next →</span>
         {% endif %}
-    </div>
+    </nav>
     {% endif %}
 
-    <button type="submit" form="recipe-form" class="btn" style="margin-top: 1rem;">Generate Grocery List</button>
-
-        <div style="text-align: center; margin-top: 1rem;">
-    <img src="/static/images/title_line.svg" alt="title_line" style="width: 400px; height: auto;">
+    <div class="flex-row-flex-start mt-6">
+        <button type="submit" form="recipe-form" class="a-btn" style="margin-top: 1rem;">Generate Grocery List</button>
     </div>
+
 
 
 </div>
-
 
 {% endblock %}

@@ -7,18 +7,22 @@ Grocery List
 {% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/planner_styles.css' %}">
 
 {% include 'planner/grocery/delete_grocery_modal.html' %}
 
 <script src="{% static 'js/crud/delete_popup.js' %}" defer></script>
-<script src="{% static 'js/planner/grocery_list_modals.js' %}"defer></script>
+<script src="{% static 'js/planner/grocery_list_modals.js' %}" defer></script>
 
-<div class="container-home" style="margin-top: 1rem;">
-    <h2>My Grocery List</h2>
-    <p style="margin-bottom: 1rem;">Enjoy a personalized grocery list from the <a href="{% url 'generate_grocery_list' %}">grocery list generator</a>.</p>    {% if messages %}
+<div class="main-first-child-container-padding" style="margin-top: 1rem;">
 
+    <div class="flex-row-flex-end" style="margin-bottom: 0rem;">
+        <a href="{% url 'generate_grocery_list' %}" class="btn-mint-small">Add More</a>
+        <a href="{% url 'manage_fridge' %}" class="btn-mint-small">Fridge</a>
+        <a href="javascript:history.back()" class="btn-wine-small">Back</a>
+    </div>
 
+    <h2 class="section-huge-title ranchers-regular">My Grocery List</h2>
+    {% if messages %}
 
     {% for message in messages %}
             <div class="alert alert-{{ message.tags }}" style="background:#22c55e; color:white; font-size:18px; padding:12px 16px; border-radius:8px; margin:12px 0; font-weight:600;">
@@ -32,17 +36,21 @@ Grocery List
 <hr style="border: none; height: 2px; background: #0f3d2e; margin-bottom: 50px;">
 
 {% if items %}
-        {% if request.user.is_authenticated %}
-            <form method="POST" action="{% url 'add_all_grocery_to_fridge' %}">
-                {% csrf_token %}
-                <button type="submit" class="btn" style="margin-bottom: 1rem;">Add All to Fridge</button>
-            </form>
-        {% else %}
-            <form method="POST" action="{% url 'add_all_anon_grocery_to_fridge' %}">
-                {% csrf_token %}
-                <button type="submit" class="btn" style="margin-bottom: 1rem;">Add All to Fridge</button>
-            </form>
-        {% endif %}
+        <div class="fridge-btns-top">
+            {% if request.user.is_authenticated %}
+                <form method="POST" action="{% url 'add_all_grocery_to_fridge' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="filter-submit" style="margin-bottom: 1rem;">Add All to Fridge</button>
+                </form>
+            {% else %}
+                <form method="POST" action="{% url 'add_all_anon_grocery_to_fridge' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="filter-submit" style="margin-bottom: 1rem;">Add All to Fridge</button>
+                </form>
+            {% endif %}
+
+        </div>
+
 
     <table class="data-table">
         <thead>
@@ -59,82 +67,90 @@ Grocery List
                 <td>{{ item.ingredient.name|title_except }}</td>
                 <td>{{ item.quantity|floatformat:2 }}</td>
                 <td>{{ item.unit }}</td>
-                <td style="display: flex; gap: 0.5rem;">
-                    {% if request.user.is_authenticated %}
-                        <form method="POST" action="{% url 'add_grocery_to_fridge' item.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm">→ Fridge</button>
-                        </form>
-                        <button type="button"
-                                class="btn btn-sm btn-danger"
-                                onclick="openGroceryDeleteModal({{ item.id }}, '{{ item.ingredient.name }}')">
-                            Delete
-                        </button>
-                    {% else %}
-                        <form method="POST" action="{% url 'add_anon_grocery_to_fridge' item.index %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm">→ Fridge</button>
-                        </form>
-                        <form method="POST" action="{% url 'delete_anon_grocery_item' item.index %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                        </form>
-                    {% endif %}
+                <td data-label="Actions">
+                    <div class="action-buttons">
+                        {% if request.user.is_authenticated %}
+                            <form method="POST" action="{% url 'add_grocery_to_fridge' item.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="icon-table" title="Move to Fridge" style="position: relative; top: 2px;">
+                                    <i class="fa-solid fa-square-check"></i>
+                                </button>
+                            </form>
+                            <button type="button" class="icon-delete-btn"
+                                    onclick="openGroceryDeleteModal({{ item.id }}, '{{ item.ingredient.name|escapejs }}')">
+                                <img src="{% static 'images/delete-trash.svg' %}" alt="Delete">
+                            </button>
+                        {% else %}
+                            <form method="POST" action="{% url 'add_anon_grocery_to_fridge' item.index %}">
+                                {% csrf_token %}
+                                <button type="submit" class="icon-table" title="Move to Fridge" style="position: relative; top: 2px;">
+                                    <i class="fa-solid fa-square-check"></i>
+                                </button>
+                            </form>
+                            <form method="POST" action="{% url 'delete_anon_grocery_item' item.index %}">
+                                {% csrf_token %}
+                                <button type="button" class="icon-delete-btn"
+                                        onclick="this.closest('form').submit()">
+                                    <img src="{% static 'images/delete-trash.svg' %}" alt="Delete">
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 {% else %}
-    <p>Your grocery list is empty. <a href="{% url 'generate_grocery_list' %}">Generate one</a> from your favourite recipes.</p>
+    <h2 class="section-title ranchers-regular">Your grocery list is empty. <a class="hyperlink" href="{% url 'generate_grocery_list' %}">Generate one</a> from your favourite recipes.</h2>
 {% endif %}
 
 
-    {% if history %}
-    <div class="history-section">
-                <hr style="border: none; height: 2px; background: #0f3d2e; margin-bottom: 50px;">
+{% if history %}
+<div class="history-section">
 
-        <h3 style="margin-top: 2rem;">Generation History</h3>
+    <h2 class="section-title ranchers-regular">Generation History</h2>
 
-        <p style="margin-top: 1rem;" style="color: var(--text-muted); font-size: 0.9rem;">A log of each time you generated ingredients, grouped by recipe.</p>
+    <p class="section-description">A log of each time you generated ingredients, grouped by recipe.</p>
 
+    {% for gen in history %}
+        {% for recipe_name, ing_items in gen.by_recipe.items %}
+        <div class="history-recipe-card" style="margin-top: 1.5rem; border-radius: 12px; overflow: hidden; border: 1px solid rgba(216, 136, 149, 0.5);">
 
-        {% for gen in history %}
-        <div style="margin-top: 1rem;" class="history-card">
-            <div class="history-header">
-                <span class="history-date">{{ gen.created_at|date:"d M Y, H:i" }}</span>
+            <!-- Header: name + timestamp, mint -->
+            <div style="background: var(--mint); color: color-mix(in srgb, var(--bg-secondary-green) 70%, black); padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; font-weight: 700; text-transform: uppercase; font-size: 0.875rem; letter-spacing: 0.05em;">
+                <span>{{ recipe_name|title_except }}</span>
+                <span style="text-transform: none; font-weight: 400; font-size: 0.8rem;">{{ gen.created_at|date:"d M Y, H:i" }}</span>
             </div>
 
-            {% for recipe_name, ing_items in gen.by_recipe.items %}
-            <div class="history-recipe">
-                <div class="history-recipe-name">{{ recipe_name|title_except }}</div>
-                <ul class="history-ingredients">
-                    {% for item in ing_items %}
-                    <li>{{ item.ingredient.name|title_except }} — {{ item.quantity|floatformat:2 }} {{ item.unit }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endfor %}
+            <!-- Body: ingredients, wine -->
+            <ul style="list-style: none; margin: 0; padding: 0; background: color-mix(in srgb, var(--wine) 20%, white);">
+                {% for item in ing_items %}
+                <li style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-bottom: 1px solid rgba(216, 136, 149, 0.5);">
+                    <span>{{ item.ingredient.name|title_except }}</span>
+                    <span>{{ item.quantity|floatformat:2 }} {{ item.unit }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+
         </div>
         {% endfor %}
+    {% endfor %}
 
-        {% if history_page_obj.has_other_pages %}
-        <div class="pagination" style="text-align:center; margin-top:1rem;">
-            {% if history_page_obj.has_previous %}
-                <a href="?history_page={{ history_page_obj.previous_page_number }}">« Prev</a>
-            {% endif %}
-            <span>Page {{ history_page_obj.number }} of {{ history_page_obj.paginator.num_pages }}</span>
-            {% if history_page_obj.has_next %}
-                <a href="?history_page={{ history_page_obj.next_page_number }}">Next »</a>
-            {% endif %}
-        </div>
+    {% if history_page_obj.has_other_pages %}
+    <div class="pagination" style="text-align:center; margin-top:1rem;">
+        {% if history_page_obj.has_previous %}
+            <a href="?history_page={{ history_page_obj.previous_page_number }}">« Prev</a>
+        {% endif %}
+        <span>Page {{ history_page_obj.number }} of {{ history_page_obj.paginator.num_pages }}</span>
+        {% if history_page_obj.has_next %}
+            <a href="?history_page={{ history_page_obj.next_page_number }}">Next »</a>
         {% endif %}
     </div>
     {% endif %}
+</div>
+{% endif %}
 
-        <div style="text-align: center; margin-top: 1rem;">
-    <img src="/static/images/title_line.svg" alt="title_line" style="width: 400px; height: auto;">
-    </div>
 
 
 </div>

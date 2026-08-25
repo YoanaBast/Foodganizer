@@ -2,8 +2,10 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User, Group
 from django import forms
 from .models import Profile
+from core.mixins import StyledFormMixin
 
-class RegisterForm(UserCreationForm):
+
+class RegisterForm(StyledFormMixin, UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(required=False)
     last_name = forms.CharField(required=False)
@@ -28,7 +30,7 @@ class RegisterForm(UserCreationForm):
     #     return user
 
 
-class LoginForm(AuthenticationForm):
+class LoginForm(StyledFormMixin, AuthenticationForm):
     error_messages = {
         'invalid_login': "Wrong username or password.",
         'inactive': "This account is inactive.",
@@ -36,22 +38,22 @@ class LoginForm(AuthenticationForm):
 
     username = forms.CharField(
         label='Username',
-        widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Username'})
+        widget=forms.TextInput(attrs={'class': '', 'placeholder': 'Username'})
     )
     password = forms.CharField(
         label='Password',
-        widget=forms.PasswordInput(attrs={'class': 'form-input', 'placeholder': 'Password'})
+        widget=forms.PasswordInput(attrs={'class': '', 'placeholder': 'Password'})
     )
 
-class ProfileEditForm(forms.ModelForm):
-    first_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-input'}))
-    last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-input'}))
+class ProfileEditForm(StyledFormMixin, forms.ModelForm):
+    first_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': ''}))
+    last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': ''}))
 
     class Meta:
         model = Profile
         fields = ['profile_picture', 'bio']
         widgets = {
-            'bio': forms.Textarea(attrs={'class': 'form-input', 'rows': 4}),
+            'bio': forms.Textarea(attrs={'class': '', 'rows': 4}),
         }
 
     def __init__(self, *args, **kwargs):

@@ -18,53 +18,100 @@ from recipes.models import Recipe, RecipeIngredient
 class GenerateGroceryListView(View):
     template_name = 'planner/grocery/generate_grocery_list.html'
 
-    def get_recipes(self, user, show_favs):
+    def get_recipes(self, request, show_favs):
+        from recipes.models import RecipeCategory
+        from ingredients.models import IngredientDietaryTag
+
+        search = request.GET.get('search', '')
+        category = request.GET.get('category', '')
+        tags = [t for t in request.GET.getlist('tag') if t]
+        sort = request.GET.get('sort', '')
+
         recipes = Recipe.objects.prefetch_related(
             Prefetch('recipe_ingredient', queryset=RecipeIngredient.objects.select_related('unit', 'ingredient'))
         )
-        if user and user.is_authenticated:
+
+        if request.user and request.user.is_authenticated:
             recipes = recipes.annotate(
                 is_fav=Exists(
                     Recipe.favourited_by.through.objects.filter(
-                        recipe_id=OuterRef('pk'), user_id=user.id
+                        recipe_id=OuterRef('pk'), user_id=request.user.id
                     )
                 )
             )
             if show_favs:
-                recipes = recipes.filter(favourited_by=user)
-        return recipes.order_by('name')
+                recipes = recipes.filter(favourited_by=request.user)
+
+        if search:
+            recipes = recipes.filter(name__icontains=search)
+        if category:
+            recipes = recipes.filter(category__id=category)
+        if tags:
+            for tag_id in tags:
+                recipes = recipes.exclude(
+                    recipe_ingredient__in=RecipeIngredient.objects.exclude(
+                        ingredient__dietary_tag__id=tag_id
+                    )
+                )
+
+        recipes = recipes.order_by('name')
+        if sort == 'kcal_asc':
+            recipes = sorted(recipes, key=lambda r: r.kcal_per_serving)
+        elif sort == 'kcal_desc':
+            recipes = sorted(recipes, key=lambda r: r.kcal_per_serving, reverse=True)
+        elif sort == 'popular':
+            from django.db.models import Count
+            recipes = recipes.annotate(fav_count=Count('favourited_by')).order_by('-fav_count')
+
+        return recipes
 
     def get_page_obj(self, request, recipes):
         paginator = Paginator(recipes, 10)
         return paginator.get_page(request.GET.get('page'))
 
+    def get_filter_context(self, request):
+        from recipes.models import RecipeCategory
+        from ingredients.models import IngredientDietaryTag
+        return {
+            'search': request.GET.get('search', ''),
+            'categories': RecipeCategory.objects.all().order_by('name'),
+            'tags': IngredientDietaryTag.objects.all().order_by('name'),
+            'selected_category': request.GET.get('category', ''),
+            'selected_tags': [t for t in request.GET.getlist('tag') if t],
+            'selected_sort': request.GET.get('sort', ''),
+        }
+
     def get(self, request):
         show_favs = request.GET.get('favs') == '1'
-        recipes = self.get_recipes(request.user, show_favs)
+        recipes = self.get_recipes(request, show_favs)
         page_obj = self.get_page_obj(request, recipes)
         selected_recipes = list(dict.fromkeys(request.GET.getlist('recipes')))
 
-        return render(request, self.template_name, {
+        context = {
             'page_obj': page_obj,
             'recipes': page_obj.object_list,
             'selected_recipes': selected_recipes,
             'show_favs': show_favs,
-        })
+        }
+        context.update(self.get_filter_context(request))
+        return render(request, self.template_name, context)
 
     def post(self, request):
         show_favs = request.GET.get('favs') == '1'
-        recipes = self.get_recipes(request.user, show_favs)
+        recipes = self.get_recipes(request, show_favs)
         page_obj = self.get_page_obj(request, recipes)
         recipe_ids = list(dict.fromkeys(request.POST.getlist('recipes')))
 
         if not recipe_ids:
             messages.warning(request, "No recipes selected!")
-            return render(request, self.template_name, {
+            context = {
                 'page_obj': page_obj,
                 'recipes': page_obj.object_list,
                 'selected_recipes': [],
                 'show_favs': show_favs,
-            })
+            }
+            context.update(self.get_filter_context(request))
+            return render(request, self.template_name, context)
 
         selected_recipes_qs = Recipe.objects.filter(id__in=recipe_ids).prefetch_related(
             Prefetch(
@@ -73,21 +120,15 @@ class GenerateGroceryListView(View):
             )
         )
 
-        for r in selected_recipes_qs:
-            print(f"Recipe: {r.name}, ingredients: {list(r.recipe_ingredient.all())}")
-
         if request.user.is_authenticated:
             fridge_items = UserFridge.objects.filter(user=request.user).select_related('ingredient', 'unit')
             needed = build_needed_dict(selected_recipes_qs, request)
             final_needed = subtract_fridge(needed, fridge_items, request)
         else:
-            fridge_items = UserFridge.objects.none()
             needed = build_needed_dict(selected_recipes_qs, request)
-            final_needed = subtract_anon_fridge(needed, request)  # ← new helper
-        print("NEEDED:", {k: v['total_qty'] for k, v in needed.items()})
-        if not final_needed:
-            print("FINAL:", {k: v['quantity'] for k, v in final_needed.items()})
+            final_needed = subtract_anon_fridge(needed, request)
 
+        if not final_needed:
             messages.info(request, "You already have all the ingredients in your fridge!")
             return redirect('generate_grocery_list')
 
@@ -95,15 +136,11 @@ class GenerateGroceryListView(View):
             save_grocery_list(request.user, final_needed)
             save_generation_history(request.user, final_needed)
         else:
-            # store in session for anon
             anon_grocery = request.session.get('anon_grocery', [])
-
             for data in final_needed.values():
                 ing_id = data['ingredient'].id
                 unit_id = data['unit'].id if data['unit'] else None
                 qty = data['quantity']
-
-                # find existing entry with same ingredient + unit
                 existing = next(
                     (item for item in anon_grocery
                      if item['ingredient_id'] == ing_id and item['unit_id'] == unit_id),
@@ -117,12 +154,10 @@ class GenerateGroceryListView(View):
                         'unit_id': unit_id,
                         'quantity': qty,
                     })
-
             request.session['anon_grocery'] = anon_grocery
             request.session.modified = True
 
         messages.success(request, build_preview_message(final_needed))
-
         return redirect('user_grocery_list')
 
 

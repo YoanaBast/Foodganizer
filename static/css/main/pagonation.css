@@ -1,0 +1,54 @@
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+}
+
+.pagination a,
+.pagination .page-current,
+.pagination .page-ellipsis,
+.pagination .page-disabled {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    border: none;
+    background: transparent;
+    color: var(--wine);
+    transition: background 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.pagination a:hover {
+    color: var(--bg-secondary-green);
+}
+
+.pagination .page-current {
+    color: var(--bg-secondary-green);
+    font-weight: 700;
+    cursor: default;
+    pointer-events: none;
+}
+
+.pagination .page-ellipsis,
+.pagination .page-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pagination .page-prev,
+.pagination .page-next {
+    padding: 0 1rem;
+    letter-spacing: 0.01em;
+}

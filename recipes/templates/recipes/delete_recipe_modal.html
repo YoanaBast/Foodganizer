@@ -1,3 +1,4 @@
+{% load static %}
 
 <div id="deleteModal" class="modal-overlay">
     <div class="delete-modal">
@@ -6,7 +7,7 @@
         <p id="deleteModalText">Are you sure you want to delete this recipe?</p>
         <form id="deleteForm" method="post" style="display:inline;">
             {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            <button type="submit" class="btn btn-wine-small">Yes, Delete</button>
         </form>
         <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
     </div>
