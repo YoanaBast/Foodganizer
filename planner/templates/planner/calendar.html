@@ -20,17 +20,12 @@
     </div>
 
     <!-- DEFICIT CALCULATOR -->
-    <div class="search_filter" style="border-radius: 0.75rem; padding: 1.5rem;">
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1rem;">
-            <div>
-                <label style="font-size: 0.8rem; display:block; margin-bottom:4px;">Start date</label>
-                <input type="date" id="deficit-start" class="styled-input" style="width: auto;">
-            </div>
-            <div>
-                <label style="font-size: 0.8rem; display:block; margin-bottom:4px;">End date</label>
-                <input type="date" id="deficit-end" class="styled-input" style="width: auto;">
-            </div>
-            <button class="btn-mint-small" onclick="calculateDeficit()">Calculate</button>
+    <div class="search_filter flex-column-flex-start" style="gap: 1rem;">
+        <div class="flex-row-flex-start">
+                <input type="date" id="deficit-start" class="styled-input">
+                <i class="fa-solid fa-arrow-right"></i>
+                <input type="date" id="deficit-end" class="styled-input">
+                <button class="a-btn btn-mint-small" onclick="calculateDeficit()">Calculate</button>
         </div>
 
         <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
@@ -38,7 +33,7 @@
             <label for="fill-empty" style="font-size:0.875rem; margin:0;">Fill empty days with maintenance calories</label>
         </div>
 
-        <p class="small-gray">Note that this calculation is for fat weight only. Your actual weight on the scale will vary based on multiple factors, such as water retention, new muscle mass from heavy exercise, and food being metabolized.</p>
+        <p class="section-description">Note that this calculation is for fat mass only. Your actual weight on the scale will vary based on multiple factors, such as water retention, new muscle mass from heavy exercise, and food being metabolized.</p>
 
         <div id="deficit-result" class="data-table" style="display:none; padding: 1rem;">
             <p id="deficit-text" style="font-size: 0.875rem; margin-bottom: 1rem; color: var(--text-secondary);"></p>

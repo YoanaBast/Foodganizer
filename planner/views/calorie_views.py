@@ -117,7 +117,26 @@ class CalendarDataView(LoginRequiredMixin, View):
             user=request.user,
             date__year=year,
             date__month=month,
-        ).select_related('recipe', 'ingredient', 'ingredient_unit')
+        ).select_related(
+            'recipe', 'ingredient', 'ingredient_unit'
+        ).prefetch_related(
+            'recipe__recipe_ingredient__ingredient',
+            'recipe__recipe_ingredient__unit',
+        )
+
+        # cache recipe kcal_per_serving per request, since the same recipe
+        # can appear multiple times and shouldn't be recalculated each time
+        recipe_kcal_cache = {}
+
+        def get_entry_kcal(entry):
+            if entry.recipe and entry.servings:
+                if entry.recipe.id not in recipe_kcal_cache:
+                    recipe_kcal_cache[entry.recipe.id] = entry.recipe.kcal_per_serving
+                return round(recipe_kcal_cache[entry.recipe.id] * entry.servings, 2)
+            if entry.ingredient and entry.quantity and entry.ingredient_unit:
+                # ingredient path isn't the expensive one, so just use the existing property
+                return entry.kcal
+            return 0
 
         # build day data
         days = {}
@@ -125,12 +144,15 @@ class CalendarDataView(LoginRequiredMixin, View):
             key = str(entry.date)
             if key not in days:
                 days[key] = {'kcal': 0, 'entries': []}
-            days[key]['kcal'] = round(days[key]['kcal'] + entry.kcal, 2)
+
+            entry_kcal = get_entry_kcal(entry)
+
+            days[key]['kcal'] = round(days[key]['kcal'] + entry_kcal, 2)
             days[key]['entries'].append({
                 'id': entry.id,
                 'source': entry.source,
                 'name': entry.recipe.name if entry.recipe else entry.ingredient.name if entry.ingredient else '?',
-                'kcal': entry.kcal,
+                'kcal': entry_kcal,
                 'servings': entry.servings,
                 'quantity': entry.quantity,
                 'unit': str(entry.ingredient_unit) if entry.ingredient_unit else None,

@@ -63,6 +63,7 @@ let editingEntry = null;
 function fmt(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
 async function loadMonth() {
+    renderSkeleton();
     const res = await fetch(`/planner/calendar/data/?year=${current.getFullYear()}&month=${current.getMonth()+1}`);
     const data = await res.json();
     monthData = data.days || {};
@@ -72,7 +73,7 @@ async function loadMonth() {
 
 function renderCalendar() {
     const grid = document.getElementById('cal-grid');
-    grid.querySelectorAll('.cal-day').forEach(d => d.remove());
+    grid.querySelectorAll('.cal-day, .cal-day-skeleton').forEach(d => d.remove());
 
     const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     document.getElementById('cal-title').textContent = `${months[current.getMonth()]} ${current.getFullYear()}`;
@@ -99,51 +100,52 @@ function renderCalendar() {
 
 function makeDay(d, other) {
     const div = document.createElement('div');
-    div.className = 'cal-day';
     const key = fmt(d);
     const isToday = d.toDateString() === today.toDateString();
     const dayData = monthData[key];
     const kcal = dayData ? dayData.kcal : 0;
 
-    let bg = 'var(--bg-secondary)';
-    let borderColor = 'var(--border)';
-    if (!other && dayData) {
+    const classes = ['cal-day'];
+    let status = null;
+
+    if (other) {
+        classes.push('other-month');
+    } else if (dayData) {
         if (tdee) {
             const ratio = kcal / tdee;
-            if (ratio >= 0.9 && ratio <= 1.1) { bg = '#1f3d2b'; borderColor = '#22c55e'; }
-            else if (ratio > 1.1) { bg = '#3d2f1f'; borderColor = '#f59e0b'; }
-            else { bg = '#1f2d3d'; borderColor = '#3b82f6'; }
+            status = (ratio >= 0.9 && ratio <= 1.1) ? 'target'
+                   : (ratio > 1.1) ? 'surplus' : 'deficit';
+            classes.push(`status-${status}`);
         } else {
-            bg = '#2a2a2a';
+            classes.push('status-nodata');
         }
     }
-    if (other) bg = 'var(--bg-tertiary)';
+    if (isToday) classes.push('today');
 
-    div.style.cssText = `min-height:80px; border:1px solid ${borderColor}; border-radius:0.5rem; padding:6px; cursor:pointer; background:${bg}; transition:opacity 0.1s;`;
-    if (isToday) div.style.borderWidth = '2px';
+    div.className = classes.join(' ');
 
     const numDiv = document.createElement('div');
-    numDiv.style.cssText = `font-size:13px; font-weight:500; color:${other ? 'var(--text-secondary)' : 'var(--text-primary)'}; margin-bottom:4px;`;
+    numDiv.className = 'cal-day-num';
     numDiv.textContent = d.getDate();
     div.appendChild(numDiv);
 
     if (!other && dayData) {
         const kcalDiv = document.createElement('div');
-        kcalDiv.style.cssText = 'font-size:11px; color:var(--text-secondary);';
+        kcalDiv.className = 'cal-day-kcal';
         kcalDiv.textContent = `${Math.round(kcal)} kcal`;
         div.appendChild(kcalDiv);
 
         if (tdee) {
             const bar = document.createElement('div');
-            bar.style.cssText = 'height:4px; background:var(--border); border-radius:2px; margin-top:4px; overflow:hidden;';
+            bar.className = 'cal-day-bar';
             const fill = document.createElement('div');
-            const pct = Math.min(100, Math.round((kcal/tdee)*100));
-            fill.style.cssText = `height:100%; width:${pct}%; background:${borderColor}; border-radius:2px;`;
+            fill.className = 'cal-day-bar-fill';
+            fill.style.width = `${Math.min(100, Math.round((kcal / tdee) * 100))}%`; // dynamic value only
             bar.appendChild(fill);
             div.appendChild(bar);
 
             const defDiv = document.createElement('div');
-            defDiv.style.cssText = 'font-size:10px; color:var(--text-secondary); margin-top:2px;';
+            defDiv.className = 'cal-day-diff';
             const diff = Math.round(kcal - tdee);
             defDiv.textContent = diff >= 0 ? `+${diff} surplus` : `${diff} deficit`;
             div.appendChild(defDiv);
@@ -189,10 +191,10 @@ function renderModalEntries() {
         let html = '<div style="display:flex; flex-direction:column; gap:0.5rem;">';
         dayData.entries.forEach(e => {
             const detail = e.servings ? `${e.servings} serving(s)` : e.quantity ? `${e.quantity} ${e.unit || ''}` : '';
-            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; background:var(--bg-tertiary); border-radius:0.5rem;">
+            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; background:color-mix(in srgb, var(--mint) 60%, white); border-radius:0.5rem;">
                 <div>
-                    <div style="font-size:0.875rem; font-weight:500;">${e.name}</div>
-                    <div style="font-size:0.75rem; color:var(--text-secondary);">${detail} · ${Math.round(e.kcal)} kcal</div>
+                    <div class="entry-name">${e.name}</div>
+                    <div class="entry-detail">${detail} · ${Math.round(e.kcal)} kcal</div>
                 </div>
                 <button class="btn btn-secondary btn-small" onclick="openEdit(${JSON.stringify(e).replace(/"/g,'&quot;')})">Edit</button>
             </div>`;
@@ -215,8 +217,9 @@ function setType(type) {
     document.getElementById('add-form').style.display = 'none';
     document.getElementById('search-results').innerHTML = '';
     document.getElementById('search-input').value = '';
-    document.getElementById('btn-recipe').style.background = type === 'recipe' ? 'var(--accent)' : '';
-    document.getElementById('btn-ingredient').style.background = type === 'ingredient' ? 'var(--accent)' : '';
+
+    document.getElementById('btn-recipe').classList.toggle('active', type === 'recipe');
+    document.getElementById('btn-ingredient').classList.toggle('active', type === 'ingredient');
 }
 
 let searchTimeout;
@@ -227,9 +230,9 @@ function doSearch(q) {
         const res = await fetch(`/planner/calendar/search/?kind=${addType}&q=${encodeURIComponent(q)}`);
         const data = await res.json();
         const div = document.getElementById('search-results');
-        if (!data.results.length) { div.innerHTML = '<p style="font-size:0.8rem; color:var(--text-secondary);">No results</p>'; return; }
+        if (!data.results.length) { div.innerHTML = '<p class="search-no-results">No results</p>'; return; }
         div.innerHTML = data.results.map(r =>
-            `<div onclick='selectItem(${JSON.stringify(r).replace(/'/g,"&#39;")})' style="padding:6px 8px; cursor:pointer; border-radius:4px; font-size:0.875rem;" onmouseover="this.style.background='var(--bg-tertiary)'" onmouseout="this.style.background=''">${r.name}</div>`
+            `<div class="search-result-item" onclick='selectItem(${JSON.stringify(r).replace(/'/g,"&#39;")})'>${r.name}</div>`
         ).join('');
     }, 300);
 }
@@ -337,6 +340,15 @@ function goToday() {
     loadMonth();
 }
 
+function renderSkeleton() {
+    const grid = document.getElementById('cal-grid');
+    grid.querySelectorAll('.cal-day, .cal-day-skeleton').forEach(d => d.remove());
+    for (let i = 0; i < 35; i++) {
+        const div = document.createElement('div');
+        div.className = 'cal-day-skeleton';
+        grid.appendChild(div);
+    }
+}
 document.getElementById('day-modal').addEventListener('click', e => { if (e.target === document.getElementById('day-modal')) closeModal(); });
 document.getElementById('edit-modal').addEventListener('click', e => { if (e.target === document.getElementById('edit-modal')) closeEdit(); });
 
