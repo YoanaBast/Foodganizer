@@ -18,8 +18,8 @@
     padding: 0.65rem 0.85rem;
     border: 1px solid var(--mint);
     border-radius: 0.5rem;
-    background: var(--bg-gray);
-    color: var(--bg-secondary-green);
+    background: var(--beige);
+    color: var(--olive);
     font-size: 0.9375rem;
     font-family: inherit;
     box-sizing: border-box;
@@ -47,7 +47,7 @@ textarea.styled-input {
     padding: 0.6rem 0.9rem;
     font-size: 1rem;
     font-family: inherit;
-    color: var(--bg-secondary-green);
+    color: var(--olive);
     background-color: var(--mint);
     border: 1px solid rgba(216, 136, 149, 0.5);
     border-radius: 8px;

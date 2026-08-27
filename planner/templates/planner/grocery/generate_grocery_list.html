@@ -66,7 +66,7 @@ Generate Grocery List
             {% if request.user.is_authenticated %}
             <label style="display:inline-flex; align-items:center; gap:0.3rem; margin-left:0.5rem;">
                 <input type="checkbox" class="styled-input" name="favs" value="1" style="flex-shrink:0;" {% if show_favs %}checked{% endif %} onchange="this.form.submit()">
-                <span style="color: var(--bg-secondary-green); text-transform: uppercase; font-weight: 900;">Favourites</span>
+                <span style="color: var(--olive); text-transform: uppercase; font-weight: 900;">Favourites</span>
             </label>
             {% endif %}
             {% for r in selected_recipes %}

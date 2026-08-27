@@ -2,7 +2,7 @@
 .a-btn {
     text-decoration: none;
     text-transform: uppercase;
-    color: var(--bg-secondary-green);
+    color: var(--olive);
     background: var(--mint);
     padding: 1rem 1.5rem;
     border-radius: 3px;
@@ -15,17 +15,18 @@
     border: none;
     font-weight: 700;
     cursor: pointer;
-    background: #333;
     display: inline-block;
     padding: 0.5rem 1rem;
-    color: #fff;
+    color: var(--wine);
     border-radius: 4px;
     text-decoration: none;
     margin-right: 0.5rem;
+    background: var(--blueberry-milk);
 }
 
 .btn-wine-small:hover {
     background: var(--wine);
+    color: white;
 }
 
 .btn-mint-small:hover {
@@ -48,7 +49,7 @@
     font-weight: 700;
     cursor: pointer;
     background-color: color-mix(in srgb, var(--mint) 50%, white);
-    color: var(--bg-secondary-green);
+    color: var(--olive);
     display: inline-block;
     padding: 0.5rem;
     border-radius:50%;

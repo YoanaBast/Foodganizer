@@ -23,7 +23,7 @@
 
 .data-table thead {
     background: var(--mint);
-    color: color-mix(in srgb, var(--bg-secondary-green) 70%, black);
+    color: color-mix(in srgb, var(--olive) 70%, black);
 }
 
 .data-table th {
@@ -38,7 +38,7 @@
 }
 
 .data-table tbody tr:nth-child(even) {
-    background-color: var(--bg-gray);
+    background-color: var(--beige);
 }
 
 .data-table tbody tr:nth-child(odd) {
@@ -72,7 +72,7 @@ td[data-label="Ingredient"]:hover {
     display: flex;
     width: 100%;
     flex-direction: column;
-    color: var(--bg-secondary-green);
+    color: var(--olive);
     }
 
     tr td:nth-child(odd) {
@@ -84,7 +84,7 @@ td[data-label="Ingredient"]:hover {
     }
 
     .data-table tbody tr:nth-child(odd) {
-        background-color: var(--bg-gray);
+        background-color: var(--beige);
         margin-top: 0rem;
     }
 
@@ -196,7 +196,7 @@ td[data-label="Ingredient"]:hover {
 }
 
 .icon-table .fa-circle-info {
-    color: var(--bg-secondary-green);
+    color: var(--olive);
 }
 
 .icon-table .fa-pen-to-square {

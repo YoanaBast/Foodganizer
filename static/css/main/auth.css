@@ -103,7 +103,7 @@ ul.errorlist {
     display: block;
     font-weight: 700;
     font-size: 0.875rem;
-    color: var(--bg-secondary-green);
+    color: var(--olive);
     text-transform: uppercase;
     letter-spacing: 0.03em;
     margin-bottom: 0.4rem;
@@ -112,7 +112,7 @@ ul.errorlist {
 
 .creds-form .btn {
     width: 100%;
-    background: var(--bg-secondary-green);
+    background: var(--olive);
     color: #fff;
     border: none;
     padding: 0.75rem 1rem;
@@ -127,7 +127,7 @@ ul.errorlist {
 }
 
 .creds-form .btn:hover {
-    background: color-mix(in srgb, var(--bg-secondary-green) 85%, black);
+    background: color-mix(in srgb, var(--olive) 85%, black);
     transform: translateY(-1px);
 }
 
@@ -153,7 +153,7 @@ ul.errorlist {
     display: flex;
     flex-wrap: wrap;
     gap: 2rem;
-    background: var(--bg-gray);
+    background: var(--beige);
     border-radius: 12px;
     padding: 2rem;
 }
@@ -172,7 +172,7 @@ ul.errorlist {
 }
 
 .profile-info strong {
-    color: var(--bg-secondary-green);
+    color: var(--olive);
 }
 
 .profile-picture-block {
@@ -190,7 +190,7 @@ ul.errorlist {
     height: 150px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--bg-secondary-green);
+    border: 3px solid var(--olive);
 }
 
 .profile-picture-default {
@@ -205,7 +205,7 @@ ul.errorlist {
 
 .edit-profile-actions button:nth-child(1) {
     background: var(--mint);
-    color: var(--bg-secondary-green);
+    color: var(--olive);
 }
 
 input[type="file"] {
@@ -215,7 +215,7 @@ input[type="file"] {
 .custom-file-upload {
     border: 1px solid var(--mint);
     background: var(--mint);
-    color: var(--bg-secondary-green);
+    color: var(--olive);
     display: inline-block;
     padding: 0.6rem 1.25rem;
     border-radius: 0.5rem;

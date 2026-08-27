@@ -71,14 +71,14 @@
 }
 
 .btns-home .primary {
-    background-color: var(--bg-secondary-green);
+    background-color: var(--olive);
     color: var(--mint);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .btns-home .secondary {
     background-color: var(--mint);
-    color: var(--bg-secondary-green);
+    color: var(--olive);
 }
 
 
@@ -110,7 +110,7 @@
     border-radius: 5px;
 
     .card-content {
-        color: var(--bg-secondary-green)
+        color: var(--olive)
     }
 
     .card-title {
@@ -164,7 +164,7 @@
     width: 8px;
     height: 8px;
     border-radius: 999px;
-    background: var(--bg-gray);
+    background: var(--beige);
     border: none;
     padding: 0;
     cursor: pointer;
@@ -173,7 +173,7 @@
 
 .slider-dots button.active {
     width: 28px;
-    background: var(--bg-secondary-green);
+    background: var(--olive);
 }
 
 
@@ -199,7 +199,7 @@
     border-radius: 50%;
     background: transparent;
     border: none;
-    color: var(--bg-secondary-green);
+    color: var(--olive);
     font-size: 3.5rem;
     line-height: 1;
     cursor: pointer;

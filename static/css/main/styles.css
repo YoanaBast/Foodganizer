@@ -1,10 +1,11 @@
 
 :root {
-    --bg-primary-ivory: #FBF7EE;
-    --bg-gray: #F5F1ED;
-    --bg-secondary-green: #20B486;
+    --ivory: #FBF7EE;
+    --beige: #F5F1ED;
+    --olive: #20B486;
     --mint: #c5e8db;
     --wine: #D88895;
+    --blueberry-milk: #D9EAF7;
 }
 
 .ranchers-regular {
@@ -24,7 +25,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: var(--bg-gray);
+    background-color: var(--beige);
 }
 
 
@@ -32,7 +33,7 @@ main {
     width: min(1200px, calc(100% - 6rem));
     margin-inline: auto;
     box-sizing: border-box;
-    background-color: var(--bg-primary-ivory);
+    background-color: var(--ivory);
     margin-top: 3rem;
 
 }
@@ -96,7 +97,7 @@ main {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: var(--bg-secondary-green);
+    background: var(--olive);
     color: white;
     border: none;
     font-size: 1.25rem;
@@ -111,7 +112,7 @@ main {
 
 .icon-help-btn:hover {
     transform: scale(1.08);
-    background: color-mix(in srgb, var(--bg-secondary-green) 85%, black);
+    background: color-mix(in srgb, var(--olive) 85%, black);
 }
 
 .icon-help-modal {
@@ -134,7 +135,7 @@ main {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: var(--bg-primary-ivory);
+    background: var(--ivory);
     border-radius: 12px;
     padding: 2rem;
     max-width: 340px;
@@ -143,7 +144,7 @@ main {
 }
 
 .icon-help-modal-content h3 {
-    color: var(--bg-secondary-green);
+    color: var(--olive);
     margin-top: 0;
     margin-bottom: 1.25rem;
 }
@@ -152,7 +153,7 @@ main {
     list-style: none;
     margin: 0;
     padding: 0;
-    color: var(--bg-secondary-green);
+    color: var(--olive);
 }
 
 .icon-help-list li {
@@ -177,7 +178,7 @@ main {
 }
 
 .icon-help-list .fa-circle-info {
-    color: var(--bg-secondary-green);
+    color: var(--olive);
 }
 
 .icon-help-list .fa-pen-to-square {
