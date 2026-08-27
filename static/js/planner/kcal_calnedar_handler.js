@@ -4,6 +4,7 @@ async function calculateDeficit() {
     const fillEmpty = document.getElementById('fill-empty').checked;
     const resultDiv = document.getElementById('deficit-result');
     const errorDiv = document.getElementById('deficit-error');
+    const skeletonDiv = document.getElementById('deficit-skeleton');
 
     errorDiv.style.display = 'none';
     resultDiv.style.display = 'none';
@@ -14,8 +15,12 @@ async function calculateDeficit() {
         return;
     }
 
+    skeletonDiv.style.display = 'block';   // show loading state instead of just hiding
+
     const res = await fetch(`/planner/calendar/deficit/?start=${start}&end=${end}&fill_empty=${fillEmpty}`);
     const data = await res.json();
+
+    skeletonDiv.style.display = 'none';    // done loading either way
 
     if (data.error === 'no_biometrics') {
         errorDiv.innerHTML = 'No biometrics found. <a href="{% url "biometrics" %}">Set your TDEE first</a>.';
@@ -41,6 +46,7 @@ async function calculateDeficit() {
 
     resultDiv.style.display = 'block';
 }
+
 
 // default dates to current month
 const now = new Date();

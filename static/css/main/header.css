@@ -132,7 +132,7 @@ header li a {
     flex-shrink: 0;
 }
 
-header .nav-links {
+.nav-links {
     display: flex;
     align-items: center;
     gap: 2rem;
@@ -177,4 +177,81 @@ header .nav-links {
     border: none;
     padding: 0;
     cursor: pointer;
+}
+
+.burger-btn {
+    background: none;
+    display: none;
+    color: var(--bg-secondary-green);
+    font-size: 1.7rem;
+    border: none;
+    cursor: pointer;
+}
+
+.burger-checkbox {
+    display: none;
+}
+
+@media (max-width: 700px) {
+
+    .tab-nav {
+        position: relative;
+    }
+    .tab-buttons-container,
+    .nav-links {
+        display: none;
+    }
+
+    .burger-btn {
+        display: block;
+        order: 1;
+    }
+
+    .logo {
+        position: absolute;
+        top: 0.75rem;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .burger-checkbox:checked ~ .nav-links {
+        display: flex;
+        order: 3;
+        width: 100%;
+        gap: 1.5rem;
+        padding-top: 1rem;
+    }
+
+    .burger-checkbox:checked ~ .tab-buttons-container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 1rem;
+        position: absolute;
+        top: 100%;
+        /*left: 0;*/
+        /*width: 100%;*/
+        background: var(--mint);
+        padding: 1rem 2rem;
+        box-sizing: border-box;
+        z-index: 999;
+        left: -2rem;
+        width: 100vw;
+    }
+
+
+    .dropdown-menu {
+        grid-template-columns: 1fr;
+        left: -2rem;
+        padding: 2rem;
+        margin-left: 2rem;
+    }
+
+
+    .tab-buttons-container .tab-dropdown:nth-child(2) .dropdown-menu a:nth-child(1) { order: 1; } /* Get Meal Ideas */
+    .tab-buttons-container .tab-dropdown:nth-child(2) .dropdown-menu a:nth-child(2) { order: 3; } /* Make Grocery List */
+    .tab-buttons-container .tab-dropdown:nth-child(2) .dropdown-menu a:nth-child(3) { order: 5; } /* Manage Fridge */
+    .tab-buttons-container .tab-dropdown:nth-child(2) .dropdown-menu a:nth-child(4) { order: 2; } /* Meals History */
+    .tab-buttons-container .tab-dropdown:nth-child(2) .dropdown-menu a:nth-child(5) { order: 4; } /* Grocery List */
+
 }

@@ -6,7 +6,7 @@
 {% block content %}
 <script src="{% static 'js/planner/kcal_calnedar_handler.js' %}" defer></script>
 
-<div class="main-first-child-container-padding" style="padding-bottom: 2rem;">
+<div id="above-table-manage-div" class="main-first-child-container-padding" style="padding-bottom: 2rem;">
 
 {% if request.user.is_authenticated %}
 
@@ -21,9 +21,10 @@
 
     <!-- DEFICIT CALCULATOR -->
     <div class="search_filter flex-column-flex-start" style="gap: 1rem;">
-        <div class="flex-row-flex-start">
+        <div id="above-table-manage-div-sec" class="flex-row-flex-start">
                 <input type="date" id="deficit-start" class="styled-input">
                 <i class="fa-solid fa-arrow-right"></i>
+                <i class="fa-solid fa-arrow-down-long"></i>
                 <input type="date" id="deficit-end" class="styled-input">
                 <button class="a-btn btn-mint-small" onclick="calculateDeficit()">Calculate</button>
         </div>
@@ -34,6 +35,16 @@
         </div>
 
         <p class="section-description">Note that this calculation is for fat mass only. Your actual weight on the scale will vary based on multiple factors, such as water retention, new muscle mass from heavy exercise, and food being metabolized.</p>
+
+        <div id="deficit-skeleton" style="display:none;">
+            <div class="deficit-skeleton-line" style="width:60%; height:14px; margin-bottom:1rem;"></div>
+            <div style="display:flex; gap:1.5rem; flex-wrap:wrap;">
+                <div class="deficit-skeleton-stat"></div>
+                <div class="deficit-skeleton-stat"></div>
+                <div class="deficit-skeleton-stat"></div>
+                <div class="deficit-skeleton-stat"></div>
+            </div>
+        </div>
 
         <div id="deficit-result" class="data-table" style="display:none; padding: 1rem;">
             <p id="deficit-text" style="font-size: 0.875rem; margin-bottom: 1rem; color: var(--text-secondary);"></p>

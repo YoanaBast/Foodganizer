@@ -4,17 +4,21 @@
 
 <header>
     <div class="tab-nav">
+        <input type="checkbox" id="burger-toggle" class="burger-checkbox">
+        <label for="burger-toggle" class="burger-btn" aria-label="Toggle menu">
+            <i class="fa-solid fa-bars"></i>
+        </label>
 
-        <div class="tab-buttons-container">
+            <div class="tab-buttons-container">
 
-            <div class="tab-dropdown">
-                <button class="tab-button">
-                    Create
-                </button>
+                <div class="tab-dropdown">
+                    <button class="tab-button">
+                        Create
+                    </button>
 
-                <div class="dropdown-menu">
-                    <a href="{% url 'manage_ingredients' %}">Manage Ingredients</a>
-                    <a href="{% url 'manage_recipes' %}">Manage Recipes</a>
+                    <div class="dropdown-menu">
+                        <a href="{% url 'manage_ingredients' %}">Manage Ingredients</a>
+                        <a href="{% url 'manage_recipes' %}">Manage Recipes</a>
 
                 </div>
             </div>
