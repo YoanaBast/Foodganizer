@@ -105,10 +105,12 @@ header li a {
     width: 100vw;
     padding: 0 2rem 1rem;
     box-sizing: border-box;
-    background: var(--mint);
+    background: color-mix(in srgb,var(--mint) 70%,white);
     z-index: 100;
     grid-template-columns: repeat(3, 15rem);
     gap: 10px;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
 }
 
 .tab-dropdown.open .dropdown-menu {
@@ -216,9 +218,20 @@ header li a {
     .burger-checkbox:checked ~ .nav-links {
         display: flex;
         order: 3;
-        width: 100%;
+        justify-content: center;
         gap: 1.5rem;
-        padding-top: 1rem;
+        padding: 0.5rem 0;
+        margin-top: 0.5rem;
+        background: color-mix(in srgb, var(--mint) 75%, white);
+        border-radius: 0;
+        width: 100vw;
+        position: relative;
+        left: -2rem;
+        margin-top: 2rem;
+    }
+
+    .nav-links a {
+      font-size: 1rem;
     }
 
     .burger-checkbox:checked ~ .tab-buttons-container {
@@ -229,22 +242,26 @@ header li a {
         gap: 1rem;
         position: absolute;
         top: 100%;
-        /*left: 0;*/
-        /*width: 100%;*/
-        background: var(--mint);
+        background: color-mix(in srgb,var(--mint) 75%,white);
         padding: 1rem 2rem;
         box-sizing: border-box;
         z-index: 999;
         left: -2rem;
         width: 100vw;
+        justify-content: center;
+
     }
 
-
+    .nav-logout-icon {
+      font-size: 1.1rem;
+      margin-top: 0.1rem;
+    }
     .dropdown-menu {
         grid-template-columns: 1fr;
         left: -2rem;
         padding: 2rem;
         margin-left: 2rem;
+        background: var(--mint);
     }
 
 
