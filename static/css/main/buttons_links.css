@@ -65,3 +65,9 @@
     display: flex;
     align-items: flex-start
 }
+
+/*@media (max-width: 700px) {*/
+/*    .btn-wine-small, .btn-mint-small  {*/
+/*        background: #FAC898;*/
+/*    }*/
+/*}*/

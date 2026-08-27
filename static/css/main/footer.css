@@ -8,7 +8,11 @@ footer {
     flex-direction: column;
     align-items: center;
 }
+body > footer {
+    background: var(--mint);
+    padding: 3rem;
 
+}
 footer h4 {
     margin-bottom: 1rem;
     margin-top: 0rem;
@@ -33,16 +37,20 @@ footer a:hover {
     justify-content: center;
     gap: 3rem;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .footer-top > div {
-    width: 25rem;
+    flex: 1 1 240px;
+    /*grow, shrink, basis*/
+    max-width: 25rem;
     display: flex;
     justify-content: flex-start;
     flex-direction: column;
     background: color-mix(in srgb, var(--mint) 60%, white);
     border-radius: 5px;
     padding: 2rem;
+    box-sizing: border-box;
 }
 
 .footer-bottom {

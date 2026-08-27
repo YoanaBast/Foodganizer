@@ -1,5 +1,4 @@
 
-/* HERO LOGO BUTTONS TOP */
 
 .hero {
     display: flex;
@@ -139,6 +138,7 @@
 .card-title {
     font-size: 1.8rem;
     }
+
 .card-inner {
     height: 100%;
     box-sizing: border-box;
@@ -151,20 +151,6 @@
 }
 
 
-@media (max-width: 768px) {
-    .cards {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        overflow-x: hidden;
-        overflow-y: visible;
-        padding-bottom: 1rem;
-    }
-
-    .card {
-        width: 100%;
-    }
-}
 
 .slider-dots {
     display: flex;
@@ -192,11 +178,6 @@
 
 
 
-@media (max-width: 768px) {
-    .slider-dots {
-        display: none; /* no sliding on mobile, so no dots */
-    }
-}
 
 .slider-wrap {
     position: relative;
@@ -243,8 +224,35 @@
     display: none;                /* Chrome/Safari — replaces your old scrollbar-thumb rules */
 }
 
-@media (max-width: 768px) {
+
+
+@media (max-width: 700px) {
+    .hero-logo {
+        order: -1;
+    }
+}
+
+@media (max-width: 1000px) {
+    .cards {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        overflow-x: hidden;
+        overflow-y: visible;
+        padding-bottom: 1rem;
+    }
+
+    .card {
+        width: 100%;
+    }
+
+    .slider-dots {
+        display: none; /* no sliding on mobile, so no dots */
+    }
+
     .slider-arrow {
         display: none;   /* no arrows on mobile stacked layout */
     }
+
 }
+

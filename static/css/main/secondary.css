@@ -204,3 +204,27 @@
 .close-button:hover {
     color: var(--wine);
 }
+
+@media (max-width: 700px) {
+    #above-table-manage-div .flex-row-space-between,
+    #above-table-manage-div .flex-row-flex-end,
+    #above-table-manage-div .search_filter form{
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        gap: 0.75rem;
+
+        .a-btn,
+        .btn-mint-small,
+        .btn-wine-small,
+        .filter-submit{
+            align-self: flex-start;
+        }
+    }
+
+    #above-table-manage-div .searchbar {
+        flex-basis: auto;
+        height: auto;
+    }
+
+}

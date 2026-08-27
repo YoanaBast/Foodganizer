@@ -7,11 +7,11 @@
 
 {% block content %}
 
-<div class="main-first-child-container-padding">
+<div id="above-table-manage-div" class="main-first-child-container-padding">
 
     <div class="flex-row-flex-end" style="margin-bottom: 0rem;">
-        <a href="{% url 'manage_fridge' %}" class="btn-mint-small">Fridge</a>
         <a href="{% url 'meal_list' %}" class="btn-mint-small">Meal History</a>
+        <a href="{% url 'manage_fridge' %}" class="btn-mint-small">Fridge</a>
         <a href="javascript:history.back()" class="btn-wine-small">Back</a>
     </div>
 
