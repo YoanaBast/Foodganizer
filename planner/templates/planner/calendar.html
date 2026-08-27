@@ -51,19 +51,19 @@
             <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
                 <div>
                     <div style="font-size: 0.75rem; color: var(--text-secondary);">Days tracked</div>
-                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--bg-secondary-green);" id="deficit-days"></div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--olive);" id="deficit-days"></div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; color: var(--text-secondary);">Total consumed</div>
-                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--bg-secondary-green);" id="deficit-consumed"></div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--olive);" id="deficit-consumed"></div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; color: var(--text-secondary);">Total maintenance</div>
-                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--bg-secondary-green);" id="deficit-maintenance"></div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--olive);" id="deficit-maintenance"></div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; color: var(--text-secondary);">Net deficit</div>
-                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--bg-secondary-green);" id="deficit-net"></div>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--olive);" id="deficit-net"></div>
                 </div>
             </div>
         </div>
@@ -83,17 +83,17 @@
     </div>
 
     <div id="cal-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
-        <div id="cal-title" style="font-size:1.25rem; font-weight:700; color:var(--bg-secondary-green);"></div>
+        <div id="cal-title" style="font-size:1.25rem; font-weight:700; color:var(--olive);"></div>
         <div style="display:flex; gap:8px;">
-            <button class="btn-mint-small" onclick="changeMonth(-1)">&#8592; Prev</button>
+            <button class="btn-mint-small" onclick="changeMonth(-1)">&#8592;</button>
             <button class="btn-mint-small" onclick="goToday()">Today</button>
-            <button class="btn-mint-small" onclick="changeMonth(1)">Next &#8594;</button>
+            <button class="btn-mint-small" onclick="changeMonth(1)">&#8594;</button>
         </div>
     </div>
 
     <div id="cal-grid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px;">
         {% for dow in "SMTWTFS" %}
-            <div style="text-align:center; font-size:11px; color:var(--bg-secondary-green); font-weight:700; padding:6px 0; text-transform:uppercase; letter-spacing:0.05em;">{{ dow }}</div>
+            <div style="text-align:center; font-size:11px; color:var(--olive); font-weight:700; padding:6px 0; text-transform:uppercase; letter-spacing:0.05em;">{{ dow }}</div>
         {% endfor %}
     </div>
 
@@ -101,12 +101,12 @@
         <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#22c55e; margin-right:4px;"></span>On target</span>
         <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#f59e0b; margin-right:4px;"></span>Surplus</span>
         <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#3b82f6; margin-right:4px;"></span>Deficit</span>
-        <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--bg-gray); margin-right:4px;"></span>No data</span>
+        <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--beige); margin-right:4px;"></span>No data</span>
     </div>
 
     <!-- DAY MODAL -->
     <div id="day-modal" class="modal-overlay">
-        <div class="form-group" style="background: var(--bg-primary-ivory); border-radius:0.75rem; padding:1.5rem; width:480px; max-width:95vw; max-height:85vh; overflow-y:auto; margin:0 auto;">
+        <div class="form-group" style="background: var(--ivory); border-radius:0.75rem; padding:1.5rem; width:480px; max-width:95vw; max-height:85vh; overflow-y:auto; margin:0 auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
                 <h3 id="modal-date-title" class="section-title ranchers-regular" style="margin:0;"></h3>
                 <button onclick="closeModal()" class="btn-invisible" style="font-size:1.5rem; color:var(--wine);">&#215;</button>
@@ -115,7 +115,7 @@
             <div id="modal-entries" style="margin-bottom:1.25rem;"></div>
 
             <div style="border-top:1px solid var(--mint); padding-top:1rem;">
-                <p style="font-size:0.875rem; font-weight:700; color:var(--bg-secondary-green); margin-bottom:0.75rem;">Add entry</p>
+                <p style="font-size:0.875rem; font-weight:700; color:var(--olive); margin-bottom:0.75rem;">Add entry</p>
 
                 <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem;">
                     <button class="btn-mint-small" onclick="setType('recipe')" id="btn-recipe">Recipe</button>
@@ -126,7 +126,7 @@
                 <div id="search-results" style="margin-bottom:0.75rem; max-height:150px; overflow-y:auto;"></div>
 
                 <div id="add-form" style="display:none;">
-                    <p id="selected-name" style="font-size:0.875rem; font-weight:700; color:var(--bg-secondary-green); margin-bottom:0.5rem;"></p>
+                    <p id="selected-name" style="font-size:0.875rem; font-weight:700; color:var(--olive); margin-bottom:0.5rem;"></p>
                     <div id="recipe-fields">
                         <label style="font-size:0.8rem;">Servings</label>
                         <input type="number" id="input-servings" class="styled-input" min="0.1" step="0.1" value="1" style="margin-bottom:0.5rem;">
@@ -145,7 +145,7 @@
 
     <!-- EDIT MODAL -->
     <div id="edit-modal" class="modal-overlay">
-        <div class="form-group" style="background: var(--bg-primary-ivory); border-radius:0.75rem; padding:1.5rem; width:320px; max-width:95vw; margin:0 auto;">
+        <div class="form-group" style="background: var(--ivory); border-radius:0.75rem; padding:1.5rem; width:320px; max-width:95vw; margin:0 auto;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
                 <h3 id="edit-title" class="section-title ranchers-regular" style="margin:0;"></h3>
                 <button onclick="closeEdit()" class="btn-invisible" style="font-size:1.5rem; color:var(--wine);">&#215;</button>
@@ -163,7 +163,7 @@
     <!-- NOT AUTHENTICATED -->
     <div style="position: relative; margin-top: 150px;">
         <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
-            <p style="font-size:1.1rem; font-weight:700; color: var(--bg-secondary-green);">Sign in to track your meals</p>
+            <p style="font-size:1.1rem; font-weight:700; color: var(--olive);">Sign in to track your meals</p>
             <div style="display:flex; gap:0.75rem;">
                 <a href="{% url 'register' %}" class="btn-mint-small">Register</a>
                 <a href="{% url 'login' %}" class="btn-wine-small">Login</a>

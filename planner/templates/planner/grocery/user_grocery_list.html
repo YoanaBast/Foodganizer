@@ -15,7 +15,7 @@ Grocery List
 
 <div id="above-table-manage-div" class="main-first-child-container-padding" style="margin-top: 1rem;">
 
-    <div class="flex-row-flex-end" style="margin-bottom: 0rem;">
+    <div id="mobile-hide" class="flex-row-flex-end" style="margin-bottom: 0rem;">
         <a href="{% url 'generate_grocery_list' %}" class="btn-mint-small">Add More</a>
         <a href="{% url 'manage_fridge' %}" class="btn-mint-small">Fridge</a>
         <a href="javascript:history.back()" class="btn-wine-small">Back</a>
@@ -118,7 +118,7 @@ Grocery List
         <div class="history-recipe-card" style="margin-top: 1.5rem; border-radius: 12px; overflow: hidden; border: 1px solid rgba(216, 136, 149, 0.5);">
 
             <!-- Header: name + timestamp, mint -->
-            <div style="background: var(--mint); color: color-mix(in srgb, var(--bg-secondary-green) 70%, black); padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; font-weight: 700; text-transform: uppercase; font-size: 0.875rem; letter-spacing: 0.05em;">
+            <div style="background: var(--mint); color: color-mix(in srgb, var(--olive) 70%, black); padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center; font-weight: 700; text-transform: uppercase; font-size: 0.875rem; letter-spacing: 0.05em;">
                 <span>{{ recipe_name|title_except }}</span>
                 <span style="text-transform: none; font-weight: 400; font-size: 0.8rem;">{{ gen.created_at|date:"d M Y, H:i" }}</span>
             </div>

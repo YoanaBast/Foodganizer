@@ -30,11 +30,11 @@
 }
 
 .pagination a:hover {
-    color: var(--bg-secondary-green);
+    color: var(--olive);
 }
 
 .pagination .page-current {
-    color: var(--bg-secondary-green);
+    color: var(--olive);
     font-weight: 700;
     cursor: default;
     pointer-events: none;

@@ -29,7 +29,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: var(--bg-primary-ivory);
+    background: var(--ivory);
     border-radius: 12px;
     padding: 2rem;
     max-width: 420px;
@@ -40,7 +40,7 @@
 }
 
 .recipe-modal-content h4 {
-    color: var(--bg-secondary-green);
+    color: var(--olive);
     margin-top: 0;
     margin-bottom: 1.5rem;
     font-size: 1.25rem;
@@ -82,7 +82,7 @@
 .searchable-options {
     display: none;
     position: absolute;
-    background: var(--bg-primary-ivory);
+    background: var(--ivory);
     border: 1px solid var(--mint);
     border-radius: 0.5rem;
     max-height: 200px;
@@ -106,12 +106,12 @@
 .search-option:hover,
 .search-option.selected {
     background: var(--mint);
-    color: var(--bg-secondary-green);
+    color: var(--olive);
 }
 
 
 .biometrics-results-block, .biometrics-form-block {
-    color: var(--bg-secondary-green);
+    color: var(--olive);
 }
 
 .fav-star {
@@ -126,11 +126,11 @@
 
 .cal-day {
     min-height: 80px;
-    border: 1px solid var(--bg-gray);
+    border: 1px solid var(--beige);
     border-radius: 0.5rem;
     padding: 6px;
     cursor: pointer;
-    background: var(--bg-gray);
+    background: var(--beige);
     transition: opacity 0.15s, background 0.15s;
 }
 
@@ -140,11 +140,11 @@
 
 .cal-day.today {
     border-width: 2px;
-    border-color: var(--bg-secondary-green);
+    border-color: var(--olive);
 }
 
 .cal-day.other-month {
-    background: var(--bg-primary-ivory);
+    background: var(--ivory);
 }
 
 .cal-day.other-month .cal-day-num {
@@ -165,7 +165,7 @@
 
 .cal-day-bar {
     height: 4px;
-    background: var(--bg-gray);
+    background: var(--beige);
     border-radius: 2px;
     margin-top: 4px;
     overflow: hidden;
@@ -185,7 +185,7 @@
 .cal-day.status-target  { background: #22c55e;  border-color: #22c55e; }
 .cal-day.status-surplus { background: #d99a3f;      border-color: #d99a3f; }
 .cal-day.status-deficit { background: #3b82f6;      border-color: #3b82f6; }
-.cal-day.status-nodata  { background: var(--bg-gray); }
+.cal-day.status-nodata  { background: var(--beige); }
 
 .status-target  .cal-day-bar-fill { background: #22c55e; }
 .status-surplus .cal-day-bar-fill { background: #d99a3f; }
@@ -206,7 +206,7 @@
 .entry-name {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--bg-secondary-green);
+    color: var(--olive);
     text-transform: capitalize;
 }
 
@@ -225,7 +225,7 @@
 
 #btn-recipe.active,
 #btn-ingredient.active {
-    border-color: var(--bg-secondary-green);
+    border-color: var(--olive);
 }
 /*the dropdown in the pop up*/
 
@@ -235,7 +235,7 @@
     border-radius: 4px;
     font-size: 0.875rem;
     text-transform: uppercase;
-    color: var(--bg-secondary-green);
+    color: var(--olive);
     letter-spacing: 0.02em;
 }
 
@@ -253,7 +253,7 @@
 
 .search-no-results {
     font-size: 0.8rem;
-    color: var(--bg-secondary-green);
+    color: var(--olive);
     padding: 6px 8px;
 }
 
@@ -262,7 +262,7 @@
 .cal-day-skeleton {
     aspect-ratio: 1 / 1;
     border-radius: 0.5rem;
-    background: linear-gradient(90deg, color-mix(in srgb, var(--mint) 60%, white) 25%, var(--bg-gray) 50%, color-mix(in srgb, var(--mint) 60%, white) 75%);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--mint) 60%, white) 25%, var(--beige) 50%, color-mix(in srgb, var(--mint) 60%, white) 75%);
     background-size: 200% 100%;
     animation: skeleton-pulse 1.4s ease-in-out infinite;
 }
@@ -346,7 +346,7 @@
 .deficit-skeleton-line,
 .deficit-skeleton-stat {
     border-radius: 0.5rem;
-    background: linear-gradient(90deg, color-mix(in srgb, var(--mint) 60%, white) 25%, var(--bg-gray) 50%, color-mix(in srgb, var(--mint) 60%, white) 75%);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--mint) 60%, white) 25%, var(--beige) 50%, color-mix(in srgb, var(--mint) 60%, white) 75%);
     background-size: 200% 100%;
     animation: skeleton-pulse 1.4s ease-in-out infinite;
 }

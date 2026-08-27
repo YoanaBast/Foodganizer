@@ -8,7 +8,7 @@
 }
 
 .section-title {
-    color: var(--bg-secondary-green);
+    color: var(--olive);
     font-size: xx-large;
 }
 
@@ -76,7 +76,7 @@
     padding: 0.6rem 0.75rem;
     border-radius: 0.5rem;
     border: none;
-    color: color-mix(in srgb, var(--bg-secondary-green) 70%, black);
+    color: color-mix(in srgb, var(--olive) 70%, black);
     font-weight: 700;
 }
 
@@ -127,7 +127,7 @@
     top: 100%;
     left: 0;
     margin-top: 0.5rem;
-    background: var(--bg-primary-ivory);
+    background: var(--ivory);
     border: 1px solid var(--mint);
     border-radius: 8px;
     padding: 0.75rem 1rem;
@@ -168,7 +168,7 @@
 }
 
 .delete-modal {
-    background: var(--bg-primary-ivory);
+    background: var(--ivory);
     border-radius: 12px;
     padding: 2rem;
     max-width: 400px;
@@ -227,4 +227,14 @@
         height: auto;
     }
 
+    #mobile-hide {
+        display: none;
+    }
+    section-title {
+      margin-top: 0rem;
+    }
+
+    .main-first-child-container-padding {
+        padding: 0rem;
+    }
 }
