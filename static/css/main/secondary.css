@@ -227,4 +227,14 @@
         height: auto;
     }
 
+    #mobile-hide {
+        display: none;
+    }
+    section-title {
+      margin-top: 0rem;
+    }
+
+    .main-first-child-container-padding {
+        padding: 0rem;
+    }
 }
