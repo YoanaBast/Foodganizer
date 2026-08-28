@@ -111,7 +111,7 @@
     <!-- Nutrients  table-->
                                 <h2 class="section-title ranchers-regular">Nutrients (per {{ ingredient.base_quantity }} {{ ingredient.default_unit.code }})</h2>
 
-                                <div class="nutrients-grid" style="margin-top:1rem; grid-template-columns: repeat(3, 1fr); min-width: 35rem;">
+                                <div class="nutrients-grid mt-3">
                                     {% for field in form.visible_fields %}
                                     {% if "base_quantity_" in field.name %}
 

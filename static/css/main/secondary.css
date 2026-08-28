@@ -227,14 +227,22 @@
         height: auto;
     }
 
-    #mobile-hide {
+    #mobile-hide,
+    #mobile-hide-2 {
         display: none;
     }
-    section-title {
+
+    .section-title {
       margin-top: 0rem;
     }
 
     .main-first-child-container-padding {
         padding: 0rem;
+        padding-top: 2rem;
+    }
+
+    .search_filter form {
+        align-items: flex-start;
+        flex-direction: column;
     }
 }

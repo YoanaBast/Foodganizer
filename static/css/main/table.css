@@ -62,6 +62,10 @@ td[data-label="Ingredient"]:hover {
     .data-table thead {
         display: none;
     }
+
+    .data-table th {
+        border: none;
+    }
     .data-table {
         border: none;
     }

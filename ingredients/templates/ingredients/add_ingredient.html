@@ -87,7 +87,7 @@
                 </div>
 
                 <div>
-                    <div class="nutrient-inputs-grid form-group" style="grid-template-columns: repeat(3, 1fr); min-width: 35rem">
+                    <div class="nutrients-grid nutrient-inputs-grid form-group">
                         {% for nutrient in form %}
                             {% if "base_quantity_" in nutrient.name and nutrient.name != "base_quantity" %}
                             <div class="nutrient-item">
