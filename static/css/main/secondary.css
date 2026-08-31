@@ -245,4 +245,17 @@
         align-items: flex-start;
         flex-direction: column;
     }
+
+
+}
+
+@media (max-width: 1100px) {
+
+    #mobile-column,
+    #mobile-column-2,
+    #conversion-section,
+    .additional-units {
+        flex-direction: column !important;
+        align-items: flex-start;
+    }
 }

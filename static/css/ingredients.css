@@ -22,7 +22,7 @@
     gap: 1rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
     .nutrients-grid {
         grid-template-columns: 1fr;
         min-width: 5rem;
