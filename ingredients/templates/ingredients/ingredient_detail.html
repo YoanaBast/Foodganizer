@@ -36,7 +36,7 @@
             <div>
                 <h2 class="section-huge-title ranchers-regular">{{ ingredient.name|title_except }} </h2>
 
-                    <table class="data-table" style="width: 75%">
+                    <table class="data-table" style="width: 100%">
                         <tbody>
                             <tr>
                                 <th>Category</th>
@@ -81,7 +81,7 @@
                             </tr>
                         </tbody>
                     </table>
-        </div>
+            </div>
 
     <!-- Unit Selection  -->
             <div class="no-flex-padding-row-div">
@@ -118,8 +118,7 @@
         <h2 class="section-title ranchers-regular">Nutrients for {{ quantity }} {{ unit_name }}:</h2>
 
     <!-- nutrients table -->
-        <div class="nutrients-tables" style="width: 100%">
-                <div id="detail-table" class="nutrients-grid">
+                <div id="detail-table" class="nutrients-tables nutrients-grid" style="width: 100%">
                     {% for column in nutrient_columns %}
                         <table class="data-table" style="width: 100%">
                             <tbody>
@@ -135,7 +134,6 @@
                         </table>
                     {% endfor %}
                 </div>
-            </div>
 
 
         </div>

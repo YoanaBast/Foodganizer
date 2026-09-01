@@ -73,3 +73,14 @@
 .search-option:hover, .search-option.selected {
     background: #3a3a3a;
 }
+
+@media (max-width: 1100px) {
+
+    #ingredientsContainer div:not(#add-btn) {
+        flex-direction: column;
+        align-items: flex-start;
+        border: 2px solid var(--mint);
+        border-radius: 5px;
+        padding: 1rem;
+    }
+}

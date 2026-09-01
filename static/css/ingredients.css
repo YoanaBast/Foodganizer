@@ -66,4 +66,12 @@
         min-width: 1rem;
         grid-template-columns: repeat(1, minmax(100px, 1fr));
     }
+
+    #conversion-section > .flex-column-flex-start:first-child {
+  order: 2;
+    }
+
+    #conversion-section > .flex-column-flex-start:last-child {
+      order: 1;
+    }
 }
