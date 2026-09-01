@@ -90,4 +90,7 @@
     #ingredientsContainer .search_filter select {
         width: 11rem;
     }
+    .recipe-modal-content {
+        width: 70%;
+    }
 }

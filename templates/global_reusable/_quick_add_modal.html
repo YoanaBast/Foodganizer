@@ -1,7 +1,7 @@
 {% load static %}
 
-<div id="quick-add-modal" class="modal-overlay">
-    <div class="form-group" style="background: var(--ivory); border-radius: 0.5rem; padding: 2rem; max-width: 420px; margin: 0 auto;">
+<div id="quick-add-modal" class="delete-modal">
+    <div class="form-group recipe-modal-content">
         <h3 id="modal-title">Add New</h3>
         <div id="modal-fields"></div>
         <div id="modal-error" style="color:#ff6b6b; margin-bottom:0.75rem; display:none;"></div>
@@ -14,3 +14,5 @@
 </div>
 
 <script src="{% static 'js/crud/_quick_add_modal.js' %}"></script>
+
+
