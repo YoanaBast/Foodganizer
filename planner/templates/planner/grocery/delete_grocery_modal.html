@@ -1,13 +1,13 @@
 {% load static %}
 
-<div id="deleteModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeDeleteModal()">
-    <div class="modal-content delete-modal">
+<div id="deleteModal" class="delete-modal">
+    <div class="recipe-modal-content">
         <p id="deleteModalText" style="margin-bottom: 1rem; font-size: 0.95rem;">Are you sure?</p>
         <form id="deleteForm" method="POST">
             {% csrf_token %}
             <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                <button type="submit" class="btn btn-wine-small">Delete</button>
-                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button type="submit" class="btn-wine-small">Delete</button>
+                <button type="button" class="btn-wine-small" onclick="closeDeleteModal()">Cancel</button>
             </div>
         </form>
     </div>

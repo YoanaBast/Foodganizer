@@ -14,7 +14,7 @@
 <script src="{% static 'js/crud/delete_popup.js' %}" defer></script>
 
 <div class="main-first-child-container-padding">
-    <div class="flex-row-space-between mb-8">
+    <div id="mobile-hide" class="flex-row-space-between mb-8">
         <div>
             <a href="javascript:history.back()" class="btn-mint-small">Back</a>
             <a href="{% url 'edit_ingredient' ingredient.id %}" class="btn-mint-small">Edit</a>
@@ -36,7 +36,7 @@
             <div>
                 <h2 class="section-huge-title ranchers-regular">{{ ingredient.name|title_except }} </h2>
 
-                    <table class="data-table" style="width: 75%">
+                    <table class="data-table" style="width: 100%">
                         <tbody>
                             <tr>
                                 <th>Category</th>
@@ -81,7 +81,7 @@
                             </tr>
                         </tbody>
                     </table>
-        </div>
+            </div>
 
     <!-- Unit Selection  -->
             <div class="no-flex-padding-row-div">
@@ -118,8 +118,7 @@
         <h2 class="section-title ranchers-regular">Nutrients for {{ quantity }} {{ unit_name }}:</h2>
 
     <!-- nutrients table -->
-        <div class="nutrients-tables" style="width: 100%">
-                <div class="nutrients-grid" style="width: 100%; display: grid; grid-template-columns: repeat(3, minmax(280px, 1fr)); gap: 1rem;">
+                <div id="detail-table" class="nutrients-tables nutrients-grid" style="width: 100%">
                     {% for column in nutrient_columns %}
                         <table class="data-table" style="width: 100%">
                             <tbody>
@@ -135,7 +134,6 @@
                         </table>
                     {% endfor %}
                 </div>
-            </div>
 
 
         </div>
@@ -144,7 +142,7 @@
 
 
 
-        <div class="flex-row-flex-start mt-6">
+        <div id="mobile-hide-2" class="flex-row-flex-start mt-6">
             <a href="javascript:history.back()" class="btn-wine-small">Back</a>
             <a href="{% url 'manage_ingredients' %}" class="btn-mint-small">All Ingredients</a>
         </div>

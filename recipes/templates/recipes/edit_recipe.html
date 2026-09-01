@@ -21,7 +21,7 @@
 
 <div class="main-first-child-container-padding">
 
-    <div class="flex-row-flex-end">
+    <div id="mobile-hide" class="flex-row-flex-end">
         <a href="javascript:history.back()" class="btn-wine-small">← Back</a>
         <a href="{% url 'recipe_detail' recipe.pk %}" class="btn-mint-small">Details</a>
         <a href="{% url 'manage_recipes' %}" class="btn-mint-small">All Recipes</a>
@@ -35,7 +35,7 @@
             {% include "messages/errors_label.html" with form=recipe_form %}
             {% include "messages/formset_errors.html" with formset=ingredient_formset %}
 
-        <div class="flex-row-flex-start" style="align-items: flex-start">
+        <div id="mobile-column" class="flex-row-flex-start" style="align-items: flex-start">
             <div class="form-group">
                 <div class="mb-6">
                     {{ recipe_form.name.label_tag }} {{ recipe_form.name }}
@@ -54,11 +54,17 @@
                 </div>
 
                 <div class="mb-6">
-                    <label>Cooking Time:</label>
-                    <span class="time-inputs">
-                        {{ recipe_form.hours }} h
-                        {{ recipe_form.minutes }} m
-                    </span>
+                    <h2 class="section-title ranchers-regular">Cooking Time</h2>
+                    <div class="flex-row-flex-start" style="width: 100%;">
+                        <div>
+                            <label>HOURS:</label>
+                            {{ recipe_form.hours }}
+                        </div>
+                        <div>
+                            <label>MINUTES:</label>
+                            {{ recipe_form.minutes }}
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mb-6">
@@ -78,7 +84,8 @@
             <div class="form-group flex-column-flex-start">
 
                     <div class="mb-6">
-                        {{ recipe_form.instructions.label_tag }} {{ recipe_form.instructions }}
+                        <h2 class="section-title ranchers-regular">Instructions</h2>
+                         {{ recipe_form.instructions }}
                     </div>
 
             </div>
@@ -94,7 +101,8 @@
         <div>
             {{ ingredient_formset.management_form }}
 
-            <h3>Ingredients</h3>
+            <h2 class="section-title ranchers-regular">Ingredients</h2>
+
             <div id="ingredientsContainer">
                 {% if ingredient_formset.forms %}
                     {% for form in ingredient_formset.forms %}
@@ -122,8 +130,8 @@
         </div>
 
         <!-- Save / Cancel -->
-        <div class="flex-row-flex-end">
-            <button type="submit" class="btn btn-mint-small">Save Recipe</button>
+        <div class="flex-row-flex-end mt-6 mb-6">
+            <button type="submit" class="btn-mint-small">Save Recipe</button>
             <button type="button" class="btn-wine-small" onclick="window.location.href='{{ request.META.HTTP_REFERER|default:default_url }}'">Cancel</button>
         </div>
 

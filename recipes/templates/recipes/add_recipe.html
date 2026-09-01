@@ -35,7 +35,7 @@ Add Recipe
         {{ ingredient_formset.management_form }}
 
 
-       <div class="flex-row-flex-start styled-input" style="align-items: flex-start;">
+       <div id="mobile-column" class="flex-row-flex-start styled-input" style="align-items: flex-start;">
             <div class="form-group grid-container">
                 <div class="mb-6">
                    {{ recipe_form.name.label_tag }} {{ recipe_form.name }}
@@ -61,7 +61,7 @@ Add Recipe
                 </div>
 
                 <h2 class="section-title ranchers-regular">Cooking Time</h2>
-                    <div class="flex-row-flex-start" style="width: 50%;">
+                    <div class="flex-row-flex-start" style="width: 100%;">
                         <div>
                             <label>HOURS:</label>
                             {{ recipe_form.hours }}
@@ -81,14 +81,14 @@ Add Recipe
            </div>
 
 
-            <h2 class="section-title ranchers-regular">Ingredients</h2>
+            <h2 class="section-title ranchers-regular" style="margin-top: 2rem;">Ingredients</h2>
             <div id="ingredientsContainer">
                 {% include 'global_reusable/add_button.html' %}
 
 
             </div>
 
-            <div class="mt-6">
+            <div class="mt-6 mb-6">
                 <button type="submit" class="btn-mint-small">Save Recipe</button>
                 <button type="button" class="btn-wine-small" onclick="window.location.href='{% url 'manage_recipes' %}'">Cancel</button>
             </div>

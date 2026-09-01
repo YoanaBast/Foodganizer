@@ -14,7 +14,7 @@
 
 <div class="main-first-child-container-padding">
 
-    <div class="flex-row-flex-end">
+    <div id="mobile-hide" class="flex-row-flex-end">
             <a href="javascript:history.back()" class="btn-wine-small">← Back</a>
             <a href="{% url 'ingredient_detail' ingredient.id %}" class="btn-mint-small">Details</a>
             <a href="{% url 'manage_ingredients' %}" class="btn-mint-small">All Ingredients</a>
@@ -29,7 +29,7 @@
                         <form method="POST" id="edit-ingredient-form" novalidate class="form-group">
                             {% csrf_token %}
 
-                    <div class="flex-row-flex-start mb-8" style="align-items: flex-start;">
+                    <div id="mobile-column" class="flex-row-flex-start mb-8" style="align-items: flex-start;">
 
                             <div class="form-group flex-column-flex-start">
 
@@ -111,7 +111,7 @@
     <!-- Nutrients  table-->
                                 <h2 class="section-title ranchers-regular">Nutrients (per {{ ingredient.base_quantity }} {{ ingredient.default_unit.code }})</h2>
 
-                                <div class="nutrients-grid" style="margin-top:1rem; grid-template-columns: repeat(3, 1fr); min-width: 35rem;">
+                                <div class="nutrients-grid mt-3">
                                     {% for field in form.visible_fields %}
                                     {% if "base_quantity_" in field.name %}
 
@@ -191,7 +191,7 @@
 
                                             <form method="post" action="{% url 'add_measurement_unit' ingredient.id %}" novalidate class="search_filter flex-row-space-between">
                                                 {% csrf_token %}
-                                                <div style="display:flex; gap:0.75rem; align-items:flex-end; flex-wrap:nowrap; max-width:500px;">
+                                                <div id="mobile-column-2" class="flex-row-flex-end" style="gap: 1rem;">
 
                                                     <div>
                                                         <label>Quantity</label>
@@ -208,9 +208,9 @@
                                                         </select>
                                                     </div>
 
-                                                    <p style="font-size: 1.25rem; font-weight: 700; color: var(--accent); white-space: nowrap; align-self: flex-end; margin-bottom: 0.4rem;">= {{ ingredient.base_quantity|floatformat:"-2" }} {{ ingredient.default_unit.code }}</p>
+                                                    <p style="font-size: 1.25rem; font-weight: 700; color: var(--accent); white-space: nowrap; margin-bottom: 0.4rem;">= {{ ingredient.base_quantity|floatformat:"-2" }} {{ ingredient.default_unit.code }}</p>
 
-                                                    <button type="submit" class="btn-mint-small">Add</button>
+                                                    <button type="submit" class="btn-mint-small mt-4">Add</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -274,7 +274,7 @@
                                                 {% else %}
                                                     <p style="color:var(--text-secondary); font-style:italic; margin-bottom:1rem;">None added yet.</p>
                                                 {% endif %}
-                                            <div class="flex-row-flex-end mt-8" style="align-self: flex-end;">
+                                            <div id="mobile-hide-2" class="flex-row-flex-end mt-8 mb-8" style="align-self: flex-end;">
                                                 <a href="javascript:history.back()" class="btn-wine-small">Back</a>
                                                 <a href="{% url 'manage_ingredients' %}" class="btn-mint-small">All Ingredients</a>
                                             </div>

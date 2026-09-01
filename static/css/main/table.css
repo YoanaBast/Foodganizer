@@ -47,7 +47,6 @@
 
 td[data-label="Ingredient Name"],
 td[data-label="Ingredient"] {
-    color: #4CAF50;
     font-weight: 600;
 }
 
@@ -61,6 +60,15 @@ td[data-label="Ingredient"]:hover {
 @media screen and (max-width: 900px) {
     .data-table thead {
         display: none;
+    }
+
+    td[data-label="Ingredient Name"]{
+        font-weight: 800;
+        color: var(--wine) !important;
+    }
+
+    .data-table th {
+        border: none;
     }
     .data-table {
         border: none;
