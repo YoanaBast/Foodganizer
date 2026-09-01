@@ -3,7 +3,8 @@ from collections import OrderedDict
 from django.core.paginator import Paginator
 from django.db.models import Prefetch, Exists, OuterRef
 from django.views import View
-
+from django.db.models import ( Count, Exists, OuterRef, Subquery, Sum, F, FloatField, ExpressionWrapper, )
+from django.db.models.functions import Coalesce
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from ingredients.models import Ingredient, MeasurementUnit, IngredientMeasurementUnit
@@ -18,6 +19,7 @@ from recipes.models import Recipe, RecipeIngredient
 class GenerateGroceryListView(View):
     template_name = 'planner/grocery/generate_grocery_list.html'
 
+
     def get_recipes(self, request, show_favs):
         from recipes.models import RecipeCategory
         from ingredients.models import IngredientDietaryTag
@@ -27,25 +29,68 @@ class GenerateGroceryListView(View):
         tags = [t for t in request.GET.getlist('tag') if t]
         sort = request.GET.get('sort', '')
 
-        recipes = Recipe.objects.prefetch_related(
-            Prefetch('recipe_ingredient', queryset=RecipeIngredient.objects.select_related('unit', 'ingredient'))
+        kcal_subquery = (
+            RecipeIngredient.objects
+            .filter(recipe=OuterRef('pk'))
+            .annotate(
+                contribution=ExpressionWrapper(
+                    F('quantity')
+                    * F('unit__conversion_to_base')
+                    * F('ingredient__base_quantity_kcal')
+                    / F('ingredient__base_quantity'),
+                    output_field=FloatField(),
+                )
+            )
+            .values('recipe')
+            .annotate(total=Sum('contribution'))
+            .values('total')
         )
 
-        if request.user and request.user.is_authenticated:
-            recipes = recipes.annotate(
-                is_fav=Exists(
-                    Recipe.favourited_by.through.objects.filter(
-                        recipe_id=OuterRef('pk'), user_id=request.user.id
+        recipes = (
+            Recipe.objects
+            .select_related('category')
+            .prefetch_related(
+                Prefetch(
+                    'recipe_ingredient',
+                    queryset=RecipeIngredient.objects.select_related(
+                        'unit__unit',
+                        'ingredient',
                     )
                 )
             )
+            .annotate(
+                total_kcal=Coalesce(
+                    Subquery(kcal_subquery, output_field=FloatField()),
+                    0.0,
+                ),
+                kcal_per_serving_annotated=ExpressionWrapper(
+                    F('total_kcal') / F('servings'),
+                    output_field=FloatField(),
+                ),
+            )
+        )
+
+        if request.user.is_authenticated:
+            recipes = recipes.annotate(
+                is_fav=Exists(
+                    Recipe.favourited_by.through.objects.filter(
+                        recipe_id=OuterRef('pk'),
+                        user_id=request.user.id,
+                    )
+                )
+            )
+
             if show_favs:
-                recipes = recipes.filter(favourited_by=request.user)
+                recipes = recipes.filter(
+                    favourited_by=request.user
+                )
 
         if search:
             recipes = recipes.filter(name__icontains=search)
+
         if category:
-            recipes = recipes.filter(category__id=category)
+            recipes = recipes.filter(category_id=category)
+
         if tags:
             for tag_id in tags:
                 recipes = recipes.exclude(
@@ -54,16 +99,26 @@ class GenerateGroceryListView(View):
                     )
                 )
 
-        recipes = recipes.order_by('name')
         if sort == 'kcal_asc':
-            recipes = sorted(recipes, key=lambda r: r.kcal_per_serving)
+            recipes = recipes.order_by(
+                'kcal_per_serving_annotated'
+            )
+
         elif sort == 'kcal_desc':
-            recipes = sorted(recipes, key=lambda r: r.kcal_per_serving, reverse=True)
+            recipes = recipes.order_by(
+                '-kcal_per_serving_annotated'
+            )
+
         elif sort == 'popular':
-            from django.db.models import Count
-            recipes = recipes.annotate(fav_count=Count('favourited_by')).order_by('-fav_count')
+            recipes = recipes.annotate(
+                fav_count=Count('favourited_by', distinct=True)
+            ).order_by('-fav_count')
+
+        else:
+            recipes = recipes.order_by('name')
 
         return recipes
+
 
     def get_page_obj(self, request, recipes):
         paginator = Paginator(recipes, 10)
@@ -188,27 +243,65 @@ class UserGroceryListView(View):
             history_page_obj = Paginator(self.get_history_data(request.user), 5).get_page(
                 request.GET.get('history_page')
             )
+
         else:
             anon_grocery = request.session.get('anon_grocery', [])
+
+            ingredient_ids = {
+                item['ingredient_id']
+                for item in anon_grocery
+            }
+
+            unit_ids = {
+                item['unit_id']
+                for item in anon_grocery
+                if item.get('unit_id')
+            }
+
+            ingredients = Ingredient.objects.filter(
+                id__in=ingredient_ids
+            )
+
+            units = MeasurementUnit.objects.filter(
+                id__in=unit_ids
+            )
+
+            ingredient_map = {
+                ingredient.id: ingredient
+                for ingredient in ingredients
+            }
+
+            unit_map = {
+                unit.id: unit
+                for unit in units
+            }
+
             resolved = []
+
             for index, item in enumerate(anon_grocery):
-                try:
-                    resolved.append({
-                        'index': index,
-                        'ingredient': Ingredient.objects.get(id=item['ingredient_id']),
-                        'unit': MeasurementUnit.objects.get(id=item['unit_id']) if item['unit_id'] else None,
-                        'quantity': item['quantity'],
-                    })
-                except (Ingredient.DoesNotExist, MeasurementUnit.DoesNotExist):
+                ingredient = ingredient_map.get(item['ingredient_id'])
+
+                if not ingredient:
                     continue
+
+                unit = unit_map.get(item['unit_id'])
+
+                resolved.append({
+                    'index': index,
+                    'ingredient': ingredient,
+                    'unit': unit,
+                    'quantity': item['quantity'],
+                })
+
             items = resolved
             history_page_obj = None
 
+
         return render(request, self.template_name, {
-            'items': items,
-            'history': history_page_obj,
-            'history_page_obj': history_page_obj,
-        })
+                'items': items,
+                'history': history_page_obj,
+                'history_page_obj': history_page_obj,
+            })
 
 
 class DeleteGroceryItemView(View):
@@ -257,33 +350,99 @@ class AddAnonGroceryToFridgeView(View):
 class AddAllGroceryToFridgeView(View):
     def post(self, request):
         if not request.user.is_authenticated:
-            messages.error(request, "You must be logged in to do this.")
+            messages.error(
+                request,
+                "You must be logged in to do this."
+            )
             return redirect('user_grocery_list')
 
-        items = UserGroceryList.objects.filter(user=request.user)
-        for item in items:
-            UserFridge.objects.update_or_create(
-                user=request.user,
-                ingredient=item.ingredient,
-                defaults={'quantity': item.quantity, 'unit': item.unit}
+        items = list(
+            UserGroceryList.objects
+            .filter(user=request.user)
+            .select_related('ingredient', 'unit')
+        )
+
+        fridge_map = {
+            item.ingredient_id: item
+            for item in UserFridge.objects.filter(
+                user=request.user
             )
-        items.delete()
+        }
+
+        to_create = []
+        to_update = []
+
+        for item in items:
+            fridge_item = fridge_map.get(item.ingredient_id)
+
+            if fridge_item:
+                fridge_item.quantity = item.quantity
+                fridge_item.unit = item.unit
+                to_update.append(fridge_item)
+            else:
+                to_create.append(
+                    UserFridge(
+                        user=request.user,
+                        ingredient=item.ingredient,
+                        quantity=item.quantity,
+                        unit=item.unit,
+                    )
+                )
+
+        if to_create:
+            UserFridge.objects.bulk_create(to_create)
+
+        if to_update:
+            UserFridge.objects.bulk_update(
+                to_update,
+                ['quantity', 'unit']
+            )
+
+        UserGroceryList.objects.filter(
+            user=request.user
+        ).delete()
+
         return redirect('user_grocery_list')
+
+
 
 
 class AddAllAnonGroceryToFridgeView(View):
     def post(self, request):
         grocery = request.session.get('anon_grocery', [])
+        fridge = request.session.get('anon_fridge', [])
+
+        fridge_map = {
+            (item['ingredient_id'], item['unit_id']): item
+            for item in fridge
+        }
+
         for item in grocery:
-            try:
-                ingredient = Ingredient.objects.get(id=item['ingredient_id'])
-                unit = MeasurementUnit.objects.get(id=item['unit_id'])
-                get_or_create_anon_fridge_item(request, ingredient, item['quantity'], unit)
-            except (Ingredient.DoesNotExist, MeasurementUnit.DoesNotExist):
-                continue
+            key = (
+                item['ingredient_id'],
+                item['unit_id'],
+            )
+
+            if key in fridge_map:
+                fridge_map[key]['quantity'] += item['quantity']
+            else:
+                new_item = {
+                    'ingredient_id': item['ingredient_id'],
+                    'unit_id': item['unit_id'],
+                    'quantity': item['quantity'],
+                }
+
+                fridge_map[key] = new_item
+
+        request.session['anon_fridge'] = list(
+            fridge_map.values()
+        )
         request.session['anon_grocery'] = []
         request.session.modified = True
+
         return redirect('user_grocery_list')
+
+
 
 
 def calorie_tracker(request):

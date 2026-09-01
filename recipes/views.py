@@ -8,13 +8,24 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView
-from django.db.models import Count
-
+from django.db.models import (
+    Count,
+    F,
+    FloatField,
+    ExpressionWrapper,
+    Sum,
+    Subquery,
+    OuterRef,
+    Exists,
+    Value,
+    BooleanField,
+)
+from django.db.models.functions import Coalesce
 from core.utils import is_moderator
+
 from ingredients.models import Ingredient, IngredientMeasurementUnit, IngredientDietaryTag
 from .forms import RecipeForm, RecipeIngredientForm, RecipeIngredientFormSet
 from .models import Recipe, RecipeCategory, RecipeIngredient
-
 
 """
 RECIPE VIEWS
@@ -33,14 +44,63 @@ class ManageRecipesView(ListView):
         tags = [t for t in self.request.GET.getlist('tag') if t]
         sort = self.request.GET.get('sort', '')
 
+        # Subquery: total kcal for each recipe, computed at the DB level
+        kcal_subquery = (
+            RecipeIngredient.objects.filter(recipe=OuterRef('pk'))
+            .annotate(
+                contrib=ExpressionWrapper(
+                    F('quantity') * F('unit__conversion_to_base') *
+                    F('ingredient__base_quantity_kcal') / F('ingredient__base_quantity'),
+                    output_field=FloatField()
+                )
+            )
+            .values('recipe')
+            .annotate(total=Sum('contrib'))
+            .values('total')
+        )
+
         qs = Recipe.objects.select_related('category').prefetch_related(
-            'recipe_ingredient__ingredient__dietary_tag'
-        ).annotate(fav_count=Count('favourited_by')).order_by('name')
+            'recipe_ingredient__ingredient__dietary_tag',
+            'recipe_ingredient__ingredient__default_unit',
+            'recipe_ingredient__ingredient__measurement_units__unit',
+            'recipe_ingredient__unit__unit',
+        ).annotate(
+            fav_count=Count('favourited_by', distinct=True),
+            total_kcal=Coalesce(
+                Subquery(kcal_subquery, output_field=FloatField()),
+                0.0
+            ),
+        ).annotate(
+            kcal_per_serving_annotated=ExpressionWrapper(
+                F('total_kcal') / F('servings'),
+                output_field=FloatField()
+            )
+        )
+
+        # Avoid N+1 queries when checking if the current user favourited recipes
+        if self.request.user.is_authenticated:
+            favorite_subquery = Recipe.favourited_by.through.objects.filter(
+                recipe_id=OuterRef('pk'),
+                user_id=self.request.user.id,
+            )
+
+            qs = qs.annotate(
+                is_fav=Exists(favorite_subquery)
+            )
+
+        else:
+            qs = qs.annotate(
+                is_fav=Value(False, output_field=BooleanField())
+            )
+
+        qs = qs.order_by('name')
 
         if search:
             qs = qs.filter(name__icontains=search)
+
         if category:
             qs = qs.filter(category__id=category)
+
         if tags:
             for tag_id in tags:
                 qs = qs.exclude(
@@ -48,10 +108,13 @@ class ManageRecipesView(ListView):
                         ingredient__dietary_tag__id=tag_id
                     )
                 )
+
         if sort == 'kcal_asc':
-            qs = sorted(qs, key=lambda r: r.kcal_per_serving)
+            qs = qs.order_by('kcal_per_serving_annotated')
+
         elif sort == 'kcal_desc':
-            qs = sorted(qs, key=lambda r: r.kcal_per_serving, reverse=True)
+            qs = qs.order_by('-kcal_per_serving_annotated')
+
         elif sort == 'popular':
             qs = qs.order_by('-fav_count')
 
@@ -65,11 +128,6 @@ class ManageRecipesView(ListView):
         context['selected_category'] = self.request.GET.get('category', '')
         context['selected_tags'] = [t for t in self.request.GET.getlist('tag') if t]
         context['selected_sort'] = self.request.GET.get('sort', '')
-        for rec in context['recipes']:
-            if self.request.user.is_authenticated:
-                rec.is_fav = rec.favourited_by.filter(id=self.request.user.id).exists()
-            else:
-                rec.is_fav = False
         context['recipe_form'] = RecipeForm()
         context['ingredient_form'] = RecipeIngredientForm()
         return context
@@ -80,6 +138,12 @@ class RecipeDetailView(DetailView):
     template_name = 'recipes/recipe_detail.html'
     context_object_name = 'recipe'
 
+    def get_queryset(self):
+        return Recipe.objects.select_related('category').prefetch_related(
+            'recipe_ingredient__ingredient__dietary_tag',
+            'recipe_ingredient__unit',
+            'recipe_ingredient__ingredient__measurement_units__unit',
+        )
 
 class AddRecipeView(LoginRequiredMixin, View):
     template_name = 'recipes/add_recipe.html'
@@ -158,6 +222,7 @@ class EditRecipeView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
+        original_created_by = recipe.created_by
         if not is_moderator(request.user) and recipe.created_by != request.user:
             raise PermissionDenied
         recipe_form, ingredient_formset = self.get_forms(request, recipe)
@@ -165,7 +230,7 @@ class EditRecipeView(LoginRequiredMixin, View):
             recipe = recipe_form.save(commit=False)
             recipe.updated_by = request.user
             if not recipe.created_by:
-                recipe.created_by = Recipe.objects.get(pk=pk).created_by
+                recipe.created_by = original_created_by
             recipe.save()
             ingredient_formset.save()
             return redirect('recipe_detail', pk=pk)

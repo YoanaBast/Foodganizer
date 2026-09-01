@@ -17,10 +17,6 @@ from .models import Ingredient, IngredientMeasurementUnit, IngredientCategory, I
 from .forms import IngredientAddForm, IngredientEditForm, IngredientDetailForm
 
 
-"""
-INGREDIENT VIEWS
-"""
-
 class ManageIngredientsView(ListView):
     model = Ingredient
     template_name = 'ingredients/manage_ingredients.html'
@@ -145,7 +141,10 @@ class IngredientDetailView(View):
         return self._render(request, ingredient_id)
 
     def _render(self, request, ingredient_id):
-        ingredient = get_object_or_404(Ingredient, pk=ingredient_id)
+        ingredient = get_object_or_404(
+            Ingredient.objects.select_related('category', 'default_unit').prefetch_related('dietary_tag'),
+            pk=ingredient_id
+        )
         form = IngredientDetailForm(ingredient, request.POST or None)
         quantity = form.get_quantity()
         unit = form.get_unit()
@@ -328,14 +327,12 @@ class AddMeasurementUnitView(View):
         # conversion = 10
 
 
-        print("DEBUG")
         if not secondary_quantity:
             messages.error(request, 'Conversion to base is required.')
             return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
 
         try:
             conversion_float = float(ingredient.base_quantity) / float(secondary_quantity)
-            print(f"DEBUG conversion_float{conversion_float}, ingredient.base_quantity{ingredient.base_quantity}. secondary_quantity{secondary_quantity}")
 
         except (ValueError, TypeError, ZeroDivisionError):
             messages.error(request, 'Please enter a valid number for conversion.')
@@ -387,7 +384,7 @@ class AddMeasurementUnitAjaxView(View):
 
 class DeleteMeasurementUnitView(View):
     def post(self, request, ingredient_id, imu_id):
-        imu = get_object_or_404(IngredientMeasurementUnit, pk=imu_id)
+        imu = get_object_or_404(IngredientMeasurementUnit.objects.select_related('ingredient'), pk=imu_id)
         imu.delete()
         return redirect('edit_ingredient', ingredient_id=ingredient_id)
 
