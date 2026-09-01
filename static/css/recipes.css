@@ -84,3 +84,10 @@
         padding: 1rem;
     }
 }
+
+@media (max-width: 700px) {
+
+    #ingredientsContainer .search_filter select {
+        width: 11rem;
+    }
+}
