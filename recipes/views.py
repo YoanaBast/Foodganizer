@@ -19,6 +19,8 @@ from django.db.models import (
     Exists,
     Value,
     BooleanField,
+    Case,
+    When,
 )
 from django.db.models.functions import Coalesce
 from core.utils import is_moderator
@@ -44,14 +46,25 @@ class ManageRecipesView(ListView):
         tags = [t for t in self.request.GET.getlist('tag') if t]
         sort = self.request.GET.get('sort', '')
 
-        # Subquery: total kcal for each recipe, computed at the DB level
         kcal_subquery = (
-            RecipeIngredient.objects.filter(recipe=OuterRef('pk'))
+            RecipeIngredient.objects
+            .filter(recipe=OuterRef('pk'))
+            .annotate(
+                quantity_in_base=Case(
+                    When(
+                        unit__unit=F('ingredient__default_unit'),
+                        then=F('quantity'),
+                    ),
+                    default=F('quantity') * F('unit__conversion_to_base'),
+                    output_field=FloatField(),
+                )
+            )
             .annotate(
                 contrib=ExpressionWrapper(
-                    F('quantity') * F('unit__conversion_to_base') *
-                    F('ingredient__base_quantity_kcal') / F('ingredient__base_quantity'),
-                    output_field=FloatField()
+                    F('quantity_in_base')
+                    * F('ingredient__base_quantity_kcal')
+                    / F('ingredient__base_quantity'),
+                    output_field=FloatField(),
                 )
             )
             .values('recipe')
@@ -222,15 +235,14 @@ class EditRecipeView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
-        original_created_by = recipe.created_by
         if not is_moderator(request.user) and recipe.created_by != request.user:
             raise PermissionDenied
         recipe_form, ingredient_formset = self.get_forms(request, recipe)
         if recipe_form.is_valid() and ingredient_formset.is_valid():
             recipe = recipe_form.save(commit=False)
             recipe.updated_by = request.user
-            if not recipe.created_by:
-                recipe.created_by = original_created_by
+            # created_by is excluded from RecipeForm's fields entirely, so
+            # form.save(commit=False) never touches it — no need to re-guard it here.
             recipe.save()
             ingredient_formset.save()
             return redirect('recipe_detail', pk=pk)
@@ -260,56 +272,61 @@ class ToggleFavouriteView(LoginRequiredMixin, View):
 RECIPE INGREDIENT VIEWS
 """
 
-class AddIngredientToRecipeView(View):
+class AddIngredientToRecipeView(LoginRequiredMixin, View):
     def post(self, request, pk):
         try:
             data = json.loads(request.body)
-            recipe = Recipe.objects.get(pk=pk)
+        except json.JSONDecodeError:
+            return JsonResponse({"success": False, "error": "Invalid request data."}, status=400)
 
-            if not is_moderator(request.user) and recipe.created_by != request.user:
-                return JsonResponse({"success": False, "error": "You do not have permission to edit this recipe."})
-
-            ingredient_id = data.get("ingredient_id")
-            quantity = data.get("quantity")
-            unit_id = data.get("unit_id")
-
-            try:
-                quantity = float(quantity)
-                if quantity <= 0:
-                    return JsonResponse({"success": False, "error": "Quantity must be greater than 0."})
-            except (ValueError, TypeError):
-                return JsonResponse({"success": False, "error": "Please enter a valid quantity."})
-
-            ingredient = Ingredient.objects.get(pk=ingredient_id)
-            unit = IngredientMeasurementUnit.objects.get(pk=unit_id)
-
-            ri, created = RecipeIngredient.objects.get_or_create(
-                recipe=recipe,
-                ingredient=ingredient,
-                defaults={"quantity": quantity, "unit": unit}
+        recipe = get_object_or_404(Recipe, pk=pk)
+        if not is_moderator(request.user) and recipe.created_by != request.user:
+            return JsonResponse(
+                {"success": False, "error": "You do not have permission to edit this recipe."}, status=403
             )
-            if not created:
-                ri.quantity = quantity
-                ri.unit = unit
-                ri.save()
 
-            return JsonResponse({
-                "success": True,
-                "ingredient_name": ingredient.name,
-                "quantity": quantity,
-                "unit_name": unit.name_for_quantity(quantity),
-                "ingredient_id": ingredient.id,
-                "unit_id": unit.id,
-            })
-        except Exception as e:
-            return JsonResponse({"success": False, "error": str(e)})
+        ingredient_id = data.get("ingredient_id")
+        quantity = data.get("quantity")
+        unit_id = data.get("unit_id")
+
+        try:
+            quantity = float(quantity)
+            if quantity <= 0:
+                return JsonResponse({"success": False, "error": "Quantity must be greater than 0."}, status=400)
+        except (ValueError, TypeError):
+            return JsonResponse({"success": False, "error": "Please enter a valid quantity."}, status=400)
+
+        try:
+            ingredient = Ingredient.objects.get(pk=ingredient_id)
+            unit = IngredientMeasurementUnit.objects.get(pk=unit_id, ingredient=ingredient)
+        except (Ingredient.DoesNotExist, IngredientMeasurementUnit.DoesNotExist):
+            return JsonResponse({"success": False, "error": "Invalid ingredient or unit."}, status=400)
+
+        ri, created = RecipeIngredient.objects.get_or_create(
+            recipe=recipe,
+            ingredient=ingredient,
+            defaults={"quantity": quantity, "unit": unit}
+        )
+        if not created:
+            ri.quantity = quantity
+            ri.unit = unit
+            ri.save()
+
+        return JsonResponse({
+            "success": True,
+            "ingredient_name": ingredient.name,
+            "quantity": quantity,
+            "unit_name": unit.name_for_quantity(quantity),
+            "ingredient_id": ingredient.id,
+            "unit_id": unit.id,
+        })
 
 
 """
 RECIPE CATEGORY VIEWS
 """
 
-class AddRecipeCategoryAjaxView(View):
+class AddRecipeCategoryAjaxView(LoginRequiredMixin, View):
     def post(self, request):
         data = json.loads(request.body)
         name = data.get('name', '').strip().lower()
@@ -318,10 +335,9 @@ class AddRecipeCategoryAjaxView(View):
         obj, created = RecipeCategory.objects.get_or_create(name=name)
         if not created:
             return JsonResponse({'error': f'"{name}" already exists.'}, status=400)
-        if request.user.is_authenticated:
-            obj.created_by = request.user
-            obj.updated_by = request.user
-            obj.save()
+        obj.created_by = request.user
+        obj.updated_by = request.user
+        obj.save()
         return JsonResponse({'id': obj.id, 'name': obj.name})
 
 
@@ -342,34 +358,28 @@ class ListRecipeCategoriesAjaxView(View):
         ]})
 
 
-class EditRecipeCategoryAjaxView(View):
+class EditRecipeCategoryAjaxView(LoginRequiredMixin, View):
     def post(self, request, pk=None):
         if not pk:
             pk = request.POST.get("pk")
         name = request.POST.get("name", "").strip()
         if not name:
             return JsonResponse({"error": "Name required"}, status=400)
-        cat = RecipeCategory.objects.filter(pk=pk).first()
-        if not cat:
-            return JsonResponse({"error": "Not found"}, status=404)
+        cat = get_object_or_404(RecipeCategory, pk=pk)
         if not is_moderator(request.user) and cat.created_by != request.user:
             return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
         cat.name = name
-        if request.user.is_authenticated:
-            cat.updated_by = request.user
+        cat.updated_by = request.user
         cat.save()
         return JsonResponse({"id": cat.id, "name": cat.name})
 
 
-class DeleteRecipeCategoryAjaxView(View):
+class DeleteRecipeCategoryAjaxView(LoginRequiredMixin, View):
     def post(self, request, pk=None):
         if not pk:
             pk = request.POST.get("pk")
-        cat = RecipeCategory.objects.filter(pk=pk).first()
-        if not cat:
-            return JsonResponse({"error": "Not found"}, status=404)
+        cat = get_object_or_404(RecipeCategory, pk=pk)
         if not is_moderator(request.user) and cat.created_by != request.user:
             return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
         cat.delete()
         return JsonResponse({"success": True})
-

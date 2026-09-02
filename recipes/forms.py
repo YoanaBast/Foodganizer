@@ -54,11 +54,12 @@ class RecipeForm(forms.ModelForm):
         }
     )
     servings = forms.IntegerField(
-        min_value=1, initial=1,
+        min_value=1, max_value=100_000, initial=1,
         widget=forms.NumberInput(attrs={'class': 'small-width styled-input', 'min': 1, 'step': 1}),
         error_messages={
             'required': 'Please enter the number of servings.',
             'min_value': 'Servings must be at least 1.',
+            'max_value': 'Servings cannot exceed 100 000.',
             'invalid': 'Enter a whole number for servings.',
         }
     )
@@ -85,16 +86,13 @@ class RecipeForm(forms.ModelForm):
             raise forms.ValidationError(f'"{name}" already exists.')
         return name
 
-    def clean(self):
-        cleaned_data = super().clean()
-        return cleaned_data
-
     def save(self, commit=True):
         instance = super().save(commit=False)
         h = self.cleaned_data.get('hours', 0)
         m = self.cleaned_data.get('minutes', 0)
         instance.cooking_time = time(hour=h, minute=m)
-        instance.category = self.cleaned_data.get('category')
+        # category is already assigned by super().save(commit=False) above,
+        # since it's a normal (non-excluded) form field.
         if commit:
             instance.save()
         return instance

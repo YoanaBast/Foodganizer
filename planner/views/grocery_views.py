@@ -3,7 +3,18 @@ from collections import OrderedDict
 from django.core.paginator import Paginator
 from django.db.models import Prefetch, Exists, OuterRef
 from django.views import View
-from django.db.models import ( Count, Exists, OuterRef, Subquery, Sum, F, FloatField, ExpressionWrapper, )
+from django.db.models import (
+    Count,
+    Exists,
+    OuterRef,
+    Subquery,
+    Sum,
+    F,
+    FloatField,
+    ExpressionWrapper,
+    Case,
+    When,
+)
 from django.db.models.functions import Coalesce
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
@@ -33,9 +44,18 @@ class GenerateGroceryListView(View):
             RecipeIngredient.objects
             .filter(recipe=OuterRef('pk'))
             .annotate(
+                quantity_in_base=Case(
+                    When(
+                        unit__unit=F('ingredient__default_unit'),
+                        then=F('quantity'),
+                    ),
+                    default=F('quantity') * F('unit__conversion_to_base'),
+                    output_field=FloatField(),
+                )
+            )
+            .annotate(
                 contribution=ExpressionWrapper(
-                    F('quantity')
-                    * F('unit__conversion_to_base')
+                    F('quantity_in_base')
                     * F('ingredient__base_quantity_kcal')
                     / F('ingredient__base_quantity'),
                     output_field=FloatField(),
