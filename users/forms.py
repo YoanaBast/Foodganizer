@@ -15,11 +15,12 @@ class RegisterForm(StyledFormMixin, UserCreationForm):
         fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
 
     def clean_email(self):
-        email = self.cleaned_data['email']
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError('This email is already registered.')
-        return email
+        email = self.cleaned_data['email'].strip()
 
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('This email is already registered.')
+
+        return email
 # profile creation moved to signal
     # def save(self, commit=True):
     #     user = super().save(commit=commit)

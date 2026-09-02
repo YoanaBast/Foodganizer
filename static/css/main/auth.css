@@ -104,7 +104,6 @@ ul.errorlist {
     font-weight: 700;
     font-size: 0.875rem;
     color: var(--olive);
-    text-transform: uppercase;
     letter-spacing: 0.03em;
     margin-bottom: 0.4rem;
 }
