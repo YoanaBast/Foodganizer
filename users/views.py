@@ -32,10 +32,10 @@ class RegisterView(CreateView):
     def form_valid(self, form):
         response = super().form_valid(form)
         transfer_session_to_user(self.object, self.request.session)
-        try:
-            send_welcome_email(self.object)
-        except Exception:
-            logger.exception("Failed to send welcome email to user %s", self.object.id)
+        # try:
+        #     send_welcome_email(self.object)
+        # except Exception:
+        #     logger.exception("Failed to send welcome email to user %s", self.object.id)
         return response
 
 

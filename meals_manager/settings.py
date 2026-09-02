@@ -235,10 +235,11 @@ USE_TZ = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('BREVO_SMTP_HOST')
 EMAIL_PORT = int(os.getenv('BREVO_SMTP_PORT', 587))
-EMAIL_USE_TLS = os.getenv('BREVO_EMAIL_USE_TLS')
+EMAIL_USE_TLS = os.getenv('BREVO_EMAIL_USE_TLS', 'True').lower() == 'true'
 EMAIL_HOST_USER = os.getenv('BREVO_SMTP_USER')
 EMAIL_HOST_PASSWORD = os.getenv('BREVO_SMTP_KEY')
 DEFAULT_FROM_EMAIL = os.getenv('BREVO_DEFAULT_FROM_EMAIL')
+EMAIL_TIMEOUT = 10
 
 JAZZMIN_SETTINGS = {
     "site_title": "Foodganizer Admin",
