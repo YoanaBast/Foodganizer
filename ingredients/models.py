@@ -75,16 +75,16 @@ class Ingredient(TrackingMixin, models.Model):
     default_unit = models.ForeignKey(
         'MeasurementUnit',
         on_delete=models.PROTECT,  # prevents deleting a unit that's someone's default
-        null=False,  # remove null=True
+        null=False,
         related_name='+'
     )
     
     base_quantity = models.FloatField(default=100, validators=[MinValueValidator(0.01), MaxValueValidator(100_000)],
                                       help_text="The quantity the NUTRIENTS are based on in default_unit (100 g, 1 pc, etc.)")
-    #base_quantity = 100 means nutrients are defined per 100g
+    #base_quantity = 100 means nutrients are defined per 100 * unit
 
     category = models.ForeignKey(IngredientCategory, null=True, on_delete=models.SET_NULL, related_name='ingredient')
-    # discourage users from creating lazy ingredients, but if deleting a category, keep the ingredients
+    # discourage users from creating lazy ingredients (no blank true), but if deleting a category, keep the ingredients (with null cat)
 
     dietary_tag = models.ManyToManyField(IngredientDietaryTag, blank=True,  related_name='ingredient')
     #ManyToManyField does not use null=True because the relation is stored in a separate join table

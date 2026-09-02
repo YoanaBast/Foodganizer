@@ -1,5 +1,4 @@
 from django import forms
-from django.core.validators import MinValueValidator
 
 from core.constants import NUTRIENTS, NUTRIENT_UNITS
 from .models import Ingredient, IngredientMeasurementUnit
@@ -12,40 +11,26 @@ class IngredientFormBase(StyledFormMixin, ErrorMessagesMixin, forms.ModelForm):
 
         self.apply_error_messages(['name', 'base_quantity', 'default_unit'])
         self.fields['dietary_tag'].required = False
-        self.fields['base_quantity'].validators.append(MinValueValidator(0.01))
-        self.fields['base_quantity'].error_messages['min_value'] = 'Base quantity must be greater than 0.'
+        self.fields['base_quantity'].error_messages['min_value'] = 'Base quantity must be greater than 0 and lesser than 100 000.'
 
         for nutrient in NUTRIENTS:
             field = f'base_quantity_{nutrient}'
             unit = NUTRIENT_UNITS.get(nutrient, '')
             self.fields[field].label = f"{nutrient.replace('_', ' ').title()} ({unit})"
+            # title - capitalizes the first letter of each word
             self.fields[field].required = False
             self.fields[field].initial = 0
             self.fields[field].widget = forms.NumberInput(
                 attrs={'class': ' nutrient-input styled-input', 'step': 'any', 'min': 0}
             )
+            # step - any decimal value is allowed
 
     def clean_name(self):
+        # field-level validation hook
         name = self.cleaned_data['name'].strip()
         if Ingredient.objects.filter(name__iexact=name).exists():
             raise forms.ValidationError(f'"{name}" already exists.')
         return name
-
-
-    def save(self, commit=True):
-        """
-        ensures default unit selected upon ingredient creation exist in IngredientMeasurementUnit table
-        else it creates it
-        """
-        ingredient = super().save(commit=commit)
-        if commit:
-            IngredientMeasurementUnit.objects.get_or_create(
-                ingredient=ingredient,
-                unit=ingredient.default_unit,
-                conversion_to_base=ingredient.base_quantity
-            )
-        return ingredient
-
 
     class Meta:
         model = Ingredient
@@ -79,7 +64,6 @@ class IngredientEditForm(IngredientFormBase):
             self.fields['updated_by'].initial = self.instance.updated_by or '-'
             self.fields['created_by'].widget.attrs['class'] = ' styled-input'
             self.fields['updated_by'].widget.attrs['class'] = ' styled-input'
-
 
     def clean_name(self):
         """

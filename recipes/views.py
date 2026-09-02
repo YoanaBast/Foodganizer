@@ -8,13 +8,26 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView
-from django.db.models import Count
-
+from django.db.models import (
+    Count,
+    F,
+    FloatField,
+    ExpressionWrapper,
+    Sum,
+    Subquery,
+    OuterRef,
+    Exists,
+    Value,
+    BooleanField,
+    Case,
+    When,
+)
+from django.db.models.functions import Coalesce
 from core.utils import is_moderator
+
 from ingredients.models import Ingredient, IngredientMeasurementUnit, IngredientDietaryTag
 from .forms import RecipeForm, RecipeIngredientForm, RecipeIngredientFormSet
 from .models import Recipe, RecipeCategory, RecipeIngredient
-
 
 """
 RECIPE VIEWS
@@ -33,14 +46,74 @@ class ManageRecipesView(ListView):
         tags = [t for t in self.request.GET.getlist('tag') if t]
         sort = self.request.GET.get('sort', '')
 
+        kcal_subquery = (
+            RecipeIngredient.objects
+            .filter(recipe=OuterRef('pk'))
+            .annotate(
+                quantity_in_base=Case(
+                    When(
+                        unit__unit=F('ingredient__default_unit'),
+                        then=F('quantity'),
+                    ),
+                    default=F('quantity') * F('unit__conversion_to_base'),
+                    output_field=FloatField(),
+                )
+            )
+            .annotate(
+                contrib=ExpressionWrapper(
+                    F('quantity_in_base')
+                    * F('ingredient__base_quantity_kcal')
+                    / F('ingredient__base_quantity'),
+                    output_field=FloatField(),
+                )
+            )
+            .values('recipe')
+            .annotate(total=Sum('contrib'))
+            .values('total')
+        )
+
         qs = Recipe.objects.select_related('category').prefetch_related(
-            'recipe_ingredient__ingredient__dietary_tag'
-        ).annotate(fav_count=Count('favourited_by')).order_by('name')
+            'recipe_ingredient__ingredient__dietary_tag',
+            'recipe_ingredient__ingredient__default_unit',
+            'recipe_ingredient__ingredient__measurement_units__unit',
+            'recipe_ingredient__unit__unit',
+        ).annotate(
+            fav_count=Count('favourited_by', distinct=True),
+            total_kcal=Coalesce(
+                Subquery(kcal_subquery, output_field=FloatField()),
+                0.0
+            ),
+        ).annotate(
+            kcal_per_serving_annotated=ExpressionWrapper(
+                F('total_kcal') / F('servings'),
+                output_field=FloatField()
+            )
+        )
+
+        # Avoid N+1 queries when checking if the current user favourited recipes
+        if self.request.user.is_authenticated:
+            favorite_subquery = Recipe.favourited_by.through.objects.filter(
+                recipe_id=OuterRef('pk'),
+                user_id=self.request.user.id,
+            )
+
+            qs = qs.annotate(
+                is_fav=Exists(favorite_subquery)
+            )
+
+        else:
+            qs = qs.annotate(
+                is_fav=Value(False, output_field=BooleanField())
+            )
+
+        qs = qs.order_by('name')
 
         if search:
             qs = qs.filter(name__icontains=search)
+
         if category:
             qs = qs.filter(category__id=category)
+
         if tags:
             for tag_id in tags:
                 qs = qs.exclude(
@@ -48,10 +121,13 @@ class ManageRecipesView(ListView):
                         ingredient__dietary_tag__id=tag_id
                     )
                 )
+
         if sort == 'kcal_asc':
-            qs = sorted(qs, key=lambda r: r.kcal_per_serving)
+            qs = qs.order_by('kcal_per_serving_annotated')
+
         elif sort == 'kcal_desc':
-            qs = sorted(qs, key=lambda r: r.kcal_per_serving, reverse=True)
+            qs = qs.order_by('-kcal_per_serving_annotated')
+
         elif sort == 'popular':
             qs = qs.order_by('-fav_count')
 
@@ -65,11 +141,6 @@ class ManageRecipesView(ListView):
         context['selected_category'] = self.request.GET.get('category', '')
         context['selected_tags'] = [t for t in self.request.GET.getlist('tag') if t]
         context['selected_sort'] = self.request.GET.get('sort', '')
-        for rec in context['recipes']:
-            if self.request.user.is_authenticated:
-                rec.is_fav = rec.favourited_by.filter(id=self.request.user.id).exists()
-            else:
-                rec.is_fav = False
         context['recipe_form'] = RecipeForm()
         context['ingredient_form'] = RecipeIngredientForm()
         return context
@@ -80,6 +151,12 @@ class RecipeDetailView(DetailView):
     template_name = 'recipes/recipe_detail.html'
     context_object_name = 'recipe'
 
+    def get_queryset(self):
+        return Recipe.objects.select_related('category').prefetch_related(
+            'recipe_ingredient__ingredient__dietary_tag',
+            'recipe_ingredient__unit',
+            'recipe_ingredient__ingredient__measurement_units__unit',
+        )
 
 class AddRecipeView(LoginRequiredMixin, View):
     template_name = 'recipes/add_recipe.html'
@@ -164,8 +241,8 @@ class EditRecipeView(LoginRequiredMixin, View):
         if recipe_form.is_valid() and ingredient_formset.is_valid():
             recipe = recipe_form.save(commit=False)
             recipe.updated_by = request.user
-            if not recipe.created_by:
-                recipe.created_by = Recipe.objects.get(pk=pk).created_by
+            # created_by is excluded from RecipeForm's fields entirely, so
+            # form.save(commit=False) never touches it — no need to re-guard it here.
             recipe.save()
             ingredient_formset.save()
             return redirect('recipe_detail', pk=pk)
@@ -195,56 +272,61 @@ class ToggleFavouriteView(LoginRequiredMixin, View):
 RECIPE INGREDIENT VIEWS
 """
 
-class AddIngredientToRecipeView(View):
+class AddIngredientToRecipeView(LoginRequiredMixin, View):
     def post(self, request, pk):
         try:
             data = json.loads(request.body)
-            recipe = Recipe.objects.get(pk=pk)
+        except json.JSONDecodeError:
+            return JsonResponse({"success": False, "error": "Invalid request data."}, status=400)
 
-            if not is_moderator(request.user) and recipe.created_by != request.user:
-                return JsonResponse({"success": False, "error": "You do not have permission to edit this recipe."})
-
-            ingredient_id = data.get("ingredient_id")
-            quantity = data.get("quantity")
-            unit_id = data.get("unit_id")
-
-            try:
-                quantity = float(quantity)
-                if quantity <= 0:
-                    return JsonResponse({"success": False, "error": "Quantity must be greater than 0."})
-            except (ValueError, TypeError):
-                return JsonResponse({"success": False, "error": "Please enter a valid quantity."})
-
-            ingredient = Ingredient.objects.get(pk=ingredient_id)
-            unit = IngredientMeasurementUnit.objects.get(pk=unit_id)
-
-            ri, created = RecipeIngredient.objects.get_or_create(
-                recipe=recipe,
-                ingredient=ingredient,
-                defaults={"quantity": quantity, "unit": unit}
+        recipe = get_object_or_404(Recipe, pk=pk)
+        if not is_moderator(request.user) and recipe.created_by != request.user:
+            return JsonResponse(
+                {"success": False, "error": "You do not have permission to edit this recipe."}, status=403
             )
-            if not created:
-                ri.quantity = quantity
-                ri.unit = unit
-                ri.save()
 
-            return JsonResponse({
-                "success": True,
-                "ingredient_name": ingredient.name,
-                "quantity": quantity,
-                "unit_name": unit.name_for_quantity(quantity),
-                "ingredient_id": ingredient.id,
-                "unit_id": unit.id,
-            })
-        except Exception as e:
-            return JsonResponse({"success": False, "error": str(e)})
+        ingredient_id = data.get("ingredient_id")
+        quantity = data.get("quantity")
+        unit_id = data.get("unit_id")
+
+        try:
+            quantity = float(quantity)
+            if quantity <= 0:
+                return JsonResponse({"success": False, "error": "Quantity must be greater than 0."}, status=400)
+        except (ValueError, TypeError):
+            return JsonResponse({"success": False, "error": "Please enter a valid quantity."}, status=400)
+
+        try:
+            ingredient = Ingredient.objects.get(pk=ingredient_id)
+            unit = IngredientMeasurementUnit.objects.get(pk=unit_id, ingredient=ingredient)
+        except (Ingredient.DoesNotExist, IngredientMeasurementUnit.DoesNotExist):
+            return JsonResponse({"success": False, "error": "Invalid ingredient or unit."}, status=400)
+
+        ri, created = RecipeIngredient.objects.get_or_create(
+            recipe=recipe,
+            ingredient=ingredient,
+            defaults={"quantity": quantity, "unit": unit}
+        )
+        if not created:
+            ri.quantity = quantity
+            ri.unit = unit
+            ri.save()
+
+        return JsonResponse({
+            "success": True,
+            "ingredient_name": ingredient.name,
+            "quantity": quantity,
+            "unit_name": unit.name_for_quantity(quantity),
+            "ingredient_id": ingredient.id,
+            "unit_id": unit.id,
+        })
 
 
 """
 RECIPE CATEGORY VIEWS
 """
 
-class AddRecipeCategoryAjaxView(View):
+class AddRecipeCategoryAjaxView(LoginRequiredMixin, View):
     def post(self, request):
         data = json.loads(request.body)
         name = data.get('name', '').strip().lower()
@@ -253,10 +335,9 @@ class AddRecipeCategoryAjaxView(View):
         obj, created = RecipeCategory.objects.get_or_create(name=name)
         if not created:
             return JsonResponse({'error': f'"{name}" already exists.'}, status=400)
-        if request.user.is_authenticated:
-            obj.created_by = request.user
-            obj.updated_by = request.user
-            obj.save()
+        obj.created_by = request.user
+        obj.updated_by = request.user
+        obj.save()
         return JsonResponse({'id': obj.id, 'name': obj.name})
 
 
@@ -277,34 +358,28 @@ class ListRecipeCategoriesAjaxView(View):
         ]})
 
 
-class EditRecipeCategoryAjaxView(View):
+class EditRecipeCategoryAjaxView(LoginRequiredMixin, View):
     def post(self, request, pk=None):
         if not pk:
             pk = request.POST.get("pk")
         name = request.POST.get("name", "").strip()
         if not name:
             return JsonResponse({"error": "Name required"}, status=400)
-        cat = RecipeCategory.objects.filter(pk=pk).first()
-        if not cat:
-            return JsonResponse({"error": "Not found"}, status=404)
+        cat = get_object_or_404(RecipeCategory, pk=pk)
         if not is_moderator(request.user) and cat.created_by != request.user:
             return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
         cat.name = name
-        if request.user.is_authenticated:
-            cat.updated_by = request.user
+        cat.updated_by = request.user
         cat.save()
         return JsonResponse({"id": cat.id, "name": cat.name})
 
 
-class DeleteRecipeCategoryAjaxView(View):
+class DeleteRecipeCategoryAjaxView(LoginRequiredMixin, View):
     def post(self, request, pk=None):
         if not pk:
             pk = request.POST.get("pk")
-        cat = RecipeCategory.objects.filter(pk=pk).first()
-        if not cat:
-            return JsonResponse({"error": "Not found"}, status=404)
+        cat = get_object_or_404(RecipeCategory, pk=pk)
         if not is_moderator(request.user) and cat.created_by != request.user:
             return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
         cat.delete()
         return JsonResponse({"success": True})
-

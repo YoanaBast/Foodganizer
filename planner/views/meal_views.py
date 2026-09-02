@@ -19,18 +19,54 @@ from recipes.models import Recipe, RecipeIngredient
 
 def get_meal_suggestions(request):
     if request.user.is_authenticated:
-        fridge_items = list(UserFridge.objects.filter(user=request.user).select_related('ingredient', 'unit'))
+        fridge_items = list(
+            UserFridge.objects
+            .filter(user=request.user)
+            .select_related('ingredient', 'unit')
+        )
         use_session = False
     else:
         fridge_items = request.session.get('anon_fridge', [])
         use_session = True
 
-    recipes = Recipe.objects.all()
+    recipes = Recipe.objects.prefetch_related(
+        Prefetch(
+            'recipe_ingredient',
+            queryset=RecipeIngredient.objects.select_related(
+                'ingredient',
+                'unit__unit',
+            )
+        )
+    )
+
+    # Load all IngredientMeasurementUnit conversions needed by the
+    # anonymous fridge in ONE query.
+    if use_session:
+        fridge_unit_ids = {
+            item['unit_id']
+            for item in fridge_items
+            if item.get('unit_id')
+        }
+
+        conversions = IngredientMeasurementUnit.objects.filter(
+            unit_id__in=fridge_unit_ids
+        )
+
+        conversion_map = {
+            (conversion.ingredient_id, conversion.unit_id): conversion.conversion_to_base
+            for conversion in conversions
+        }
+
+        unit_map = {
+            unit.id: unit
+            for unit in MeasurementUnit.objects.filter(id__in=fridge_unit_ids)
+        }
+
     suggestions = []
 
     for recipe in recipes:
-        recipe_ingredients = RecipeIngredient.objects.filter(recipe=recipe)
-        total = recipe_ingredients.count()
+        recipe_ingredients = recipe.recipe_ingredient.all()
+        total = len(recipe_ingredients)
         matched = 0
         missing = []
 
@@ -39,58 +75,99 @@ def get_meal_suggestions(request):
 
             if use_session:
                 for fridge_item in fridge_items:
-                    if fridge_item['ingredient_id'] != ri.ingredient.id:
+                    if fridge_item['ingredient_id'] != ri.ingredient_id:
                         continue
-                    try:
-                        fridge_unit = MeasurementUnit.objects.get(id=fridge_item['unit_id'])
-                        if fridge_unit == ri.unit.unit:
-                            fridge_qty = fridge_item['quantity']
-                        else:
-                            conv_fridge = IngredientMeasurementUnit.objects.get(
-                                ingredient=ri.ingredient, unit=fridge_unit
+
+                    fridge_unit = unit_map.get(fridge_item.get('unit_id'))
+
+                    if not fridge_unit:
+                        continue
+
+                    if ri.unit and fridge_unit.id == ri.unit.unit_id:
+                        fridge_qty = fridge_item['quantity']
+                    else:
+                        conversion = conversion_map.get(
+                            (ri.ingredient_id, fridge_unit.id)
+                        )
+
+                        if conversion and ri.unit:
+                            qty_in_base = (
+                                fridge_item['quantity'] * conversion
                             )
-                            qty_in_base = fridge_item['quantity'] * conv_fridge.conversion_to_base
-                            fridge_qty = qty_in_base / ri.unit.conversion_to_base
-                    except (MeasurementUnit.DoesNotExist, IngredientMeasurementUnit.DoesNotExist):
-                        fridge_qty = 0
+                            fridge_qty = (
+                                qty_in_base / ri.unit.conversion_to_base
+                            )
+
+                    break
+
             else:
-                fridge_item = next((f for f in fridge_items if f.ingredient == ri.ingredient), None)
+                fridge_item = next(
+                    (
+                        f for f in fridge_items
+                        if f.ingredient_id == ri.ingredient_id
+                    ),
+                    None
+                )
+
                 if fridge_item:
                     if fridge_item.unit == ri.unit.unit:
                         fridge_qty = fridge_item.quantity
                     else:
-                        try:
-                            conv_fridge = IngredientMeasurementUnit.objects.get(
-                                ingredient=ri.ingredient, unit=fridge_item.unit
+                        conversion = IngredientMeasurementUnit.objects.filter(
+                            ingredient=ri.ingredient,
+                            unit=fridge_item.unit,
+                        ).first()
+
+                        if conversion:
+                            qty_in_base = (
+                                fridge_item.quantity
+                                * conversion.conversion_to_base
                             )
-                            qty_in_base = fridge_item.quantity * conv_fridge.conversion_to_base
-                            fridge_qty = qty_in_base / ri.unit.conversion_to_base
-                        except IngredientMeasurementUnit.DoesNotExist:
-                            fridge_qty = 0
+                            fridge_qty = (
+                                qty_in_base / ri.unit.conversion_to_base
+                            )
 
             if fridge_qty >= ri.quantity:
                 matched += 1
             else:
-                missing_qty = round(max(ri.quantity - fridge_qty, 0), 2)
-                unit_code = ri.unit.unit.code if ri.unit and ri.unit.unit else ""
-                missing.append(f"{missing_qty:g}{unit_code} {ri.ingredient.name}")
+                missing_qty = round(
+                    max(ri.quantity - fridge_qty, 0),
+                    2
+                )
+                unit_code = (
+                    ri.unit.unit.code
+                    if ri.unit and ri.unit.unit
+                    else ""
+                )
+                missing.append(
+                    f"{missing_qty:g}{unit_code} {ri.ingredient.name}"
+                )
 
         match_percent = int((matched / total) * 100) if total else 0
+
         suggestions.append({
             "recipe": recipe,
             "match_percent": match_percent,
             "can_make": matched == total and total > 0,
-            "missing_ingredients": missing
+            "missing_ingredients": missing,
         })
 
-    suggestions.sort(key=lambda x: x["match_percent"], reverse=True)
+    suggestions.sort(
+        key=lambda x: x["match_percent"],
+        reverse=True
+    )
+
     paginator = Paginator(suggestions, 10)
     page_obj = paginator.get_page(request.GET.get('page'))
 
-    return render(request, "planner/meals/get_meal_suggestions.html", {
-        "suggestions": page_obj,
-        "page_obj": page_obj,
-    })
+    return render(
+        request,
+        "planner/meals/get_meal_suggestions.html",
+        {
+            "suggestions": page_obj,
+            "page_obj": page_obj,
+        }
+    )
 
 
 """

@@ -17,24 +17,23 @@ from .models import Ingredient, IngredientMeasurementUnit, IngredientCategory, I
 from .forms import IngredientAddForm, IngredientEditForm, IngredientDetailForm
 
 
-"""
-INGREDIENT VIEWS
-"""
-
 class ManageIngredientsView(ListView):
     model = Ingredient
     template_name = 'ingredients/manage_ingredients.html'
     context_object_name = 'ingredients'
+    #controls what variable name the queryset is exposed under in the template context, for a ListView
     paginate_by = 10
 
     def get_queryset(self):
         qs = Ingredient.objects.select_related(
             'category', 'default_unit'
         ).prefetch_related('dietary_tag').order_by('name')
+
         search = self.request.GET.get('search', '')
         category = self.request.GET.get('category', '')
         tags = [t for t in self.request.GET.getlist('tag') if t]
         sort = self.request.GET.get('sort', '')
+
         if search:
             qs = qs.filter(name__icontains=search)
         if category:
@@ -43,6 +42,7 @@ class ManageIngredientsView(ListView):
             for tag_id in tags:
                 qs = qs.filter(dietary_tag__id=tag_id)
             qs = qs.distinct()
+        # filter down by tag until only items with all tags remain, distinct to remove duplicates since we go through the qs n times
         if sort == 'kcal_asc':
             qs = qs.order_by('base_quantity_kcal')
         elif sort == 'kcal_desc':
@@ -52,6 +52,7 @@ class ManageIngredientsView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # gets from upper clases, like the paginator from MultipleObjectMixin
         context['categories'] = IngredientCategory.objects.all().order_by('name')
         context['tags'] = IngredientDietaryTag.objects.all().order_by('name')
         context['selected_category'] = self.request.GET.get('category', '')
@@ -71,7 +72,6 @@ class AddIngredientView(LoginRequiredMixin, CreateView):
         context['nutrient_units'] = NUTRIENT_UNITS
         return context
 
-
     def form_valid(self, form):
         ingredient = form.save(commit=False)
         ingredient.name = ingredient.name.strip().lower()
@@ -79,12 +79,7 @@ class AddIngredientView(LoginRequiredMixin, CreateView):
         ingredient.updated_by = self.request.user
         ingredient.save()
         form.save_m2m()
-        if ingredient.default_unit:
-            IngredientMeasurementUnit.objects.get_or_create(
-                ingredient=ingredient,
-                unit=ingredient.default_unit,
-                defaults={'conversion_to_base': 1}
-            )
+        # saves the many-to-many relationships that form.save(commit=False) deliberately skipped.
         return redirect('edit_ingredient', ingredient_id=ingredient.id)
 
     def form_invalid(self, form):
@@ -104,14 +99,6 @@ class EditIngredientView(LoginRequiredMixin, OwnerOrModeratorMixin, UpdateView):
         context['nutrient_units'] = NUTRIENT_UNITS
         context['default_url'] = reverse_lazy('manage_ingredients')
         context['all_units'] = MeasurementUnit.objects.all().order_by('name_singular')
-
-        # ensure default unit always exists in measurement_units
-        if self.object.pk and self.object.default_unit:
-            IngredientMeasurementUnit.objects.get_or_create(
-                ingredient=self.object,
-                unit=self.object.default_unit,
-                defaults={'conversion_to_base': 1}
-            )
         return context
 
     def form_valid(self, form):
@@ -128,13 +115,17 @@ class EditIngredientView(LoginRequiredMixin, OwnerOrModeratorMixin, UpdateView):
 
 class DeleteIngredientView(LoginRequiredMixin, OwnerOrModeratorMixin, View):
     def post(self, request, ingredient_id):
+        ing = self.get_object_or_denied(request, ingredient_id)
+        ing.delete()
+        return redirect('manage_ingredients')
+
+    def get_object_or_denied(self, request, ingredient_id):
         ing = get_object_or_404(Ingredient, pk=ingredient_id)
         is_mod = request.user.groups.filter(name='Moderator').exists()
         is_owner = ing.created_by == request.user
         if not is_mod and not is_owner:
             raise PermissionDenied
-        ing.delete()
-        return redirect('manage_ingredients')
+        return ing
 
 
 class IngredientDetailView(View):
@@ -145,7 +136,10 @@ class IngredientDetailView(View):
         return self._render(request, ingredient_id)
 
     def _render(self, request, ingredient_id):
-        ingredient = get_object_or_404(Ingredient, pk=ingredient_id)
+        ingredient = get_object_or_404(
+            Ingredient.objects.select_related('category', 'default_unit').prefetch_related('dietary_tag'),
+            pk=ingredient_id
+        )
         form = IngredientDetailForm(ingredient, request.POST or None)
         quantity = form.get_quantity()
         unit = form.get_unit()
@@ -171,9 +165,11 @@ class IngredientDetailView(View):
             'selected_imu': unit,
         })
 
+
 """
 INGREDIENT CATEGORY VIEWS
 """
+
 
 class ListCategoriesAjaxView(View):
     def get(self, request):
@@ -192,7 +188,7 @@ class ListCategoriesAjaxView(View):
         ]})
 
 
-class AddCategoryAjaxView(View):
+class AddCategoryAjaxView(LoginRequiredMixin, View):
     def post(self, request):
         data = json.loads(request.body)
         name = data.get('name', '').strip().lower()
@@ -201,35 +197,29 @@ class AddCategoryAjaxView(View):
         obj, created = IngredientCategory.objects.get_or_create(name=name)
         if not created:
             return JsonResponse({'error': f'"{name}" already exists.'}, status=400)
-        if request.user.is_authenticated:
-            obj.created_by = request.user
-            obj.updated_by = request.user
-            obj.save()
+        obj.created_by = request.user
+        obj.updated_by = request.user
+        obj.save()
         return JsonResponse({'id': obj.id, 'name': obj.name})
 
 
-class EditCategoryAjaxView(View):
+class EditCategoryAjaxView(LoginRequiredMixin, View):
     def post(self, request, pk):
-        cat = IngredientCategory.objects.filter(pk=pk).first()
-        if not cat:
-            return JsonResponse({"error": "Not found"}, status=404)
+        cat = get_object_or_404(IngredientCategory, pk=pk)
         if not is_moderator(request.user) and cat.created_by != request.user:
             return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
         name = request.POST.get("name")
         if not name:
             return JsonResponse({"error": "Name required"}, status=400)
         cat.name = name
-        if request.user.is_authenticated:
-            cat.updated_by = request.user
+        cat.updated_by = request.user
         cat.save()
         return JsonResponse({"id": cat.id, "name": cat.name})
 
 
-class DeleteCategoryAjaxView(View):
+class DeleteCategoryAjaxView(LoginRequiredMixin, View):
     def post(self, request, pk):
-        cat = IngredientCategory.objects.filter(pk=pk).first()
-        if not cat:
-            return JsonResponse({"error": "Not found"}, status=404)
+        cat = get_object_or_404(IngredientCategory, pk=pk)
         if not is_moderator(request.user) and cat.created_by != request.user:
             return JsonResponse({"error": "You do not have permission to delete this."}, status=403)
         cat.delete()
@@ -239,6 +229,7 @@ class DeleteCategoryAjaxView(View):
 """
 INGREDIENT DIETARY TAGS VIEWS
 """
+
 
 class DietaryTagsFragmentView(View):
     def get(self, request):
@@ -263,7 +254,7 @@ class ListDietaryTagsAjaxView(View):
         ]})
 
 
-class AddDietaryTagAjaxView(View):
+class AddDietaryTagAjaxView(LoginRequiredMixin, View):
     def post(self, request):
         data = json.loads(request.body)
         name = data.get('name', '').strip().lower()
@@ -272,35 +263,29 @@ class AddDietaryTagAjaxView(View):
         obj, created = IngredientDietaryTag.objects.get_or_create(name=name)
         if not created:
             return JsonResponse({'error': f'"{name}" already exists.'}, status=400)
-        if request.user.is_authenticated:
-            obj.created_by = request.user
-            obj.updated_by = request.user
-            obj.save()
+        obj.created_by = request.user
+        obj.updated_by = request.user
+        obj.save()
         return JsonResponse({'id': obj.id, 'name': obj.name})
 
 
-class EditDietaryTagAjaxView(View):
+class EditDietaryTagAjaxView(LoginRequiredMixin, View):
     def post(self, request, pk):
-        tag = IngredientDietaryTag.objects.filter(pk=pk).first()
-        if not tag:
-            return JsonResponse({"error": "Not found"}, status=404)
+        tag = get_object_or_404(IngredientDietaryTag, pk=pk)
         if not is_moderator(request.user) and tag.created_by != request.user:
             return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
         name = request.POST.get("name")
         if not name:
             return JsonResponse({"error": "Name required"}, status=400)
         tag.name = name
-        if request.user.is_authenticated:
-            tag.updated_by = request.user
+        tag.updated_by = request.user
         tag.save()
         return JsonResponse({"id": tag.id, "name": tag.name})
 
 
-class DeleteDietaryTagAjaxView(View):
+class DeleteDietaryTagAjaxView(LoginRequiredMixin, View):
     def post(self, request, pk):
-        tag = IngredientDietaryTag.objects.filter(pk=pk).first()
-        if not tag:
-            return JsonResponse({"error": "Not found"}, status=404)
+        tag = get_object_or_404(IngredientDietaryTag, pk=pk)
         if not is_moderator(request.user) and tag.created_by != request.user:
             return JsonResponse({"error": "You do not have permission to delete this."}, status=403)
         tag.delete()
@@ -311,9 +296,13 @@ class DeleteDietaryTagAjaxView(View):
 INGREDIENT MEASUREMENT UNITS VIEWS
 """
 
-class AddMeasurementUnitView(View):
+
+class AddMeasurementUnitView(LoginRequiredMixin, View):
     def post(self, request, ingredient_id):
         ingredient = get_object_or_404(Ingredient, pk=ingredient_id)
+        if not is_moderator(request.user) and ingredient.created_by != request.user:
+            raise PermissionDenied
+
         equals_base_unit_id = request.POST.get('unit')
         secondary_quantity = request.POST.get('conversion_to_base')
 
@@ -327,19 +316,14 @@ class AddMeasurementUnitView(View):
         # base_quantity / secondary_quantity = 100 / 10
         # conversion = 10
 
-
-        print("DEBUG")
         if not secondary_quantity:
             messages.error(request, 'Conversion to base is required.')
             return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
 
         try:
             conversion_float = float(ingredient.base_quantity) / float(secondary_quantity)
-            print(f"DEBUG conversion_float{conversion_float}, ingredient.base_quantity{ingredient.base_quantity}. secondary_quantity{secondary_quantity}")
-
         except (ValueError, TypeError, ZeroDivisionError):
             messages.error(request, 'Please enter a valid number for conversion.')
-
             return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
 
         if conversion_float <= 0:
@@ -364,7 +348,7 @@ class AddMeasurementUnitView(View):
         return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
 
 
-class AddMeasurementUnitAjaxView(View):
+class AddMeasurementUnitAjaxView(LoginRequiredMixin, View):
     def post(self, request):
         data = json.loads(request.body)
         code = data.get('code', '').strip().lower()
@@ -378,16 +362,19 @@ class AddMeasurementUnitAjaxView(View):
         )
         if not created:
             return JsonResponse({'error': f'Unit with code "{code}" already exists.'}, status=400)
-        if request.user.is_authenticated:
-            obj.created_by = request.user
-            obj.updated_by = request.user
-            obj.save()
+        obj.created_by = request.user
+        obj.updated_by = request.user
+        obj.save()
         return JsonResponse({'id': obj.id, 'name': f'{obj.name_singular} ({obj.code})'})
 
 
-class DeleteMeasurementUnitView(View):
+class DeleteMeasurementUnitView(LoginRequiredMixin, View):
     def post(self, request, ingredient_id, imu_id):
-        imu = get_object_or_404(IngredientMeasurementUnit, pk=imu_id)
+        imu = get_object_or_404(
+            IngredientMeasurementUnit.objects.select_related('ingredient'), pk=imu_id
+        )
+        if not is_moderator(request.user) and imu.ingredient.created_by != request.user:
+            raise PermissionDenied
         imu.delete()
         return redirect('edit_ingredient', ingredient_id=ingredient_id)
 
@@ -411,25 +398,24 @@ class ListMeasurementUnitsAjaxView(View):
         ]})
 
 
-class EditMeasurementUnitAjaxView(View):
+class EditMeasurementUnitAjaxView(LoginRequiredMixin, View):
     def post(self, request, pk):
         unit = get_object_or_404(MeasurementUnit, pk=pk)
+        if not is_moderator(request.user) and unit.created_by != request.user:
+            return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
         name_singular = request.POST.get('name_singular', '').strip()
         name_plural = request.POST.get('name_plural', '').strip()
         if not name_singular:
             return JsonResponse({'error': 'Name is required.'}, status=400)
-        if not is_moderator(request.user) and unit.created_by != request.user:
-            return JsonResponse({"error": "You do not have permission to edit this."}, status=403)
         unit.name_singular = name_singular
         if name_plural:
             unit.name_plural = name_plural
-        if request.user.is_authenticated:
-            unit.updated_by = request.user
+        unit.updated_by = request.user
         unit.save()
         return JsonResponse({'id': unit.id, 'name': f'{unit.name_singular} ({unit.code})'})
 
 
-class DeleteMeasurementUnitAjaxView(View):
+class DeleteMeasurementUnitAjaxView(LoginRequiredMixin, View):
     def post(self, request, pk):
         unit = get_object_or_404(MeasurementUnit, pk=pk)
         if not is_moderator(request.user) and unit.created_by != request.user:
@@ -438,9 +424,12 @@ class DeleteMeasurementUnitAjaxView(View):
         return JsonResponse({'success': True})
 
 
-class EditMeasurementUnitConversionView(View):
+class EditMeasurementUnitConversionView(LoginRequiredMixin, View):
     def post(self, request, ingredient_id, imu_id):
-        imu = get_object_or_404(IngredientMeasurementUnit, pk=imu_id)
+        imu = get_object_or_404(IngredientMeasurementUnit.objects.select_related('ingredient'), pk=imu_id)
+        if not is_moderator(request.user) and imu.ingredient.created_by != request.user:
+            raise PermissionDenied
+
         conversion = request.POST.get('conversion_to_base')
         try:
             conversion_float = float(conversion)
@@ -459,107 +448,3 @@ class EditMeasurementUnitConversionView(View):
         except (ValueError, TypeError):
             messages.error(request, 'Please enter a valid number.')
         return redirect(reverse('edit_ingredient', kwargs={'ingredient_id': ingredient_id}))
-
-
-"""
-Old function-based views below:
-"""
-
-# def edit_ingredient(request, ingredient_id):
-#     default_url = reverse('manage_ingredients')
-#     ing = get_object_or_404(Ingredient, pk=ingredient_id)
-#
-#     if request.method == "POST":
-#         form = IngredientEditForm(request.POST, instance=ing)
-#         if form.is_valid():
-#             ingredient = form.save(commit=False)
-#             ingredient.name = ingredient.name.strip().lower()
-#             try:
-#                 ingredient.save()
-#                 form.save_m2m()
-#
-#                 # Ensure IngredientMeasurementUnit exists for default unit
-#                 if ingredient.default_unit:
-#                     IngredientMeasurementUnit.objects.get_or_create(
-#                         ingredient=ingredient,
-#                         unit=ingredient.default_unit,
-#                         defaults={'conversion_to_base': 1}
-#                     )
-#
-#             except IntegrityError:
-#                 messages.error(request, f'"{ingredient.name}" already exists.')
-#                 return render(request, "ingredients/edit_ingredient.html", {
-#                     "form": form,
-#                     "ingredient": ing,
-#                     "nutrients": Ingredient.NUTRIENTS,
-#                     'default_url': default_url,
-#                     'all_units': MeasurementUnit.objects.all().order_by('name_singular'),
-#                 })
-#             return redirect('edit_ingredient', ingredient_id=ingredient.id)
-#
-#     else:
-#         form = IngredientEditForm(instance=ing)
-#
-#     context = {
-#         "form": form,
-#         "ingredient": ing,
-#         "nutrients": Ingredient.NUTRIENTS,
-#         'default_url': default_url,
-#         'all_units': MeasurementUnit.objects.all().order_by('name_singular'),
-#     }
-#     return render(request, "ingredients/edit_ingredient.html", context)
-
-
-# def manage_ingredients(request):
-#     ingredients_qs = Ingredient.objects.select_related(
-#         'category', 'default_unit'
-#     ).prefetch_related(
-#         'dietary_tag'
-#     ).all().order_by('name')
-#
-#     paginator = Paginator(ingredients_qs, 10)
-#     page_number = request.GET.get('page')
-#     ingredients = paginator.get_page(page_number)
-#
-#     add_form = IngredientAddForm()
-#
-#     context = {
-#         'ingredients': ingredients,
-#         'add_form': add_form,
-#         'nutrients': Ingredient.NUTRIENTS,
-#         'add_url': reverse('add_ingredient'),
-#     }
-#
-#     return render(request, 'ingredients/manage_ingredients.html', context)
-
-
-# def add_ingredient(request):
-#     form = IngredientAddForm(request.POST or None)
-#
-#     if request.method == 'POST':
-#         if form.is_valid():
-#             ingredient = form.save(commit=False)
-#             ingredient.name = ingredient.name.strip().lower()
-#             try:
-#                 ingredient.save()
-#                 form.save_m2m()
-#
-#                 if ingredient.default_unit:
-#                     IngredientMeasurementUnit.objects.get_or_create(
-#                         ingredient=ingredient,
-#                         unit=ingredient.default_unit,
-#                         defaults={'conversion_to_base': 1}
-#                     ) -> redundant - handled in forms.py
-#
-#                 return redirect('edit_ingredient', ingredient_id=ingredient.id)
-#             except IntegrityError:
-#                 messages.error(request, f'"{ingredient.name}" already exists.')
-#
-#     return render(request, 'ingredients/add_ingredient.html', {'form': form})
-
-# def delete_ingredient(request, ingredient_id):
-#     ing = get_object_or_404(Ingredient, pk=ingredient_id)
-#     if request.method == 'POST':
-#         ing.delete()
-#         return redirect('manage_ingredients')
-#     return render(request, 'ingredients/ingredient_delete_confirm.html', {'ingredient': ing})

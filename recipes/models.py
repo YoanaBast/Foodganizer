@@ -26,7 +26,7 @@ class Recipe(TrackingMixin, models.Model):
     cooking_time = models.TimeField(null=True, blank=True)
     servings = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(100_000)])
     ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient', related_name='recipes')
-    category = models.ForeignKey(RecipeCategory, null=True, on_delete=models.SET_NULL, related_name='ingredient')
+    category = models.ForeignKey(RecipeCategory, null=True, on_delete=models.SET_NULL, related_name='recipes')
     instructions = models.TextField()
 
     favourited_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="favourite_recipes", blank=True)
@@ -164,9 +164,7 @@ class RecipeIngredient(models.Model):
 
     quantity = models.FloatField(validators=[MinValueValidator(0.01), MaxValueValidator(100_000)])
 
-    unit = models.ForeignKey(IngredientMeasurementUnit, on_delete=models.SET_NULL, null=True,
-                             limit_choices_to=models.Q(ingredient=models.F('ingredient'))
-    )
+    unit = models.ForeignKey(IngredientMeasurementUnit, on_delete=models.SET_NULL, null=True)
 
     class Meta:
         unique_together = ('recipe', 'ingredient')
