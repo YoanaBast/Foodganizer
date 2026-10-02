@@ -195,19 +195,15 @@ if ENV == 'PROD':
             "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
             "HOST": os.getenv("DB_HOST"),
             "PORT": os.getenv("DB_PORT"),
-            "OPTIONS": {"sslmode": os.getenv("DB_SSLMODE", "require")}  # for supabase
+            "OPTIONS": {"sslmode": os.getenv("DB_SSLMODE", "require")},
+
         }
     }
 else:
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.getenv("LOCAL_POSTGRES_DB"),
-            "USER": os.getenv("LOCAL_POSTGRES_USER"),
-            "PASSWORD": os.getenv("LOCAL_POSTGRES_PASSWORD"),
-            "HOST": os.getenv("LOCAL_DB_HOST"),
-            "PORT": os.getenv("LOCAL_DB_PORT"),
-            "OPTIONS": {"sslmode": os.getenv("LOCAL_DB_SSLMODE", "disable")}
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": "mydatabase",
         }
     }
 # Password validation
