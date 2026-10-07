@@ -4,6 +4,10 @@ from core.views import handler405
 from unittest.mock import patch
 
 class HomepageViewTest(TestCase):
+    """
+    show homepage to anyone
+    test ideas to consider - rate limiting?
+    """
     def setUp(self):
         self.client = Client()
 
@@ -14,12 +18,15 @@ class HomepageViewTest(TestCase):
         self.assertTemplateUsed(response, 'core/homepage.html')
 
 class Handler405Test(TestCase):
+    """
+    induce 405 and show the sutom template instead of ugly error
+    """
     def test_returns_405_with_template(self):
         request = RequestFactory().post("/some-url/")
         response = handler405(request)
 
         self.assertEqual(response.status_code, 405)
-        self.assertContains(response, "Method Not Allowed", status_code=405)  # adjust to your template text
+        self.assertContains(response, "Method Not Allowed", status_code=405)
 
     def test_uses_correct_template(self):
         request = RequestFactory().get("/")
