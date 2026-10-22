@@ -8,7 +8,7 @@ from simple_history import register
 # Create your models here.
 
 UserModel = get_user_model()
-register(UserModel)
+register(UserModel, app="users")
 
 class Profile(models.Model):
 
