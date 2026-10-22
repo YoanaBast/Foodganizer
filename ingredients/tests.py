@@ -21,7 +21,7 @@ class IngredientModelsTest(TestCase):
         self.assertEqual(unit.code, 'test code')
         self.assertEqual(unit.name_singular, 'test name_singular')
         self.assertEqual(unit.name_plural, 'test name_plural')
-        self.assertEqual(str(unit), "test name_singular test code")
+        self.assertEqual(str(unit), "test name_singular (test code)")
 
     def test_ingredient(self):
         d_unit = MeasurementUnit.objects.create(code='test code', name_singular="test name_singular", name_plural="test name_plural")
@@ -44,26 +44,36 @@ class IngredientModelsTest(TestCase):
             base_quantity_vitamin_d=59,
             base_quantity_vitamin_e=60,
             base_quantity_vitamin_k=61,
-            base_vitamin_b1=62,
-            base_vitamin_b2=63,
-            base_vitamin_b3=64,
-            base_vitamin_b6=65,
-            base_vitamin_b12=66,
-            base_folate=67,
-            base_calcium=68,
-            base_iron=69,
-            base_magnesium=70,
-            base_potassium=71,
-            base_zinc=72,
+            base_quantity_vitamin_b1=62,
+            base_quantity_vitamin_b2=63,
+            base_quantity_vitamin_b3=64,
+            base_quantity_vitamin_b6=65,
+            base_quantity_vitamin_b12=66,
+            base_quantity_folate=67,
+            base_quantity_calcium=68,
+            base_quantity_iron=69,
+            base_quantity_magnesium=70,
+            base_quantity_potassium=71,
+            base_quantity_zinc=72,
         )
 
         self.assertEqual(t_ing.name, 'test ingredient')
         self.assertEqual(t_ing.category, cat)
-        seld.assertEqual(t_ing.category.name, "test category")
-        self.assertEqual(t_ing.base_quantity, Decimal('100.00'))
+        self.assertEqual(t_ing.category.name, "test category")
+        self.assertEqual(t_ing.base_quantity, 100)
 
         self.assertEqual(t_ing.default_unit, d_unit)
 
+        nutrients = {
+            'base_quantity_kcal': 50, 'base_quantity_protein': 51, 'base_quantity_carbs': 52,
+            'base_quantity_fat': 53, 'base_quantity_fiber': 54, 'base_quantity_sugar': 55,
+            'base_quantity_salt': 56, 'base_quantity_cholesterol': 57, 'base_quantity_vitamin_a': 58,
+            'base_quantity_vitamin_c': 59, 'base_quantity_vitamin_d': 59, 'base_quantity_vitamin_e': 60,
+            'base_quantity_vitamin_k': 61, 'base_quantity_vitamin_b1': 62, 'base_quantity_vitamin_b2': 63,
+            'base_quantity_vitamin_b3': 64, 'base_quantity_vitamin_b6': 65, 'base_quantity_vitamin_b12': 66,
+            'base_quantity_folate': 67, 'base_quantity_calcium': 68, 'base_quantity_iron': 69,
+            'base_quantity_magnesium': 70, 'base_quantity_potassium': 71, 'base_quantity_zinc': 72,
+        }
         for field, expected in nutrients.items():
             with self.subTest(field=field):
                 self.assertEqual(getattr(t_ing, field), expected)
