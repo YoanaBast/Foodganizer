@@ -38,11 +38,6 @@ class BaseAPITestCase(APITestCase):
             created_by=self.user,
             updated_by=self.user,
         )
-        IngredientMeasurementUnit.objects.create(
-            ingredient=self.ingredient,
-            unit=self.unit,
-            conversion_to_base=1,
-        )
         self.recipe = Recipe.objects.create(
             name='test recipe',
             instructions='Test instructions',
