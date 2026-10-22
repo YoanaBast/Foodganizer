@@ -40,31 +40,6 @@ class MeasurementUnit(TrackingMixin, models.Model):
         return f"{self.name_singular} ({self.code})"
 
 
-class IngredientMeasurementUnit(models.Model):
-    """
-    allows ingredients to have multiple measurement units - like grams and cups, conversion to base will be 1 for the main unit
-    """
-    ingredient = models.ForeignKey('Ingredient', on_delete=models.CASCADE, related_name='measurement_units')
-    unit = models.ForeignKey(MeasurementUnit, on_delete=models.CASCADE)
-
-    conversion_to_base = models.FloatField(default=1, validators=[MinValueValidator(0.01), MaxValueValidator(100_000)], help_text="How much of this unit equals the base_quantity")
-    # 1 cup of carrot ≈ 120 g → conversion_to_base = 120
-
-    def name_for_quantity(self, quantity=1):
-        return self.unit.name_singular if quantity == 1 else self.unit.name_plural
-
-    @property
-    def name_for_quantity_singular(self):
-        return self.unit.name_singular
-
-    @property
-    def name_for_quantity_plural(self):
-        return self.unit.name_plural
-
-    def __str__(self):
-        return f"{self.ingredient.name} - {self.unit}"
-
-
 class Ingredient(TrackingMixin, models.Model):
     NUTRIENTS = NUTRIENTS
     NUTRIENT_UNITS = NUTRIENT_UNITS
@@ -139,3 +114,31 @@ class Ingredient(TrackingMixin, models.Model):
 
     def __str__(self):
         return self.name
+
+
+class IngredientMeasurementUnit(models.Model):
+    """
+    allows ingredients to have multiple measurement units - like grams and cups, conversion to base will be 1 for the main unit
+    """
+    ingredient = models.ForeignKey('Ingredient', on_delete=models.CASCADE, related_name='measurement_units')
+    unit = models.ForeignKey(MeasurementUnit, on_delete=models.CASCADE)
+
+    conversion_to_base = models.FloatField(default=1,
+                                           validators=[MinValueValidator(0.01), MaxValueValidator(100_000)],
+                                           help_text="How much of this unit equals the base_quantity")
+
+    # 1 cup of carrot ≈ 120 g → conversion_to_base = 120
+
+    def name_for_quantity(self, quantity=1):
+        return self.unit.name_singular if quantity == 1 else self.unit.name_plural
+
+    @property
+    def name_for_quantity_singular(self):
+        return self.unit.name_singular
+
+    @property
+    def name_for_quantity_plural(self):
+        return self.unit.name_plural
+
+    def __str__(self):
+        return f"{self.ingredient.name} - {self.unit}"

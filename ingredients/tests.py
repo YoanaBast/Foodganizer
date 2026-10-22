@@ -3,10 +3,73 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 
-from ingredients.models import IngredientCategory, Ingredient, IngredientMeasurementUnit, MeasurementUnit
+from ingredients.models import IngredientCategory, Ingredient, IngredientMeasurementUnit, MeasurementUnit, IngredientDietaryTag
 
 User = get_user_model()
 
+class IngredientModelsTest(TestCase):
+    def test_ingredient_tags(self):
+        tag = IngredientDietaryTag.objects.create(name='test tag')
+        self.assertEqual(tag.name, 'test tag')
+
+    def test_ingredient_categories(self):
+        cat = IngredientCategory.objects.create(name='test category')
+        self.assertEqual(cat.name, 'test category')
+
+    def test_measurment_units(self):
+        unit = MeasurementUnit.objects.create(code='test code', name_singular="test name_singular", name_plural="test name_plural")
+        self.assertEqual(unit.code, 'test code')
+        self.assertEqual(unit.name_singular, 'test name_singular')
+        self.assertEqual(unit.name_plural, 'test name_plural')
+        self.assertEqual(str(unit), "test name_singular test code")
+
+    def test_ingredient(self):
+        d_unit = MeasurementUnit.objects.create(code='test code', name_singular="test name_singular", name_plural="test name_plural")
+        cat = IngredientCategory.objects.create(name='test category')
+        t_ing = Ingredient.objects.create(
+            name='test ingredient',
+            default_unit=d_unit,
+            base_quantity=100.00,
+            category=cat,
+            base_quantity_kcal=50,
+            base_quantity_protein=51,
+            base_quantity_carbs=52,
+            base_quantity_fat=53,
+            base_quantity_fiber=54,
+            base_quantity_sugar=55,
+            base_quantity_salt=56,
+            base_quantity_cholesterol=57,
+            base_quantity_vitamin_a=58,
+            base_quantity_vitamin_c=59,
+            base_quantity_vitamin_d=59,
+            base_quantity_vitamin_e=60,
+            base_quantity_vitamin_k=61,
+            base_vitamin_b1=62,
+            base_vitamin_b2=63,
+            base_vitamin_b3=64,
+            base_vitamin_b6=65,
+            base_vitamin_b12=66,
+            base_folate=67,
+            base_calcium=68,
+            base_iron=69,
+            base_magnesium=70,
+            base_potassium=71,
+            base_zinc=72,
+        )
+
+        self.assertEqual(t_ing.name, 'test ingredient')
+        self.assertEqual(t_ing.category, cat)
+        seld.assertEqual(t_ing.category.name, "test category")
+        self.assertEqual(t_ing.base_quantity, Decimal('100.00'))
+
+        self.assertEqual(t_ing.default_unit, d_unit)
+
+        for field, expected in nutrients.items():
+            with self.subTest(field=field):
+                self.assertEqual(getattr(t_ing, field), expected)
+
+    def test_ingredient_measurment_units(self):
+        ...
 
 class IngredientViewTests(TestCase):
 
