@@ -1,0 +1,14 @@
+[33mcommit baad68871fccb234a9fb1a9958ba6a00521fe8cd[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/DRF[m[33m)[m
+Author: Yoana Bast <fordemaciarrr@gmail.com>
+Date:   Wed Sep 9 03:01:54 2026 +0300
+
+    updated the DFR APIs to match the updated models, added more options, getting closer to REST
+
+ api/mixins.py             |  17 [32m++++++++++++[m[31m---[m
+ api/serializers.py        | 216 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-------------------------------------------------------------[m
+ api/urls.py               |  17 [32m+++++++++++++++[m
+ api/views.py              | 206 [32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m-------------------------------------------------------------[m
+ ingredients/models.py     |   2 [32m+[m[31m-[m
+ ingredients/views.py      |   5 [32m++++[m[31m-[m
+ meals_manager/settings.py |   9 [32m++++++++[m
+ 7 files changed, 321 insertions(+), 151 deletions(-)
