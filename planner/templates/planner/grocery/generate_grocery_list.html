@@ -35,11 +35,7 @@ Generate Grocery List
                         {# form="recipe-form" attaches this checkbox to the single form below #}
                         <input type="checkbox" name="recipes" value="{{ rec.id }}" form="recipe-form"
                                {% if rec.id|stringformat:"s" in selected_recipes %}checked{% endif %}>
-                        {% if rec.image %}
-                            <img class="food-pic" src="{{ rec.image.url }}" alt="{{ rec.name }}">
-                        {% else %}
-                            <img class="food-pic" src="{% static 'images/default_food.jpg' %}" alt="{{ rec.name }}">
-                        {% endif %}
+                        <img class="food-pic" src="{{ rec.photo_url }}" alt="{{ rec.name }}">
                         <div>
                             <h3>{{ rec.name|title_except }}{% if rec.is_fav %} <i class="fa-solid fa-heart fav-star"></i>{% endif %}</h3>
                             <p>{{ rec.tag_names|join:", " }}</p>
@@ -59,6 +55,7 @@ Generate Grocery List
         <div class="fridge">
             <h2 class="ranchers-regular">Fridge</h2>
 
+            <div class="fridge-scroll">
             {% if request.user.is_authenticated %}
                 {% for item in fridge %}
                 <div class="fridge-item">
@@ -74,13 +71,6 @@ Generate Grocery List
                 {% empty %}
                 <p>Your fridge is empty.</p>
                 {% endfor %}
-
-                {% if fridge.has_other_pages %}
-                <div class="fr-btns">
-                    {% if fridge.has_previous %}<a class="btn2 quicksand" href="?f_page={{ fridge.previous_page_number }}">&lsaquo;</a>{% endif %}
-                    {% if fridge.has_next %}<a class="btn2 quicksand" href="?f_page={{ fridge.next_page_number }}">&rsaquo;</a>{% endif %}
-                </div>
-                {% endif %}
             {% else %}
                 {% for item in anon_fridge %}
                 <div class="fridge-item">
@@ -97,6 +87,7 @@ Generate Grocery List
                 <p>Your fridge is empty.</p>
                 {% endfor %}
             {% endif %}
+            </div>
 
             <div class="fr-btns">
                 {# TODO: hook this to your add-to-fridge modal (add_fridge_item is POST only) #}

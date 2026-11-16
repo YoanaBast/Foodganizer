@@ -115,9 +115,8 @@ def get_fridge_context(request):
         }.get(sort, 'ingredient__name')
         qs = qs.order_by(order)
 
-        page = Paginator(qs, 10).get_page(g.get('f_page'))
-        ctx['fridge'] = page
-        ctx['fridge_page'] = page
+        ctx['fridge'] = qs
+        ctx['fridge_page'] = None
     else:
         from planner.services.fridge_storage import get_fridge
         ctx['anon_fridge'] = get_fridge(request).resolved()

@@ -380,3 +380,331 @@
     height: 40px;
 }
 
+.gg-page { display: flex; flex-direction: column; }
+.inline-form { display: inline; margin: 0; }
+a.icon-btn { color: inherit; text-decoration: none; }
+.fr-btns { display: flex; gap: 0.5rem; align-items: center; }
+a.btn2 { text-decoration: none; }
+.recipe-browser { padding: 0 3rem; }
+.meals-from-fridge { margin-left: 5rem; }
+.meals-from-fridge h3 { font-weight: 400; color: #266DB6; margin-top: 0; }
+.grocery-item {
+    display: flex; justify-content: space-between; align-items: center;
+    width: 100%; border-bottom: 2px solid #c5e8db; padding: 0.25rem 0;
+}
+
+/* ---------- Base ---------- */
+body {
+    margin: 0rem;
+    display: flex;
+    flex-direction: column;
+    background: #F5F1ED;
+}
+
+header {
+    background: #c5e8db;
+    padding-bottom: 1rem;
+    padding-left: 2rem;
+}
+
+header h1 {
+    color: white;
+}
+
+/* ---------- Fonts ---------- */
+.ranchers-regular {
+    font-family: "Ranchers", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    color: #20B486;
+    margin-top: 0rem;
+}
+
+.somehead {
+    align-self: center;
+    color: #D88895;
+    font-family: "Molle", cursive;
+    font-weight: 400;
+    font-style: italic;
+    margin-top: 0rem;
+}
+
+.quicksand {
+    font-family: "Quicksand", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+/* ---------- Layout ---------- */
+.recipes-fridge {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0rem;
+    padding-bottom: 0rem;
+}
+
+.results {
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* ---------- Shared box styles ---------- */
+.grocery, .fridge {
+    border: 2px solid #D88895;
+}
+
+.recipes > div, .fridge, .grocery {
+    padding: 2rem;
+    border-radius: 15px;
+}
+
+.recipes div > h2, .fridge h2, .grocery h2 {
+    text-transform: uppercase;
+}
+
+/* ---------- Recipes ---------- */
+.recipes {
+    background: none;
+    border: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    flex-grow: 3;
+}
+
+.recipes > div {
+    flex: 1 1 12rem;
+    border-radius: 15px;
+    border: 2px solid #D88895;
+    background: #FFEAE6;
+}
+
+.recipes > div:nth-child(2) {
+    background: #ECF8ED;
+}
+.food-pic {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 2px solid #D88895;
+}
+
+.items {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0rem;
+}
+
+.recipe-item {
+    border: 2px solid #c5e8db;
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+.recipe-item {
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.recipe-item input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.recipe-item:has(input:checked) {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: #20B486;
+    box-shadow: 0 0 10px 2px #20B486;
+}
+
+/* ---------- Fridge ---------- */
+.fridge {
+    background: #e3f4fc;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 1rem;
+}
+
+.fridge-item {
+    display: flex;
+    border-bottom: 2px solid  #c5e8db;
+    justify-content: space-between;
+    align-items: center;
+}
+/* ---------- Grocery ---------- */
+.grocery {
+    background: #DAF1DC;
+    margin-left: 5rem;
+    margin-right: 5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.grocery > h2 {
+    font-size: 2rem;
+}
+
+/* ---------- Buttons ---------- */
+
+
+.btn2 {
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;
+    background: #DAF1DC;
+    color: #20B486;
+    border: 1px solid #20B486;
+    font-weight: 500;
+    border-radius: 15px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    padding: 0rem;
+    margin: 0rem;
+    margin-left: 0.5rem;
+}
+
+button {
+    cursor: pointer;
+}
+
+.button-53 {
+  align-self: center;
+  background-color: #3DD1E7;
+  border: 0 solid #000;
+  box-sizing: border-box;
+  color: #000;
+  display: flex;
+  font-size: 1.5rem;
+  font-weight: 700;
+  justify-content: center;
+  line-height: 2.25rem;
+  padding: 1.1rem 2.5rem;
+  position: relative;
+  text-align: center;
+  text-decoration: none #000 solid;
+  text-decoration-thickness: auto;
+  width: 100%;
+  max-width: 640px;
+  cursor: pointer;
+  transform: rotate(-2deg);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.button-53:focus {
+  outline: 0;
+}
+
+.button-53:after {
+  content: '';
+  position: absolute;
+  border: 3px solid #000;
+  bottom: 6px;
+  left: 6px;
+  width: calc(100% - 1px);
+  height: calc(100% - 1px);
+}
+
+.button-53:hover:after {
+  bottom: 3px;
+  left: 3px;
+}
+
+@media (min-width: 768px) {
+  .button-53 {
+    padding: 1.25rem 4rem;
+    font-size: 1.85rem;
+  }
+}
+
+
+/* CSS */
+.button-51 {
+  background-color: transparent;
+  border: 1px solid #266DB6;
+  box-sizing: border-box;
+  color: #00132C;
+  font-family: "Avenir Next LT W01 Bold",sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  padding: 16px 23px;
+  position: relative;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+div:has(> .button-51) {
+    isolation: isolate;
+}
+.button-51:hover,
+.button-51:active {
+  outline: 0;
+}
+
+.button-51:hover {
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.button-51:before {
+  background-color: #D5EDF6;
+  content: "";
+  height: calc(100% + 3px);
+  position: absolute;
+  right: -7px;
+  top: -9px;
+  transition: background-color 300ms ease-in;
+  width: 100%;
+  z-index: -1;
+}
+
+.button-51:hover:before {
+  background-color: #6DCFF6;
+}
+
+@media (min-width: 768px) {
+  .button-51 {
+    padding: 16px 32px;
+  }
+}
+
+.main_btn {
+    align-self: center;
+    margin-top: 1rem;
+    font-style: italic;
+}
+
+.main_btn {
+  border-color: #D88895;
+}
+
+.main_btn:before {
+  background-color: #F8D7DA;
+}
+
+.main_btn:hover:before {
+    background-color: rgba(216, 136, 149, 0.5);
+}
+.fridge-scroll {
+    max-height: 24rem;
+    overflow-y: auto;
+    padding-right: 0.4rem;
+    margin-bottom: 0.8rem;
+}
