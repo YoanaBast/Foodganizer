@@ -1,3 +1,4 @@
+from planner.services.fridge_storage import SessionFridge
 import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -201,9 +202,5 @@ class EmptyFridgeView(View):
 
 class DeleteAnonFridgeItemView(View):
     def post(self, request, index):
-        fridge = request.session.get('anon_fridge', [])
-        if 0 <= index < len(fridge):
-            fridge.pop(index)
-            request.session['anon_fridge'] = fridge
-            request.session.modified = True
+        SessionFridge(request.session).delete(index)
         return redirect('manage_fridge')

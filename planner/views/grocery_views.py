@@ -1,3 +1,5 @@
+from planner.services.fridge_storage import SessionFridge
+from planner.services.grocery_storage import SessionGrocery
 from planner.services.grocery_storage import get_grocery
 from planner.services.fridge_storage import get_fridge
 from collections import OrderedDict
@@ -344,11 +346,7 @@ class DeleteGroceryItemView(View):
 
 class DeleteAnonGroceryItemView(View):
     def post(self, request, index):
-        grocery = request.session.get('anon_grocery', [])
-        if 0 <= index < len(grocery):
-            grocery.pop(index)
-            request.session['anon_grocery'] = grocery
-            request.session.modified = True
+        SessionGrocery(request.session).delete(index)
         return redirect_back(request, 'user_grocery_list')
 
 
@@ -367,15 +365,7 @@ class AddGroceryToFridgeView(View):
 
 class AddAnonGroceryToFridgeView(View):
     def post(self, request, index):
-        grocery = request.session.get('anon_grocery', [])
-        if 0 <= index < len(grocery):
-            item = grocery[index]
-            ingredient = get_object_or_404(Ingredient, id=item['ingredient_id'])
-            unit = MeasurementUnit.objects.get(id=item['unit_id'])
-            get_fridge(request).add(ingredient, item['quantity'], unit)
-            grocery.pop(index)
-            request.session['anon_grocery'] = grocery
-            request.session.modified = True
+        SessionGrocery(request.session).move_to(index, SessionFridge(request.session))
         return redirect_back(request, 'user_grocery_list')
 
 

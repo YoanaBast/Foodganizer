@@ -69,6 +69,28 @@ class FridgeContract:
         }}
         self.assertEqual(f.missing(needed), {})
 
+    def _ref(self, f, ingredient):
+        return [e['ref'] for e in f.all_entries() if e['ingredient_id'] == ingredient.id][0]
+
+    def test_delete_by_ref(self):
+        f = self.make_fridge()
+        f.add(self.milk, 100, self.ml)
+        f.add(self.chicken, 100, self.g)
+        f.delete(self._ref(f, self.milk))
+        self.assertEqual(self.rows(), {(self.chicken.id, self.g.id, 100.0)})
+
+    def test_update_by_ref(self):
+        f = self.make_fridge()
+        f.add(self.milk, 100, self.ml)
+        f.update(self._ref(f, self.milk), 55, self.ml.id)
+        self.assertEqual(self.rows(), {(self.milk.id, self.ml.id, 55.0)})
+
+    def test_delete_bad_ref_is_noop(self):
+        f = self.make_fridge()
+        f.add(self.milk, 100, self.ml)
+        f.delete(99999)
+        self.assertEqual(self.rows(), {(self.milk.id, self.ml.id, 100.0)})
+
 
 class DbFridgeTests(FridgeContract, BaseConversionTestCase):
     def make_fridge(self):
