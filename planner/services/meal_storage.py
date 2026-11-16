@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from django.utils import timezone
 
 from planner.models import UserMealList
+from recipes.models import Recipe
 
 SESSION_KEY = 'anon_meals'
 
@@ -34,6 +35,14 @@ class SessionMeals(MealStorage):
         })
         self.session[SESSION_KEY] = meals
         self.session.modified = True
+
+    def resolved(self):
+        items = self.session.get(SESSION_KEY, [])
+        recipes = Recipe.objects.in_bulk({i['recipe_id'] for i in items})
+        return [
+            {'recipe': recipes.get(i['recipe_id']), 'made_at': i['made_at']}
+            for i in items
+        ]
 
 
 def get_meals(request):

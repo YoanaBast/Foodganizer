@@ -118,61 +118,42 @@ class EditFridgeItemView(LoginRequiredMixin, UpdateView):
 
 class EditAnonFridgeItemView(View):
 
-    def get(self, request, index):
-        fridge = request.session.get('anon_fridge', [])
-        if not (0 <= index < len(fridge)):
-            return redirect('manage_fridge')
-
-        item = fridge[index]
-
-        ingredient = get_object_or_404(Ingredient, id=item['ingredient_id'])
-
-        ingredient_units = (
-            ingredient.measurement_units
-            .select_related('unit')
-            .all()
+    def _entry(self, request, index):
+        return next(
+            (e for e in SessionFridge(request.session).all_entries() if e['ref'] == index),
+            None,
         )
 
-        context = {
+    def get(self, request, index):
+        entry = self._entry(request, index)
+        if not entry:
+            return redirect('manage_fridge')
+        ingredient = get_object_or_404(Ingredient, id=entry['ingredient_id'])
+        return render(request, 'planner/fridge/edit_fridge.html', {
             'ingredient': ingredient,
-            'quantity': item['quantity'],
-            'unit_id': item['unit_id'],
-            'ingredient_units': ingredient_units,
+            'quantity': entry['quantity'],
+            'unit_id': entry['unit_id'],
+            'ingredient_units': ingredient.measurement_units.select_related('unit').all(),
             'anon_index': index,
-        }
-
-        return render(request, 'planner/fridge/edit_fridge.html', context)
+        })
 
     def post(self, request, index):
-        fridge = request.session.get('anon_fridge', [])
-
-        if not (0 <= index < len(fridge)):
+        if not self._entry(request, index):
             return JsonResponse({'error': 'Invalid index'}, status=400)
 
-        #  detect AJAX
+        store = SessionFridge(request.session)
+
         if request.headers.get('Content-Type') == 'application/json':
             try:
                 data = json.loads(request.body)
-                fridge[index]['quantity'] = float(data.get('quantity'))
-                fridge[index]['unit_id'] = int(data.get('unit_id'))
+                store.update(index, float(data.get('quantity')), int(data.get('unit_id')))
             except (json.JSONDecodeError, ValueError, TypeError):
                 return JsonResponse({'error': 'Invalid quantity or unit.'}, status=400)
-
-            request.session['anon_fridge'] = fridge
-            request.session.modified = True
-
             return JsonResponse({'status': 'ok'})
 
-        # fallback: normal form submit
         form = UserFridgeForm(request.POST)
-
         if form.is_valid():
-            fridge[index]['quantity'] = form.cleaned_data['quantity']
-            fridge[index]['unit_id'] = form.cleaned_data['unit'].id
-
-            request.session['anon_fridge'] = fridge
-            request.session.modified = True
-
+            store.update(index, form.cleaned_data['quantity'], form.cleaned_data['unit'].id)
         return redirect('manage_fridge')
 
 

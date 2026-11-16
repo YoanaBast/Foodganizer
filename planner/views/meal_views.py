@@ -1,4 +1,4 @@
-from planner.services.meal_storage import get_meals
+from planner.services.meal_storage import get_meals, SessionMeals
 from planner.services.fridge_storage import get_fridge
 from django.db.models import Prefetch
 from django.utils import timezone
@@ -101,19 +101,6 @@ class MealListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if not self.request.user.is_authenticated:
-            anon_meals = self.request.session.get('anon_meals', [])
-            resolved = []
-            for item in anon_meals:
-                try:
-                    resolved.append({
-                        'recipe': Recipe.objects.get(id=item['recipe_id']),
-                        'made_at': item['made_at'],
-                    })
-                except Recipe.DoesNotExist:
-                    resolved.append({
-                        'recipe': None,
-                        'made_at': item['made_at'],
-                    })
-            context['anon_meals'] = resolved
+            context['anon_meals'] = SessionMeals(self.request.session).resolved()
         return context
 

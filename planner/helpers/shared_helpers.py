@@ -2,40 +2,20 @@ from planner.models import UserMealList, UserGroceryList, UserFridge
 
 
 def transfer_session_to_user(user, session):
-    for item in session.pop('anon_fridge', []):
-        UserFridge.objects.get_or_create(
-            user=user,
-            ingredient_id=item['ingredient_id'],
-            unit_id=item['unit_id'],
-            defaults={
-                'quantity': item['quantity'],
-            }
-        )
+    """Move everything an anonymous visitor built into their new account."""
+    from planner.models import UserBiometrics
+    from planner.services.fridge_storage import DbFridge, SessionFridge
+    from planner.services.grocery_storage import DbGrocery, SessionGrocery
 
-    for item in session.pop('anon_grocery', []):
-        UserGroceryList.objects.get_or_create(
-            user=user,
-            ingredient_id=item['ingredient_id'],
-            unit_id=item['unit_id'],
-            defaults={'quantity': item['quantity']}
-        )
+    for session_cls, db_cls in ((SessionFridge, DbFridge), (SessionGrocery, DbGrocery)):
+        source, target = session_cls(session), db_cls(user)
+        for e in source.all_entries():
+            target.add_by_ids(e['ingredient_id'], e['quantity'], e['unit_id'])
+        session.pop(session_cls.key, None)
 
     for item in session.pop('anon_meals', []):
-        UserMealList.objects.create(
-            user=user,
-            recipe_id=item['recipe_id'],
-        )
+        UserMealList.objects.create(user=user, recipe_id=item['recipe_id'])
 
-    anon_biometrics = session.pop('anon_biometrics', None)
-    if anon_biometrics:
-        from planner.models import UserBiometrics
-        UserBiometrics.objects.get_or_create(
-            user=user,
-            defaults={
-                'gender': anon_biometrics['gender'],
-                'age': anon_biometrics['age'],
-                'weight_kg': anon_biometrics['weight_kg'],
-                'height_cm': anon_biometrics['height_cm'],
-                'activity_level': anon_biometrics['activity_level'],
-            }
-        )
+    data = session.pop('anon_biometrics', None)
+    if data:
+        UserBiometrics.objects.get_or_create(user=user, defaults=data)
