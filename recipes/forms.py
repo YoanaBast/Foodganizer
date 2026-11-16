@@ -86,6 +86,14 @@ class RecipeForm(forms.ModelForm):
             raise forms.ValidationError(f'"{name}" already exists.')
         return name
 
+    MAX_PHOTO_MB = 5
+
+    def clean_photo(self):
+        photo = self.cleaned_data.get('photo')
+        if photo and hasattr(photo, 'size') and photo.size > self.MAX_PHOTO_MB * 1024 * 1024:
+            raise forms.ValidationError(f'Image must be {self.MAX_PHOTO_MB} MB or smaller.')
+        return photo
+
     def save(self, commit=True):
         instance = super().save(commit=False)
         h = self.cleaned_data.get('hours', 0)

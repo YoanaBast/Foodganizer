@@ -28,6 +28,18 @@ class Recipe(TrackingMixin, models.Model):
     ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient', related_name='recipes')
     category = models.ForeignKey(RecipeCategory, null=True, on_delete=models.SET_NULL, related_name='recipes')
     instructions = models.TextField()
+    photo = models.ImageField(upload_to='recipes/', null=True, blank=True)
+
+    @property
+    def photo_url(self):
+        """Uploaded photo URL, or the default placeholder."""
+        if self.photo:
+            try:
+                return self.photo.url
+            except ValueError:
+                pass
+        from django.templatetags.static import static
+        return static('images/default_food.jpg')
 
     favourited_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="favourite_recipes", blank=True)
     #user.favourite_recipes.all(), recipe.favourited_by.add(user),recipe.favourited_by.remove(user)

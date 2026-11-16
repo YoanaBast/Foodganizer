@@ -28,7 +28,7 @@ Add Recipe
 
     <h2 class="section-huge-title ranchers-regular">Add Recipe</h2>
 
-    <form method="post" action="{% url 'add_recipe' %}" novalidate>
+    <form method="post" action="{% url 'add_recipe' %}" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
         {% include "messages/errors_label.html" with form=recipe_form %}
 
@@ -39,6 +39,11 @@ Add Recipe
             <div class="form-group grid-container">
                 <div class="mb-6">
                    {{ recipe_form.name.label_tag }} {{ recipe_form.name }}
+                </div>
+
+                <div class="mb-6">
+                   {{ recipe_form.photo.label_tag }} {{ recipe_form.photo }}
+                   {{ recipe_form.photo.errors }}
                 </div>
 
                 <div class="mb-6">

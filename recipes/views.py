@@ -172,7 +172,7 @@ class AddRecipeView(LoginRequiredMixin, View):
         })
 
     def post(self, request):
-        recipe_form = RecipeForm(request.POST)
+        recipe_form = RecipeForm(request.POST, request.FILES)
         ingredient_formset = RecipeIngredientFormSet(request.POST)
         if recipe_form.is_valid() and ingredient_formset.is_valid():
             recipe = recipe_form.save(commit=False)
@@ -204,7 +204,7 @@ class EditRecipeView(LoginRequiredMixin, View):
     def get_forms(self, request, recipe):
         if request.method == 'POST':
             return (
-                RecipeForm(request.POST, instance=recipe),
+                RecipeForm(request.POST, request.FILES, instance=recipe),
                 RecipeIngredientFormSet(request.POST, instance=recipe)
             )
         return (

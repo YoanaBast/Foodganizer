@@ -1,3 +1,4 @@
+from planner.services.fridge_storage import StockLimitExceeded
 from planner.services.fridge_storage import SessionFridge
 from planner.services.grocery_storage import SessionGrocery
 from planner.services.grocery_storage import get_grocery
@@ -156,6 +157,8 @@ class GenerateGroceryListView(View):
             'selected_sort': request.GET.get('sort', ''),
         }
 
+    GRID_CATEGORIES = ('breakfast', 'lunch', 'dinner')
+
     def get_grid(self, request):
         qs = (
             Recipe.objects
@@ -175,12 +178,12 @@ class GenerateGroceryListView(View):
             qs = qs.order_by('-fav_count', 'name')
 
         grouped = OrderedDict()
-        for rec in qs[:10]:
-            sets = [{t.name for t in ri.ingredient.dietary_tag.all()}
-                    for ri in rec.recipe_ingredient.all()]
-            rec.tag_names = sorted(set.intersection(*sets)) if sets else []
-            name = rec.category.name if rec.category else 'Other'
-            grouped.setdefault(name, []).append(rec)
+        for cat in self.GRID_CATEGORIES:
+            for rec in qs.filter(category__name=cat)[:10]:
+                sets = [{t.name for t in ri.ingredient.dietary_tag.all()}
+                        for ri in rec.recipe_ingredient.all()]
+                rec.tag_names = sorted(set.intersection(*sets)) if sets else []
+                grouped.setdefault(cat, []).append(rec)
         return grouped
 
     def build_context(self, request, selected_recipes, show_favs):
@@ -305,19 +308,19 @@ class DeleteAnonGroceryItemView(View):
 class AddGroceryToFridgeView(View):
     def post(self, request, item_id):
         if request.user.is_authenticated:
-            item = get_object_or_404(UserGroceryList, id=item_id, user=request.user)
-            UserFridge.objects.update_or_create(
-                user=request.user,
-                ingredient=item.ingredient,
-                defaults={'quantity': item.quantity, 'unit': item.unit}
-            )
-            item.delete()
+            try:
+                get_grocery(request).move_to(item_id, get_fridge(request))
+            except StockLimitExceeded as exc:
+                messages.error(request, str(exc))
         return redirect_back(request, 'user_grocery_list')
 
 
 class AddAnonGroceryToFridgeView(View):
     def post(self, request, index):
-        SessionGrocery(request.session).move_to(index, SessionFridge(request.session))
+        try:
+            get_grocery(request).move_to(index, get_fridge(request))
+        except StockLimitExceeded as exc:
+            messages.error(request, str(exc))
         return redirect_back(request, 'user_grocery_list')
 
 
@@ -381,7 +384,10 @@ class AddAllGroceryToFridgeView(View):
 
 class AddAllAnonGroceryToFridgeView(View):
     def post(self, request):
-        get_grocery(request).move_all_to(get_fridge(request))
+        try:
+            get_grocery(request).move_all_to(get_fridge(request))
+        except StockLimitExceeded as exc:
+            messages.error(request, str(exc))
         return redirect('user_grocery_list')
 
 def calorie_tracker(request):

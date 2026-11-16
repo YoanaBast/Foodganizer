@@ -99,6 +99,22 @@ class FridgeContract:
         self.assertEqual(row['unit'], self.ml)
         self.assertEqual(row['quantity'], 100.0)
 
+    def test_limit_blocks_new_ingredient_but_not_existing(self):
+        from ingredients.models import Ingredient
+        from planner.services.fridge_storage import StockLimitExceeded
+        egg = Ingredient.objects.create(
+            name='limit test ingredient', base_quantity=100, default_unit=self.g,
+            base_quantity_kcal=1, base_quantity_protein=1,
+            base_quantity_carbs=1, base_quantity_fat=1,
+        )
+        f = self.make_fridge()
+        f.max_items = 2
+        f.add(self.milk, 100, self.ml)
+        f.add(self.chicken, 100, self.g)
+        f.add(self.milk, 50, self.ml)  # existing ingredient is fine
+        with self.assertRaises(StockLimitExceeded):
+            f.add(egg, 1, self.g)
+
 
 class DbFridgeTests(FridgeContract, BaseConversionTestCase):
     def make_fridge(self):

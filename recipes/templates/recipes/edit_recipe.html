@@ -27,7 +27,7 @@
         <a href="{% url 'manage_recipes' %}" class="btn-mint-small">All Recipes</a>
     </div>
 
-    <form method="post" action="{% url 'edit_recipe' recipe.pk %}" novalidate>
+    <form method="post" action="{% url 'edit_recipe' recipe.pk %}" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
 
         <!-- Recipe fields -->
@@ -39,6 +39,11 @@
             <div class="form-group">
                 <div class="mb-6">
                     {{ recipe_form.name.label_tag }} {{ recipe_form.name }}
+                </div>
+
+                <div class="mb-6">
+                   {{ recipe_form.photo.label_tag }} {{ recipe_form.photo }}
+                   {{ recipe_form.photo.errors }}
                 </div>
 
 

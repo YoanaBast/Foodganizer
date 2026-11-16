@@ -25,6 +25,8 @@
 
     <!-- Info + Ingredients Grid -->
         <h2 class="section-huge-title ranchers-regular">{{ recipe.name|title_except }}</h2>
+        <img src="{{ recipe.photo_url }}" alt="{{ recipe.name }}"
+             style="display:block; max-width:100%; width:28rem; height:auto; border-radius:12px; margin:0 auto 1.5rem;">
         <div id="mobile-column" class="flex-row-flex-start" style="align-items: flex-start;">
 
                 <table class="data-table">

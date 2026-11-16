@@ -7,6 +7,13 @@ from planner.models import UserFridge
 from planner.services import fridge_core as core
 
 
+MAX_FRIDGE_ITEMS = 50
+
+
+class StockLimitExceeded(Exception):
+    """Raised when adding would exceed the storage's max_items."""
+
+
 def unit_factors(ingredient_id):
     """{unit_id: conversion_to_base}, one query."""
     return dict(
@@ -18,6 +25,18 @@ def unit_factors(ingredient_id):
 
 class StockStorage(ABC):
     """Stock of ingredient quantities. All logic here; subclasses only persist."""
+
+    max_items = None  # max distinct ingredients; None = unlimited
+
+    def ensure_room(self, ingredient_ids):
+        """Raise StockLimitExceeded if adding these ingredients would pass max_items."""
+        if self.max_items is None:
+            return
+        current = {e['ingredient_id'] for e in self.all_entries()}
+        if len(current | set(ingredient_ids)) > self.max_items:
+            raise StockLimitExceeded(
+                f"Your fridge can hold at most {self.max_items} different ingredients."
+            )
 
     @abstractmethod
     def entries(self, ingredient_id):
@@ -65,6 +84,7 @@ class StockStorage(ABC):
         self.add_by_ids(ingredient.id, qty, unit.id if unit else None)
 
     def add_by_ids(self, ingredient_id, qty, unit_id):
+        self.ensure_room([ingredient_id])
         merged = core.merge_stock(
             self.entries(ingredient_id), qty, unit_id, unit_factors(ingredient_id)
         )
@@ -236,10 +256,12 @@ class SessionStock(StockStorage):
 
 class DbFridge(DbStock):
     model = UserFridge
+    max_items = MAX_FRIDGE_ITEMS
 
 
 class SessionFridge(SessionStock):
     key = 'anon_fridge'
+    max_items = MAX_FRIDGE_ITEMS
 
 
 def get_fridge(request):

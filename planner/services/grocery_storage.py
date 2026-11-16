@@ -12,6 +12,7 @@ class GroceryMixin:
             )
 
     def move_all_to(self, fridge):
+        fridge.ensure_room({e['ingredient_id'] for e in self.all_entries()})
         for e in self.all_entries():
             fridge.add_by_ids(e['ingredient_id'], e['quantity'], e['unit_id'])
         self.clear()

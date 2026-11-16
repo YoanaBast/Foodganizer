@@ -1,3 +1,4 @@
+from planner.services.fridge_storage import StockLimitExceeded
 from planner.services.fridge_storage import SessionFridge
 import json
 
@@ -91,7 +92,10 @@ class AddFridgeItemView(View):
         qty = form.cleaned_data['quantity']
         unit = form.cleaned_data['unit']
 
-        get_fridge(request).add(ingredient, qty, unit)
+        try:
+            get_fridge(request).add(ingredient, qty, unit)
+        except StockLimitExceeded as exc:
+            messages.error(request, str(exc))
 
         return redirect('manage_fridge')
 
