@@ -1,3 +1,4 @@
+from planner.services import biometrics_core
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
@@ -96,23 +97,11 @@ class UserBiometrics(models.Model):
 
     @property
     def bmr(self) -> float:
-        """
-        Mifflin-St Jeor BMR — calories burned at complete rest (bed all day).
-        Male:   10 * weight + 6.25 * height - 5 * age + 5
-        Female: 10 * weight + 6.25 * height - 5 * age - 161
-        """
-        base = 10 * self.weight_kg + 6.25 * self.height_cm - 5 * self.age
-        if self.gender == 'M':
-            return round(base + 5, 2)
-        return round(base - 161, 2)
+        return biometrics_core.bmr(self.gender, self.weight_kg, self.height_cm, self.age)
 
     @property
     def tdee(self) -> float:
-        """
-        Total Daily Energy Expenditure — BMR adjusted for activity level.
-        """
-        multiplier = self.ACTIVITY_MULTIPLIERS.get(self.activity_level, 1.2)
-        return round(self.bmr * multiplier, 2)
+        return biometrics_core.tdee(self.bmr, self.activity_level)
 
     def __str__(self):
         return f"{self.user.username} - BMR: {self.bmr} kcal | TDEE: {self.tdee} kcal"

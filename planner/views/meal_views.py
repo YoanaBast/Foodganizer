@@ -1,3 +1,4 @@
+from planner.services.meal_storage import get_meals
 from planner.services.fridge_storage import get_fridge
 from django.db.models import Prefetch
 from django.utils import timezone
@@ -195,7 +196,7 @@ class MakeRecipeView(View):
 
         get_fridge(request).consume_recipe(recipe)
 
-        UserMealList.objects.create(user=request.user, recipe=recipe)
+        get_meals(request).record(recipe)
         CalendarEntry.objects.create(
             user=request.user,
             date=timezone.now().date(),
@@ -219,14 +220,7 @@ class MakeRecipeView(View):
 
         get_fridge(request).consume_recipe(recipe)
 
-        anon_meals = request.session.get('anon_meals', [])
-        anon_meals.append({
-            'recipe_id': recipe.id,
-            'recipe_name': recipe.name,
-            'made_at': timezone.now().isoformat(),
-        })
-        request.session['anon_meals'] = anon_meals
-        request.session.modified = True
+        get_meals(request).record(recipe)
 
         messages.success(request, f'<b>{recipe.name.title()}</b> made successfully!')
         return redirect('meal_suggestions')

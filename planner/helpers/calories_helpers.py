@@ -39,32 +39,8 @@ def track(name: str, maintenance_calories: int, calories_per_days: List[float]) 
 
 
 def calculate_from_session(data):
-    weight = data['weight_kg']
-    height = data['height_cm']
-    age = data['age']
-    gender = data['gender']
-    activity = data['activity_level']
-
-    base = 10 * weight + 6.25 * height - 5 * age
-    bmr = round(base + 5, 2) if gender == 'M' else round(base - 161, 2)
-
-    multipliers = {
-        'sedentary': 1.2,
-        'light': 1.375,
-        'moderate': 1.55,
-        'very': 1.725,
-        'extra': 1.9,
-    }
-    tdee = round(bmr * multipliers.get(activity, 1.2), 2)
-
-    class AnonBiometrics:
-        pass
-
-    obj = AnonBiometrics()
-    obj.bmr = bmr
-    obj.tdee = tdee
-    obj.updated_at = None
-    return obj
+    from planner.services.biometrics_core import summarize
+    return summarize(data)
 
 
 

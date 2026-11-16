@@ -1,3 +1,4 @@
+from planner.services.biometrics_storage import get_biometrics
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views import View
@@ -22,70 +23,19 @@ class BiometricsView(View):
     template_name = 'planner/biometrics.html'
 
     def get(self, request):
-        if request.user.is_authenticated:
-            try:
-                instance = request.user.biometrics
-                form = BiometricsForm(instance=instance)
-                biometrics = instance
-            except UserBiometrics.DoesNotExist:
-                form = BiometricsForm()
-                biometrics = None
-        else:
-            anon_biometrics = request.session.get('anon_biometrics')
-            if anon_biometrics:
-                form = BiometricsForm(initial=anon_biometrics)
-                biometrics = calculate_from_session(anon_biometrics)
-            else:
-                form = BiometricsForm()
-                biometrics = None
-
+        store = get_biometrics(request)
         return render(request, self.template_name, {
-            'form': form,
-            'biometrics': biometrics,
+            'form': BiometricsForm(**store.form_kwargs()),
+            'biometrics': store.summary(),
         })
 
     def post(self, request):
-        if request.user.is_authenticated:
-            try:
-                instance = request.user.biometrics
-                form = BiometricsForm(request.POST, instance=instance)
-            except UserBiometrics.DoesNotExist:
-                form = BiometricsForm(request.POST)
-
-            if form.is_valid():
-                biometrics = form.save(commit=False)
-                biometrics.user = request.user
-                biometrics.save()
-                return redirect('biometrics')
-
-            return render(request, self.template_name, {
-                'form': form,
-                'biometrics': None,
-            })
-
-        else:
-            form = BiometricsForm(request.POST)
-            if form.is_valid():
-                data = form.cleaned_data
-                session_data = {
-                    'gender': data['gender'],
-                    'age': data['age'],
-                    'weight_kg': data['weight_kg'],
-                    'height_cm': data['height_cm'],
-                    'activity_level': data['activity_level'],
-                }
-                request.session['anon_biometrics'] = session_data
-                request.session.modified = True
-                biometrics = calculate_from_session(session_data)
-                return render(request, self.template_name, {
-                    'form': form,
-                    'biometrics': biometrics,
-                })
-
-            return render(request, self.template_name, {
-                'form': form,
-                'biometrics': None,
-            })
+        store = get_biometrics(request)
+        form = BiometricsForm(request.POST, **store.form_kwargs())
+        if form.is_valid():
+            store.save(form)
+            return redirect('biometrics')
+        return render(request, self.template_name, {'form': form, 'biometrics': None})
 
 
 class CalendarView(LoginRequiredMixin, View):
