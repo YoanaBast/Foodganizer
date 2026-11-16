@@ -1,3 +1,4 @@
+from planner.services.grocery_storage import get_grocery
 from planner.services.fridge_storage import get_fridge
 from collections import OrderedDict
 
@@ -221,24 +222,9 @@ class GenerateGroceryListView(View):
             messages.info(request, "You already have all the ingredients in your fridge!")
             return redirect('generate_grocery_list')
 
+        get_grocery(request).add_needed(final_needed)
         if request.user.is_authenticated:
-            save_grocery_list(request.user, final_needed)
             save_generation_history(request.user, final_needed)
-        else:
-            anon_grocery = request.session.get('anon_grocery', [])
-            for data in final_needed.values():
-                ing_id = data['ingredient'].id
-                unit_id = data['unit'].id if data['unit'] else None
-                existing = next(
-                    (i for i in anon_grocery
-                     if i['ingredient_id'] == ing_id and i['unit_id'] == unit_id), None)
-                if existing:
-                    existing['quantity'] += data['quantity']
-                else:
-                    anon_grocery.append({'ingredient_id': ing_id, 'unit_id': unit_id,
-                                         'quantity': data['quantity']})
-            request.session['anon_grocery'] = anon_grocery
-            request.session.modified = True
 
         messages.success(request, build_preview_message(final_needed))
         return redirect('generate_grocery_list')
@@ -453,11 +439,7 @@ class AddAllGroceryToFridgeView(View):
 
 class AddAllAnonGroceryToFridgeView(View):
     def post(self, request):
-        fridge = get_fridge(request)
-        for item in request.session.get('anon_grocery', []):
-            fridge.add_by_ids(item['ingredient_id'], item['quantity'], item['unit_id'])
-        request.session['anon_grocery'] = []
-        request.session.modified = True
+        get_grocery(request).move_all_to(get_fridge(request))
         return redirect('user_grocery_list')
 
 def calorie_tracker(request):

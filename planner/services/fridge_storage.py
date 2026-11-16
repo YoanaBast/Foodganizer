@@ -136,3 +136,7 @@ def get_fridge(request):
     if request.user.is_authenticated:
         return DbFridge(request.user)
     return SessionFridge(request.session)
+
+
+# Same stock semantics (add / consume / merge units), reused by grocery storage.
+StockStorage = FridgeStorage
