@@ -1,0 +1,113 @@
+{% load core_filters %}
+
+<div class="search_filter mb-8 mt-8">
+    <form method="get">
+        <input class="searchbar" type="text" name="search" value="{{ search }}" placeholder="Search by name...">
+
+        <select name="category" class="form-select">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+
+        <div class="tag-filter-group">
+            <button type="button" onclick="this.nextElementSibling.classList.toggle('open')" class="form-filter-button">
+                Tags {% if selected_tags %}({{ selected_tags|length }}){% endif %} ▾
+            </button>
+            <div class="tag-dropdown">
+                {% for tag in tags %}
+                <label>
+                    <input type="checkbox" name="tag" value="{{ tag.id }}"
+                        {% if tag.id|stringformat:"s" in selected_tags %}checked{% endif %}>
+                    {{ tag.name }}
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <select name="sort" class="form-select">
+            <option value="">Sort: Default</option>
+            <option value="kcal_asc" {% if selected_sort == 'kcal_asc' %}selected{% endif %}>Kcal ↑</option>
+            <option value="kcal_desc" {% if selected_sort == 'kcal_desc' %}selected{% endif %}>Kcal ↓</option>
+            <option value="popular" {% if selected_sort == 'popular' %}selected{% endif %}>Most Popular</option>
+        </select>
+
+        {% if request.user.is_authenticated %}
+        <label style="display:inline-flex; align-items:center; gap:0.3rem; margin-left:0.5rem;">
+            <input type="checkbox" class="styled-input" name="favs" value="1" style="flex-shrink:0;"
+                   {% if show_favs %}checked{% endif %} onchange="this.form.requestSubmit()">
+            <span style="color: var(--olive); text-transform: uppercase; font-weight: 900;">Favourites</span>
+        </label>
+        {% endif %}
+
+        <a href="#" data-clear class="filter-submit">Clear</a>
+    </form>
+</div>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Select</th>
+            <th>Recipe Name</th>
+            <th>Category</th>
+            <th>Kcal per Serving</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for rec in page_obj %}
+        <tr class="recipe-line">
+            <td data-label="Select">
+                <input type="checkbox" class="recipe-checkbox" name="recipes"
+                       value="{{ rec.id }}" form="recipe-form">
+            </td>
+            <td data-label="Recipe Name">
+                {{ rec.name|title_except }}
+                {% if rec.is_fav %}<i class="fa-solid fa-heart fav-star ml-1"></i>{% endif %}
+            </td>
+            <td data-label="Category">{{ rec.category.name|title_except }}</td>
+            <td data-label="Kcal per Serving">{{ rec.nutrients_per_serving_with_units.kcal|default:"0 kcal" }}</td>
+            <td data-label="Actions">
+                <div class="action-buttons">
+                    <a href="{% url 'recipe_detail' rec.id %}" class="icon-table" title="View">
+                        <i class="fa-solid fa-circle-info"></i>
+                    </a>
+                </div>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">
+                {% if show_favs %}No favourite recipes found.{% else %}No recipes found.{% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if page_obj.has_other_pages %}
+<nav class="pagination">
+    {% if page_obj.has_previous %}
+        <a class="page-prev" href="?page={{ page_obj.previous_page_number }}&search={{ search }}&category={{ selected_category }}{% for t in selected_tags %}&tag={{ t }}{% endfor %}&sort={{ selected_sort }}{% if show_favs %}&favs=1{% endif %}">← Prev</a>
+    {% else %}
+        <span class="page-disabled page-prev">← Prev</span>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <span class="page-current">{{ num }}</span>
+        {% elif num == 1 or num == page_obj.paginator.num_pages or num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+            <a href="?page={{ num }}&search={{ search }}&category={{ selected_category }}{% for t in selected_tags %}&tag={{ t }}{% endfor %}&sort={{ selected_sort }}{% if show_favs %}&favs=1{% endif %}">{{ num }}</a>
+        {% elif num == page_obj.number|add:"-3" or num == page_obj.number|add:"3" %}
+            <span class="page-ellipsis">…</span>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a class="page-next" href="?page={{ page_obj.next_page_number }}&search={{ search }}&category={{ selected_category }}{% for t in selected_tags %}&tag={{ t }}{% endfor %}&sort={{ selected_sort }}{% if show_favs %}&favs=1{% endif %}">Next →</a>
+    {% else %}
+        <span class="page-disabled page-next">Next →</span>
+    {% endif %}
+</nav>
+{% endif %}

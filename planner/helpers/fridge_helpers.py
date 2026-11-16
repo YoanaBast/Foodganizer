@@ -22,30 +22,6 @@ def convert_qty_to_unit(qty, from_unit, to_unit, ingredient):
 
 
 
-def subtract_fridge(needed, fridge_items, request):
-    final_needed = {}
-    for ing_id, data in needed.items():
-        ing = data['ingredient']
-        base_unit = data['unit']
-        fridge_item = fridge_items.filter(ingredient=ing).first()
-        available_in_base = 0
-
-        if fridge_item:
-            converted = convert_qty_to_unit(fridge_item.quantity, fridge_item.unit, base_unit, ing)
-            if converted is not None:
-                available_in_base = converted
-            else:
-                messages.warning(request, f"Could not convert fridge units for {ing.name} ({fridge_item.unit} → {base_unit}), ignoring fridge stock.")
-
-        shortfall = data['total_qty'] - available_in_base
-        if shortfall > 0:
-            final_needed[ing_id] = {
-                'ingredient': ing,
-                'quantity': round(shortfall, 4),
-                'unit': base_unit,
-                'by_recipe': data['by_recipe'],
-            }
-    return final_needed
 
 
 
@@ -83,130 +59,9 @@ def build_preview_message(final_needed):
 
 
 
-def get_user_fridge(request):
-    """Returns DB queryset for authenticated users, session list for anon"""
-    if request.user.is_authenticated:
-        return UserFridge.objects.filter(user=request.user).select_related('ingredient__category', 'unit')
-    return []  # session-based later, empty for now
 
 
-def get_or_create_fridge_item(request, ingredient, qty, unit):
-    """
-    adds fridge item to user fridge or does the math to combine it if already exists
-    """
-    user = request.user
-    items = UserFridge.objects.filter(user=user, ingredient=ingredient)
-    target_item = items.filter(unit=unit).first()
-
-    for item in items.exclude(id=getattr(target_item, "id", None)):
-        try:
-            item_unit_conv = IngredientMeasurementUnit.objects.get(ingredient=ingredient, unit=item.unit)
-            target_unit_conv = IngredientMeasurementUnit.objects.get(ingredient=ingredient, unit=unit)
-        except IngredientMeasurementUnit.DoesNotExist:
-            continue
-
-        qty_in_base = item.quantity * item_unit_conv.conversion_to_base
-        qty_in_target = qty_in_base / target_unit_conv.conversion_to_base
-
-        if target_item:
-            target_item.quantity += qty_in_target
-            target_item.save()
-        else:
-            target_item = UserFridge.objects.create(
-                user=user, ingredient=ingredient,
-                quantity=qty_in_target, unit=unit
-            )
-        item.delete()
-
-    if target_item:
-        target_item.quantity += qty
-        target_item.save()
-    else:
-        UserFridge.objects.create(
-            user=user, ingredient=ingredient,
-            quantity=qty, unit=unit
-        )
 
 
-def get_or_create_anon_fridge_item(request, ingredient, qty, unit):
-    """ a session-based fridge for anon users"""
-
-    fridge = request.session.get('anon_fridge', [])
-    target_index = None
-    target_unit_id = unit.id
-
-    # find if same ingredient+unit already exists
-    for i, item in enumerate(fridge):
-        if item['ingredient_id'] == ingredient.id and item['unit_id'] == target_unit_id:
-            target_index = i
-            break
-
-    # try to merge other units of same ingredient into target unit
-    new_fridge = []
-    merged_qty = qty
-
-    for i, item in enumerate(fridge):
-        if item['ingredient_id'] != ingredient.id:
-            new_fridge.append(item)
-            continue
-
-        if item['unit_id'] == target_unit_id:
-            merged_qty += item['quantity']
-            continue  # will be re-added at the end
-
-        # different unit — try to convert
-        try:
-            item_unit_conv = IngredientMeasurementUnit.objects.get(
-                ingredient=ingredient, unit_id=item['unit_id']
-            )
-            target_unit_conv = IngredientMeasurementUnit.objects.get(
-                ingredient=ingredient, unit=unit
-            )
-            qty_in_base = item['quantity'] * item_unit_conv.conversion_to_base
-            qty_in_target = qty_in_base / target_unit_conv.conversion_to_base
-            merged_qty += qty_in_target
-        except IngredientMeasurementUnit.DoesNotExist:
-            new_fridge.append(item)  # can't convert, keep as separate item
-
-    new_fridge.append({
-        'ingredient_id': ingredient.id,
-        'unit_id': target_unit_id,
-        'quantity': merged_qty,
-    })
-
-    request.session['anon_fridge'] = new_fridge
-    request.session.modified = True
 
 
-def subtract_anon_fridge(needed, request):
-    anon_fridge = request.session.get('anon_fridge', [])
-    final_needed = {}
-
-    for ing_id, data in needed.items():
-        ing = data['ingredient']
-        base_unit = data['unit']
-        needed_qty = data['total_qty']
-        available_in_base = 0
-
-        for fridge_item in anon_fridge:
-            if fridge_item['ingredient_id'] != ing.id:
-                continue
-            converted = convert_qty_to_unit(
-                fridge_item['quantity'],
-                MeasurementUnit.objects.get(id=fridge_item['unit_id']),
-                base_unit,
-                ing
-            )
-            if converted is not None:
-                available_in_base += converted
-
-        shortfall = needed_qty - available_in_base
-        if shortfall > 0:
-            final_needed[ing_id] = {
-                'ingredient': ing,
-                'quantity': round(shortfall, 4),
-                'unit': base_unit,
-                'by_recipe': data['by_recipe'],
-            }
-
-    return final_needed

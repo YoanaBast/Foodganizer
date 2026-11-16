@@ -1,9 +1,7 @@
 from django.urls import path, include
 
 from planner import views
-from planner.views import CalendarView, CalendarDataView, CalendarAddEntryView, CalendarEditEntryView, \
-    CalendarDeleteEntryView, CalendarSearchView, CalendarDeficitView, MakeRecipeView, EmptyFridgeView
-
+from planner.views import *
 fridge_patterns = [
     # path('', views.manage_fridge, name='manage_fridge'),
     path('', views.ManageFridgeView.as_view(), name='manage_fridge'),
@@ -19,6 +17,7 @@ fridge_patterns = [
 ]
 
 grocery_patterns = [
+    path('generate/browse/', views.RecipeBrowserView.as_view(), name='recipe_browser'),
     # path('', views.user_grocery_list, name='user_grocery_list'),
     path('', views.UserGroceryListView.as_view(), name='user_grocery_list'),
 

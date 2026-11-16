@@ -54,3 +54,88 @@ def save_grocery_list(user, final_needed):
                 quantity=ing_data['quantity'],
                 unit=ing_data['unit'],
             )
+
+from django.core.paginator import Paginator
+from django.shortcuts import redirect
+from django.utils.http import url_has_allowed_host_and_scheme
+from ingredients.models import Ingredient, MeasurementUnit, IngredientCategory, IngredientDietaryTag
+from planner.models import UserFridge, UserGroceryList
+
+
+def redirect_back(request, default):
+    nxt = request.POST.get('next', '')
+    if nxt and url_has_allowed_host_and_scheme(
+            nxt, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return redirect(nxt)
+    return redirect(default)
+
+
+def get_grocery_items(request):
+    if request.user.is_authenticated:
+        return UserGroceryList.objects.filter(user=request.user).select_related('ingredient', 'unit')
+
+    anon = request.session.get('anon_grocery', [])
+    ingredients = Ingredient.objects.in_bulk(list({i['ingredient_id'] for i in anon}))
+    units = MeasurementUnit.objects.in_bulk(list({i['unit_id'] for i in anon if i.get('unit_id')}))
+    return [
+        {
+            'index': idx,
+            'ingredient': ingredients[i['ingredient_id']],
+            'unit': units.get(i.get('unit_id')),
+            'quantity': i['quantity'],
+        }
+        for idx, i in enumerate(anon) if i['ingredient_id'] in ingredients
+    ]
+
+
+def get_fridge_context(request):
+    g = request.GET
+    search = g.get('f_search', '')
+    category = g.get('f_category', '')
+    tags = [t for t in g.getlist('f_tag') if t]
+    sort = g.get('f_sort', '')
+
+    ctx = {
+        'ingredients': Ingredient.objects.prefetch_related('measurement_units__unit'),
+        'f_search': search,
+        'f_selected_category': category,
+        'f_selected_tags': tags,
+        'f_selected_sort': sort,
+        'fridge_categories': IngredientCategory.objects.all().order_by('name'),
+    }
+
+    if request.user.is_authenticated:
+        qs = UserFridge.objects.filter(user=request.user).select_related(
+            'ingredient__category', 'ingredient__default_unit', 'unit'
+        ).prefetch_related('ingredient__dietary_tag')
+
+        if search:
+            qs = qs.filter(ingredient__name__icontains=search)
+        if category:
+            qs = qs.filter(ingredient__category__id=category)
+        if tags:
+            for tag_id in tags:
+                qs = qs.filter(ingredient__dietary_tag__id=tag_id)
+            qs = qs.distinct()
+
+        order = {
+            'qty_asc': 'quantity', 'qty_desc': '-quantity',
+            'kcal_asc': 'ingredient__base_quantity_kcal',
+            'kcal_desc': '-ingredient__base_quantity_kcal',
+        }.get(sort, 'ingredient__name')
+        qs = qs.order_by(order)
+
+        page = Paginator(qs, 10).get_page(g.get('f_page'))
+        ctx['fridge'] = page
+        ctx['fridge_page'] = page
+    else:
+        anon = request.session.get('anon_fridge', [])
+        ings = Ingredient.objects.in_bulk(list({i['ingredient_id'] for i in anon}))
+        units = MeasurementUnit.objects.in_bulk(list({i['unit_id'] for i in anon}))
+        ctx['anon_fridge'] = [
+            {'index': idx, 'ingredient': ings[i['ingredient_id']],
+             'unit': units[i['unit_id']], 'quantity': i['quantity']}
+            for idx, i in enumerate(anon)
+            if i['ingredient_id'] in ings and i['unit_id'] in units
+        ]
+    return ctx

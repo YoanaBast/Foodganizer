@@ -1,9 +1,8 @@
+from planner.services.fridge_storage import get_fridge
 from django.db.models import Prefetch
 from django.utils import timezone
 from django.views import View
 
-from planner.helpers import check_anon_fridge_for_recipe, subtract_anon_fridge_for_recipe, subtract_fridge_for_recipe, \
-    check_fridge_for_recipe
 from planner.models import CalendarEntry
 from django.core.paginator import Paginator
 from django.urls import reverse, reverse_lazy
@@ -189,14 +188,12 @@ class MakeRecipeView(View):
         return self._handle_anon(request, recipe)
 
     def _handle_auth(self, request, recipe):
-        fridge_items = UserFridge.objects.filter(user=request.user)
-
-        missing = check_fridge_for_recipe(recipe, fridge_items)
+        missing = get_fridge(request).first_missing_for_recipe(recipe)
         if missing:
             messages.error(request, f"Not enough ingredients: {missing}")
             return redirect('meal_suggestions')
 
-        subtract_fridge_for_recipe(recipe, fridge_items)
+        get_fridge(request).consume_recipe(recipe)
 
         UserMealList.objects.create(user=request.user, recipe=recipe)
         CalendarEntry.objects.create(
@@ -215,14 +212,12 @@ class MakeRecipeView(View):
         return redirect('meal_suggestions')
 
     def _handle_anon(self, request, recipe):
-        anon_fridge = request.session.get('anon_fridge', [])
-
-        missing = check_anon_fridge_for_recipe(recipe, anon_fridge)
+        missing = get_fridge(request).first_missing_for_recipe(recipe)
         if missing:
             messages.error(request, f"Not enough ingredients: {missing}")
             return redirect('meal_suggestions')
 
-        subtract_anon_fridge_for_recipe(recipe, request)
+        get_fridge(request).consume_recipe(recipe)
 
         anon_meals = request.session.get('anon_meals', [])
         anon_meals.append({

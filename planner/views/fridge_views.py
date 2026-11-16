@@ -10,11 +10,17 @@ from planner.forms import UserFridgeForm
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from ingredients.models import Ingredient, MeasurementUnit
-from planner.helpers import get_or_create_fridge_item, get_or_create_anon_fridge_item
 from planner.models import UserFridge
 
+from django.views.generic import RedirectView
 
-class ManageFridgeView(ListView):
+from planner.services.fridge_storage import get_fridge
+
+class ManageFridgeView(RedirectView):
+    pattern_name = 'generate_grocery_list'
+    query_string = True
+
+class ManageFridgeView_old(ListView):
     template_name = 'planner/fridge/manage_fridge.html'
     context_object_name = 'fridge'
     paginate_by = 10
@@ -96,10 +102,7 @@ class AddFridgeItemView(View):
         qty = form.cleaned_data['quantity']
         unit = form.cleaned_data['unit']
 
-        if request.user.is_authenticated:
-            get_or_create_fridge_item(request, ingredient, qty, unit)
-        else:
-            get_or_create_anon_fridge_item(request, ingredient, qty, unit)
+        get_fridge(request).add(ingredient, qty, unit)
 
         return redirect('manage_fridge')
 
@@ -193,11 +196,7 @@ class DeleteFridgeItemView(View):
 
 class EmptyFridgeView(View):
     def post(self, request):
-        if request.user.is_authenticated:
-            UserFridge.objects.filter(user=request.user).delete()
-        else:
-            request.session['anon_fridge'] = []
-            request.session.modified = True
+        get_fridge(request).clear()
         return redirect('manage_fridge')
 
 class DeleteAnonFridgeItemView(View):
