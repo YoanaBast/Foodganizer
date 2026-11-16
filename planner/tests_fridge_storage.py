@@ -91,6 +91,14 @@ class FridgeContract:
         f.delete(99999)
         self.assertEqual(self.rows(), {(self.milk.id, self.ml.id, 100.0)})
 
+    def test_resolved_returns_objects(self):
+        f = self.make_fridge()
+        f.add(self.milk, 100, self.ml)
+        row = f.resolved()[0]
+        self.assertEqual(row['ingredient'], self.milk)
+        self.assertEqual(row['unit'], self.ml)
+        self.assertEqual(row['quantity'], 100.0)
+
 
 class DbFridgeTests(FridgeContract, BaseConversionTestCase):
     def make_fridge(self):

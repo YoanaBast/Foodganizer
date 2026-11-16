@@ -74,18 +74,8 @@ def get_grocery_items(request):
     if request.user.is_authenticated:
         return UserGroceryList.objects.filter(user=request.user).select_related('ingredient', 'unit')
 
-    anon = request.session.get('anon_grocery', [])
-    ingredients = Ingredient.objects.in_bulk(list({i['ingredient_id'] for i in anon}))
-    units = MeasurementUnit.objects.in_bulk(list({i['unit_id'] for i in anon if i.get('unit_id')}))
-    return [
-        {
-            'index': idx,
-            'ingredient': ingredients[i['ingredient_id']],
-            'unit': units.get(i.get('unit_id')),
-            'quantity': i['quantity'],
-        }
-        for idx, i in enumerate(anon) if i['ingredient_id'] in ingredients
-    ]
+    from planner.services.grocery_storage import get_grocery
+    return get_grocery(request).resolved()
 
 
 def get_fridge_context(request):
@@ -129,13 +119,6 @@ def get_fridge_context(request):
         ctx['fridge'] = page
         ctx['fridge_page'] = page
     else:
-        anon = request.session.get('anon_fridge', [])
-        ings = Ingredient.objects.in_bulk(list({i['ingredient_id'] for i in anon}))
-        units = MeasurementUnit.objects.in_bulk(list({i['unit_id'] for i in anon}))
-        ctx['anon_fridge'] = [
-            {'index': idx, 'ingredient': ings[i['ingredient_id']],
-             'unit': units[i['unit_id']], 'quantity': i['quantity']}
-            for idx, i in enumerate(anon)
-            if i['ingredient_id'] in ings and i['unit_id'] in units
-        ]
+        from planner.services.fridge_storage import get_fridge
+        ctx['anon_fridge'] = get_fridge(request).resolved()
     return ctx

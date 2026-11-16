@@ -67,3 +67,25 @@ def subtract_stock(existing, qty, unit_id, factors):
         if remaining > 0:
             result.append({'unit_id': entry['unit_id'], 'quantity': remaining})
     return result
+
+
+def coverage(items, stock, factors):
+    """
+    items:   [{'ingredient_id','name','quantity','unit_id','unit_code'}]
+    stock:   {ingredient_id: [{'unit_id','quantity'}]}
+    factors: {ingredient_id: {unit_id: conversion_to_base}}
+    Returns (matched_count, ["100g chicken", ...]).
+    """
+    matched = 0
+    missing = []
+    for it in items:
+        have = available_in_unit(
+            stock.get(it['ingredient_id'], []), it['unit_id'],
+            factors.get(it['ingredient_id'], {}),
+        )
+        short = shortfall(it['quantity'], have)
+        if short == 0:
+            matched += 1
+        else:
+            missing.append(f"{round(short, 2):g}{it['unit_code']} {it['name']}")
+    return matched, missing

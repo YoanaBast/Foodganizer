@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from django.db import transaction
 
-from ingredients.models import IngredientMeasurementUnit
+from ingredients.models import Ingredient, IngredientMeasurementUnit, MeasurementUnit
 from planner.models import UserFridge
 from planner.services import fridge_core as core
 
@@ -43,6 +43,24 @@ class StockStorage(ABC):
     def clear(self):
         """Remove everything."""
 
+    def resolved(self):
+        """Entries with real Ingredient/MeasurementUnit objects, for templates."""
+        entries = self.all_entries()
+        ings = Ingredient.objects.in_bulk({e['ingredient_id'] for e in entries})
+        units = MeasurementUnit.objects.in_bulk(
+            {e['unit_id'] for e in entries if e.get('unit_id')}
+        )
+        return [
+            {
+                'index': e['ref'],
+                'ref': e['ref'],
+                'ingredient': ings[e['ingredient_id']],
+                'unit': units.get(e.get('unit_id')),
+                'quantity': e['quantity'],
+            }
+            for e in entries if e['ingredient_id'] in ings
+        ]
+
     def add(self, ingredient, qty, unit):
         self.add_by_ids(ingredient.id, qty, unit.id if unit else None)
 
@@ -74,6 +92,47 @@ class StockStorage(ABC):
             if core.shortfall(ri.quantity, have) > 0:
                 return ri.ingredient.name
         return None
+
+    def recipe_matches(self, recipes):
+        """How well the stock covers each recipe, best match first. 2 queries total."""
+        from collections import defaultdict
+
+        recipes = list(recipes)
+        stock = defaultdict(list)
+        for e in self.all_entries():
+            stock[e['ingredient_id']].append(
+                {'unit_id': e['unit_id'], 'quantity': e['quantity']}
+            )
+
+        ing_ids = {ri.ingredient_id for r in recipes for ri in r.recipe_ingredient.all()}
+        factors = defaultdict(dict)
+        for ing_id, unit_id, factor in IngredientMeasurementUnit.objects.filter(
+            ingredient_id__in=ing_ids
+        ).values_list('ingredient_id', 'unit_id', 'conversion_to_base'):
+            factors[ing_id][unit_id] = factor
+
+        results = []
+        for recipe in recipes:
+            items = [
+                {
+                    'ingredient_id': ri.ingredient_id,
+                    'name': ri.ingredient.name,
+                    'quantity': ri.quantity,
+                    'unit_id': ri.unit.unit_id,
+                    'unit_code': ri.unit.unit.code if ri.unit.unit else '',
+                }
+                for ri in recipe.recipe_ingredient.all()
+            ]
+            matched, missing = core.coverage(items, stock, factors)
+            total = len(items)
+            results.append({
+                'recipe': recipe,
+                'match_percent': int(matched / total * 100) if total else 0,
+                'can_make': total > 0 and matched == total,
+                'missing_ingredients': missing,
+            })
+        results.sort(key=lambda r: r['match_percent'], reverse=True)
+        return results
 
     def missing(self, needed):
         """needed: {ing_id: {'ingredient','unit','total_qty','by_recipe'}}"""

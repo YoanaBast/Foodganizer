@@ -278,55 +278,7 @@ class UserGroceryListView(View):
             )
 
         else:
-            anon_grocery = request.session.get('anon_grocery', [])
-
-            ingredient_ids = {
-                item['ingredient_id']
-                for item in anon_grocery
-            }
-
-            unit_ids = {
-                item['unit_id']
-                for item in anon_grocery
-                if item.get('unit_id')
-            }
-
-            ingredients = Ingredient.objects.filter(
-                id__in=ingredient_ids
-            )
-
-            units = MeasurementUnit.objects.filter(
-                id__in=unit_ids
-            )
-
-            ingredient_map = {
-                ingredient.id: ingredient
-                for ingredient in ingredients
-            }
-
-            unit_map = {
-                unit.id: unit
-                for unit in units
-            }
-
-            resolved = []
-
-            for index, item in enumerate(anon_grocery):
-                ingredient = ingredient_map.get(item['ingredient_id'])
-
-                if not ingredient:
-                    continue
-
-                unit = unit_map.get(item['unit_id'])
-
-                resolved.append({
-                    'index': index,
-                    'ingredient': ingredient,
-                    'unit': unit,
-                    'quantity': item['quantity'],
-                })
-
-            items = resolved
+            items = get_grocery(request).resolved()
             history_page_obj = None
 
 

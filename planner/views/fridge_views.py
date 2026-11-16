@@ -74,19 +74,7 @@ class ManageFridgeView_old(ListView):
         context['tags'] = IngredientDietaryTag.objects.all().order_by('name')
 
         if not self.request.user.is_authenticated:
-            anon_fridge = self.request.session.get('anon_fridge', [])
-            resolved = []
-            for index, item in enumerate(anon_fridge):
-                try:
-                    resolved.append({
-                        'index': index,
-                        'ingredient': Ingredient.objects.get(id=item['ingredient_id']),
-                        'unit': MeasurementUnit.objects.get(id=item['unit_id']),
-                        'quantity': item['quantity'],
-                    })
-                except (Ingredient.DoesNotExist, MeasurementUnit.DoesNotExist):
-                    continue
-            context['anon_fridge'] = resolved
+            context['anon_fridge'] = get_fridge(self.request).resolved()
         return context
 
 

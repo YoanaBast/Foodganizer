@@ -66,6 +66,34 @@ class RecipeFridgeContract:
         f.consume_recipe(self.recipe)
         self.assertAlmostEqual(self.qty(self.chicken), 10 - 200 / 28.35, places=2)
 
+    def _match(self, f):
+        from recipes.models import Recipe
+        rows = f.recipe_matches(Recipe.objects.all())
+        return [r for r in rows if r['recipe'] == self.recipe][0]
+
+    def test_matches_full(self):
+        f = self.make_fridge()
+        f.add(self.chicken, 200, self.g)
+        f.add(self.milk, 240, self.ml)
+        r = self._match(f)
+        self.assertEqual(r['match_percent'], 100)
+        self.assertTrue(r['can_make'])
+        self.assertEqual(r['missing_ingredients'], [])
+
+    def test_matches_partial(self):
+        f = self.make_fridge()
+        f.add(self.chicken, 100, self.g)
+        f.add(self.milk, 1, self.cup)
+        r = self._match(f)
+        self.assertEqual(r['match_percent'], 50)
+        self.assertFalse(r['can_make'])
+        self.assertEqual(r['missing_ingredients'], ['100g chicken breast'])
+
+    def test_matches_empty_fridge(self):
+        r = self._match(self.make_fridge())
+        self.assertEqual(r['match_percent'], 0)
+        self.assertEqual(len(r['missing_ingredients']), 2)
+
 
 class DbRecipeFridgeTests(RecipeFridgeContract, BaseConversionTestCase):
     def make_fridge(self):
