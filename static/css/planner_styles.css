@@ -708,3 +708,12 @@ div:has(> .button-51) {
     padding-right: 0.4rem;
     margin-bottom: 0.8rem;
 }
+
+/* nutrient tracker (day modal) */
+.nut-row { margin-bottom: 0.5rem; }
+.nut-head { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 2px; }
+.nut-bar { height: 6px; border-radius: 3px; background: var(--beige); overflow: hidden; }
+.nut-bar-fill { height: 100%; border-radius: 3px; }
+.nut-ok { background: #22c55e; }
+.nut-low { background: #f59e0b; }
+.nut-deficient, .nut-over { background: #ff6b6b; }

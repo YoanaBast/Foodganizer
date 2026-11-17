@@ -88,7 +88,11 @@
             <tbody>
                 {% for ing in ingredients %}
                 <tr>
-                    <td data-label="Ingredient Name">{{ ing.name|title_except }}</td>
+                    <td data-label="Ingredient Name">
+                        <a class="green-hoover-link" href="{% url 'ingredient_detail' ing.id %}" class="ingredient-name-link">
+                            {{ ing.name|title_except }}
+                        </a>
+                    </td>
                     <td data-label="Category">{{ ing.category|default:"-" }}</td>
                     <td data-label="Dietary Information">{{ ing.dietary_info|default:"-" }}</td>
                     <td data-label="Kcal">{{ ing.base_quantity_kcal }}</td>

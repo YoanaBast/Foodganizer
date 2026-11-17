@@ -130,6 +130,22 @@
                     </p>
                     {% endif %}
 
+                    {% if biometrics.bmi %}
+                    <p class="biometrics-line">
+                        <strong>BMI:</strong>
+                        <span class="biometrics-stat-value">{{ biometrics.bmi }}</span> ({{ biometrics.bmi_category }})
+                    </p>
+                    {% endif %}
+
+                    {% if needs_rows %}
+                    <hr class="biometrics-divider">
+                    <h4 class="biometrics-heading ranchers-regular">Daily nutrient needs</h4>
+                    <p class="biometrics-stat-desc">Based on US adult RDA/AI values. "max" marks upper limits.</p>
+                    {% for r in needs_rows %}
+                    <p class="biometrics-line"><strong>{{ r.label }}:</strong> {% if r.limit %}max {% endif %}{{ r.amount }} {{ r.unit }}</p>
+                    {% endfor %}
+                    {% endif %}
+
                     {% if biometrics.unit_system == 'imperial' %}
                     <p class="biometrics-stat-desc">
                         Weight: {{ biometrics.weight_kg|floatformat:1 }} kg

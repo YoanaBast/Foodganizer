@@ -9,14 +9,8 @@
 
 <div id="above-table-manage-div" class="main-first-child-container-padding">
 
-    <div id="mobile-hide" class="flex-row-flex-end" style="margin-bottom: 0rem;">
-        <a href="{% url 'meal_list' %}" class="btn-mint-small">Meal History</a>
-        <a href="{% url 'manage_fridge' %}" class="btn-mint-small">Fridge</a>
-        <a href="javascript:history.back()" class="btn-wine-small">Back</a>
-    </div>
 
-
-    <h2 class="section-title ranchers-regular">Meal Suggestions</h2>
+    <h2 class="section-title ranchers-regular">Fridge Meal Ideas</h2>
     <p class="section-description">Get meal suggestions based on what’s currently in your fridge.</p>
 
 
@@ -50,7 +44,19 @@
         <tbody>
             {% for s in suggestions %}
             <tr>
-                <td>{{ s.recipe.name|title_except }}</td>
+                <td>
+                    <div class="recipe-table-info">
+                        {% if s.recipe.image %}
+                            <img src="{{ s.recipe.image.url }}"
+                                 alt="{{ s.recipe.name }}"
+                                 class="recipe-table-image">
+                        {% endif %}
+
+                        <a class="green-hoover-link" href="{% url 'recipe_detail' s.recipe.id %}">
+                            {{ s.recipe.name|title_except }}
+                        </a>
+                    </div>
+                </td>
 
                 <td>{{ s.match_percent }}%</td>
 
@@ -141,6 +147,154 @@
     <p>No suggestions available.</p>
 {% endif %}
 
+
+
+
+
+     {# ---------- Fridge ---------- #}
+        <div class="fridge" style="margin-top: 3rem; margin-bottom: 3rem;">
+            <h2 class="ranchers-regular">Fridge</h2>
+
+            <div class="fridge-scroll">
+            {% if request.user.is_authenticated %}
+                {% for item in fridge %}
+                <div class="fridge-item">
+                    <h3>{{ item.ingredient.name|title_except }} {{ item.quantity|floatformat:"-2" }} {{ item.unit|default_if_none:"" }}</h3>
+                    <div>
+                        <a class="icon-btn" href="{% url 'edit_fridge_item' item.id %}" title="Edit"><i class="fa-solid fa-pencil"></i></a>
+                        <form method="post" action="{% url 'delete_fridge_item' item.id %}" class="inline-form">
+                            {% csrf_token %}
+                            <button class="icon-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                </div>
+                {% empty %}
+                <p>Your fridge is empty.</p>
+                {% endfor %}
+            {% else %}
+                {% for item in anon_fridge %}
+                <div class="fridge-item">
+                    <h3>{{ item.ingredient.name|title_except }} {{ item.quantity|floatformat:"-2" }} {{ item.unit|default_if_none:"" }}</h3>
+                    <div>
+                        <a class="icon-btn" href="{% url 'edit_anon_fridge_item' item.index %}" title="Edit"><i class="fa-solid fa-pencil"></i></a>
+                        <form method="post" action="{% url 'delete_anon_fridge_item' item.index %}" class="inline-form">
+                            {% csrf_token %}
+                            <button class="icon-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                </div>
+                {% empty %}
+                <p>Your fridge is empty.</p>
+                {% endfor %}
+            {% endif %}
+            </div>
+
+            <div class="fr-btns">
+                {# TODO: hook this to your add-to-fridge modal (add_fridge_item is POST only) #}
+                <button type="button" class=" btn2 quicksand" id="add-fridge-btn">Add</button>
+                <form method="post" action="{% url 'empty_fridge' %}" class="inline-form">
+                    {% csrf_token %}
+                    <button class=" btn2 quicksand">Empty</button>
+                </form>
+            </div>
+        </div>
+
+
+
+
+
+
+
+    <h2 class="section-title ranchers-regular">My Meal History</h2>
+    <p class="section-description">
+      A log of all the recipes you've made.
+    </p>
+
+<!-- Table -->
+
+    {% if request.user.is_authenticated %}
+        {% if meals %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Recipe</th>
+                        <th>Made At</th>
+                        <th>Kcal</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in meals %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            {% if entry.recipe %}{{ entry.recipe.name|title_except }}
+                            {% else %}<em>Recipe deleted</em>{% endif %}
+                        </td>
+                        <td>{{ entry.made_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ entry.recipe.nutrients_with_units.kcal }}</td>
+                        <td>
+                            {% if entry.recipe %}
+                                <a href="{% url 'recipe_detail' entry.recipe.id %}" class="icon-table" title="View">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                </a>
+                            {% else %}<span>—</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+    <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">« Prev</a>{% endif %}
+                <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Next »</a>{% endif %}
+            </div>
+            {% endif %}
+        {% else %}
+            <p>You haven't made any recipes yet. Head to <a href="{% url 'meal_suggestions' %}">Meal Suggestions</a> to get started!</p>
+        {% endif %}
+
+    {% else %}
+        {% if anon_meals %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Recipe</th>
+                        <th>Made At</th>
+                        <th>Kcal</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in anon_meals %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            {% if entry.recipe %}{{ entry.recipe.name|title_except }}
+                            {% else %}<em>Recipe deleted</em>{% endif %}
+                        </td>
+                        <td>{{ entry.made_at }}</td>
+                        <td>{% if entry.recipe %}{{ entry.recipe.nutrients_with_units.kcal }}{% endif %}</td>
+                        <td>
+                            {% if entry.recipe %}
+                           <a href="{% url 'recipe_detail' entry.recipe.id %}" class="icon-table" title="View">
+                                <i class="fa-solid fa-circle-info"></i>
+                            </a>
+                            {% else %}<span>—</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>You haven't made any recipes yet. Head to <a href="{% url 'meal_suggestions' %}">Meal Suggestions</a> to get started!</p>
+        {% endif %}
+    {% endif %}
 
 </div>
 {% endblock %}

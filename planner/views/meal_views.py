@@ -15,7 +15,7 @@ from ingredients.models import Ingredient, MeasurementUnit, IngredientMeasuremen
 
 from planner.models import UserFridge, UserGroceryList, GroceryListGeneration, GroceryListGenerationItem, UserMealList
 from recipes.models import Recipe, RecipeIngredient
-
+from planner.helpers import get_fridge_context
 
 def get_meal_suggestions(request):
     recipes = Recipe.objects.prefetch_related(
@@ -24,13 +24,29 @@ def get_meal_suggestions(request):
             queryset=RecipeIngredient.objects.select_related('ingredient', 'unit__unit'),
         )
     )
+
     suggestions = get_fridge(request).recipe_matches(recipes)
     page_obj = Paginator(suggestions, 10).get_page(request.GET.get('page'))
-    return render(request, "planner/meals/get_meal_suggestions.html", {
+
+    if request.user.is_authenticated:
+        meals = UserMealList.objects.filter(
+            user=request.user
+        ).select_related('recipe')
+        anon_meals = None
+    else:
+        meals = None
+        anon_meals = SessionMeals(request.session).resolved()
+
+    context = {
         "suggestions": page_obj,
         "page_obj": page_obj,
-    })
+        "meals": meals,
+        "anon_meals": anon_meals,
+    }
 
+    context.update(get_fridge_context(request))
+
+    return render(request, "planner/meals/get_meal_suggestions.html", context)
 
 """
 MEALS/RECIPES MADE VIEWS 

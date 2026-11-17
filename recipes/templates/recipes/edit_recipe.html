@@ -111,7 +111,7 @@
             <div id="ingredientsContainer">
                 {% if ingredient_formset.forms %}
                     {% for form in ingredient_formset.forms %}
-                        <div class="search_filter flex-row-flex-start mb-3">
+                        <div class="search_filter flex-row-flex-start mb-3 filedfix">
                             {{ form.id }}
                             {{ form.ingredient.label_tag }} {{ form.ingredient }}
                             {{ form.quantity.label_tag }} {{ form.quantity }}

@@ -22,6 +22,11 @@ def summarize(data, deficit=0):
     """data: dict with gender, weight_kg, height_cm, age, activity_level."""
     b = bmr(data['gender'], data['weight_kg'], data['height_cm'], data['age'])
     t = tdee(b, data['activity_level'])
+    from planner.services import nutrition_needs_core as nn
+    target = target_calories(t, deficit)
+    value = nn.bmi(data['weight_kg'], data['height_cm'])
     return SimpleNamespace(
-        bmr=b, tdee=t, target_calories=target_calories(t, deficit), updated_at=None
+        bmr=b, tdee=t, target_calories=target, updated_at=None,
+        bmi=value, bmi_category=nn.bmi_category(value),
+        nutrient_needs=nn.daily_needs(data['gender'], data['age'], data['weight_kg'], target),
     )

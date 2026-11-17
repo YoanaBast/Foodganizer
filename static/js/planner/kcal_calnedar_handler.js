@@ -23,7 +23,7 @@ async function calculateDeficit() {
     skeletonDiv.style.display = 'none';    // done loading either way
 
     if (data.error === 'no_biometrics') {
-        errorDiv.innerHTML = 'No biometrics found. <a href="{% url "biometrics" %}">Set your TDEE first</a>.';
+        errorDiv.innerHTML = 'No biometrics found. <a href="/planner/biometrics/">Set your TDEE first</a>.';
         errorDiv.style.display = 'block';
         return;
     }
@@ -210,6 +210,7 @@ function renderModalEntries() {
     } else {
         entriesDiv.innerHTML = '';
     }
+    renderNutrients();
 }
 
 function closeModal() {
@@ -359,3 +360,76 @@ document.getElementById('day-modal').addEventListener('click', e => { if (e.targ
 document.getElementById('edit-modal').addEventListener('click', e => { if (e.target === document.getElementById('edit-modal')) closeEdit(); });
 
 loadMonth();
+
+
+function renderNutrients() {
+    const box = document.getElementById('modal-nutrients');
+    const dayData = monthData[selectedDate];
+    if (!dayData) { box.innerHTML = ''; return; }
+
+    const rows = dayData.coverage;
+    if (!rows || !rows.length) {
+        box.innerHTML = `<p style="font-size:0.8rem; color:var(--text-secondary);">
+            <a href="/planner/biometrics/">Set your biometrics</a> to track nutrients against your daily needs.</p>`;
+        return;
+    }
+
+    let html = `<p style="font-size:0.875rem; font-weight:700; color:var(--olive); margin-bottom:0.5rem;">Nutrients</p>`;
+    rows.forEach(r => {
+        const amount = `${r.intake} / ${r.limit ? 'max ' : ''}${r.need} ${r.unit}`;
+        html += `<div class="nut-row">
+            <div class="nut-head"><span>${r.label}</span><span>${amount} (${r.percent}%)</span></div>
+            <div class="nut-bar"><div class="nut-bar-fill nut-${r.status}" style="width:${Math.min(100, r.percent)}%;"></div></div>
+        </div>`;
+    });
+    box.innerHTML = html;
+}
+
+
+async function calculateNutrientRange() {
+    const start = document.getElementById('deficit-start').value;
+    const end = document.getElementById('deficit-end').value;
+    const fillEmpty = document.getElementById('fill-empty').checked;
+    const box = document.getElementById('nutrient-range-result');
+    const err = document.getElementById('nutrient-range-error');
+
+    box.style.display = 'none';
+    err.style.display = 'none';
+
+    if (!start || !end) {
+        err.textContent = 'Please select both dates.';
+        err.style.display = 'block';
+        return;
+    }
+
+    const res = await fetch(`/planner/calendar/nutrients/?start=${start}&end=${end}&fill_empty=${fillEmpty}`);
+    const data = await res.json();
+
+    if (data.error === 'no_biometrics') {
+        err.innerHTML = 'No biometrics found. <a href="/planner/biometrics/">Set them first</a>.';
+        err.style.display = 'block';
+        return;
+    }
+    if (data.error) {
+        err.textContent = data.error;
+        err.style.display = 'block';
+        return;
+    }
+
+    const note = data.fill_empty
+        ? 'empty days counted as meeting your daily needs'
+        : 'empty days counted as zero intake';
+    let html = `<p style="font-size:0.875rem; margin-bottom:1rem; color:var(--text-secondary);">
+        Nutrients over ${data.days} day(s): ${data.logged_days} logged, ${note}.</p>`;
+
+    data.rows.forEach(r => {
+        html += `<div class="nut-row">
+            <div class="nut-head"><span>${r.label}</span><span>${r.intake} / ${r.limit ? 'max ' : ''}${r.need} ${r.unit} (${r.percent}%)</span></div>
+            <div class="nut-bar"><div class="nut-bar-fill nut-${r.status}" style="width:${Math.min(100, r.percent)}%;"></div></div>
+            <div style="font-size:0.7rem; color:var(--text-secondary);">avg ${r.avg_per_day} ${r.unit}/day · daily need ${r.limit ? 'max ' : ''}${r.daily_need} ${r.unit}</div>
+        </div>`;
+    });
+
+    box.innerHTML = html;
+    box.style.display = 'block';
+}

@@ -1,3 +1,4 @@
+from planner.services import nutrition_needs_core
 from planner.services import biometrics_core
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -102,6 +103,20 @@ class UserBiometrics(models.Model):
     @property
     def tdee(self) -> float:
         return biometrics_core.tdee(self.bmr, self.activity_level)
+
+    @property
+    def bmi(self):
+        return nutrition_needs_core.bmi(self.weight_kg, self.height_cm)
+
+    @property
+    def bmi_category(self):
+        return nutrition_needs_core.bmi_category(self.bmi)
+
+    @property
+    def nutrient_needs(self):
+        return nutrition_needs_core.daily_needs(
+            self.gender, self.age, self.weight_kg, self.target_calories
+        )
 
     def __str__(self):
         return f"{self.user.username} - BMR: {self.bmr} kcal | TDEE: {self.tdee} kcal"

@@ -94,3 +94,9 @@
         width: 70%;
     }
 }
+
+.filedfix {
+    flex-wrap: wrap;
+    border: 1px solid var(--mint);
+    padding: 1rem 5rem;
+}

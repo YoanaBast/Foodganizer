@@ -14,6 +14,9 @@ from recipes.models import Recipe
 from ingredients.models import Ingredient, MeasurementUnit, IngredientMeasurementUnit
 
 from planner.forms import BiometricsForm
+from planner.services.nutrition_tracker import EntryNutrients
+from planner.services.nutrition_needs_core import coverage, needs_rows, nutrient_label
+from core.constants import NUTRIENTS
 
 from planner.helpers.calories_helpers import calculate_from_session, Tracker
 from planner.helpers.calories_helpers import validate_calendar_quantity
@@ -24,9 +27,12 @@ class BiometricsView(View):
 
     def get(self, request):
         store = get_biometrics(request)
+        summary = store.summary()
+        needs = getattr(summary, 'nutrient_needs', None)  # only DB-backed biometrics have it
         return render(request, self.template_name, {
             'form': BiometricsForm(**store.form_kwargs()),
-            'biometrics': store.summary(),
+            'biometrics': summary,
+            'needs_rows': needs_rows(needs) if needs else [],
         })
 
     def post(self, request):
@@ -55,50 +61,45 @@ class CalendarDataView(LoginRequiredMixin, View):
         year = int(request.GET.get('year', date.today().year))
         month = int(request.GET.get('month', date.today().month))
 
-        # get TDEE if biometrics exist
+        # target calories and per-nutrient needs, if biometrics exist
         tdee = None
+        needs = None
         try:
-            tdee = request.user.biometrics.target_calories
+            biometrics = request.user.biometrics
+            tdee = biometrics.target_calories
+            needs = biometrics.nutrient_needs
         except Exception:
             pass
 
-        # get all calendar entries for the month
-        entries = CalendarEntry.objects.filter(
-            user=request.user,
-            date__year=year,
-            date__month=month,
-        ).select_related(
-            'recipe', 'ingredient', 'ingredient_unit'
-        ).prefetch_related(
-            'recipe__recipe_ingredient__ingredient',
-            'recipe__recipe_ingredient__unit',
+        entries = list(
+            CalendarEntry.objects.filter(
+                user=request.user,
+                date__year=year,
+                date__month=month,
+            ).select_related(
+                'recipe', 'ingredient', 'ingredient__default_unit', 'ingredient_unit'
+            ).prefetch_related(
+                'recipe__recipe_ingredient__ingredient',
+                'recipe__recipe_ingredient__unit',
+            )
         )
 
-        # cache recipe kcal_per_serving per request, since the same recipe
-        # can appear multiple times and shouldn't be recalculated each time
-        recipe_kcal_cache = {}
+        # one calculator per request: caches per-serving recipe nutrients and
+        # batch-loads ingredient/unit conversions
+        calc = EntryNutrients(entries)
 
-        def get_entry_kcal(entry):
-            if entry.recipe and entry.servings:
-                if entry.recipe.id not in recipe_kcal_cache:
-                    recipe_kcal_cache[entry.recipe.id] = entry.recipe.kcal_per_serving
-                return round(recipe_kcal_cache[entry.recipe.id] * entry.servings, 2)
-            if entry.ingredient and entry.quantity and entry.ingredient_unit:
-                # ingredient path isn't the expensive one, so just use the existing property
-                return entry.kcal
-            return 0
-
-        # build day data
         days = {}
         for entry in entries:
             key = str(entry.date)
-            if key not in days:
-                days[key] = {'kcal': 0, 'entries': []}
+            day = days.setdefault(key, {'kcal': 0, 'nutrients': {}, 'entries': []})
 
-            entry_kcal = get_entry_kcal(entry)
+            nutrients = calc.for_entry(entry)
+            entry_kcal = nutrients['kcal']
 
-            days[key]['kcal'] = round(days[key]['kcal'] + entry_kcal, 2)
-            days[key]['entries'].append({
+            day['kcal'] = round(day['kcal'] + entry_kcal, 2)
+            for n, v in nutrients.items():
+                day['nutrients'][n] = round(day['nutrients'].get(n, 0) + v, 2)
+            day['entries'].append({
                 'id': entry.id,
                 'source': entry.source,
                 'name': entry.recipe.name if entry.recipe else entry.ingredient.name if entry.ingredient else '?',
@@ -107,6 +108,13 @@ class CalendarDataView(LoginRequiredMixin, View):
                 'quantity': entry.quantity,
                 'unit': str(entry.ingredient_unit) if entry.ingredient_unit else None,
             })
+
+        if needs:
+            for day in days.values():
+                day['coverage'] = [
+                    dict(row, label=nutrient_label(row['nutrient']))
+                    for row in coverage(day['nutrients'], needs)
+                ]
 
         return JsonResponse({'days': days, 'tdee': tdee})
 
@@ -274,4 +282,81 @@ class CalendarDeficitView(LoginRequiredMixin, View):
             'total_maintenance': round(len(calories_per_days) * tdee, 2),
             'deficit': round(len(calories_per_days) * tdee - sum(calories_per_days), 2),
             'tdee': tdee,
+        })
+
+class CalendarNutrientRangeView(LoginRequiredMixin, View):
+    """Nutrient totals vs. daily needs x days for a date range.
+
+    Mirrors CalendarDeficitView: every day in the range counts, and fill_empty
+    decides whether a day with no entries counts as meeting your needs (true)
+    or as zero intake (false).
+    """
+    MAX_DAYS = 366
+
+    def get(self, request):
+        start = request.GET.get('start')
+        end = request.GET.get('end')
+        if not start or not end:
+            return JsonResponse({'error': 'missing dates'}, status=400)
+
+        try:
+            start_date = datetime.strptime(start, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end, '%Y-%m-%d').date()
+        except ValueError:
+            return JsonResponse({'error': 'invalid date format'}, status=400)
+
+        if start_date > end_date:
+            return JsonResponse({'error': 'start must be before end'}, status=400)
+
+        days = (end_date - start_date).days + 1
+        if days > self.MAX_DAYS:
+            return JsonResponse({'error': f'range too long (max {self.MAX_DAYS} days)'}, status=400)
+
+        try:
+            needs = request.user.biometrics.nutrient_needs
+        except Exception:
+            return JsonResponse({'error': 'no_biometrics'}, status=200)
+
+        fill_empty = request.GET.get('fill_empty', 'false').lower() == 'true'
+
+        entries = list(
+            CalendarEntry.objects.filter(
+                user=request.user, date__gte=start_date, date__lte=end_date,
+            ).select_related(
+                'recipe', 'ingredient', 'ingredient__default_unit', 'ingredient_unit'
+            ).prefetch_related(
+                'recipe__recipe_ingredient__ingredient',
+                'recipe__recipe_ingredient__unit',
+            )
+        )
+        calc = EntryNutrients(entries)
+
+        totals = defaultdict(float)
+        logged = set()
+        for entry in entries:
+            for n, v in calc.for_entry(entry).items():
+                totals[n] += v
+            logged.add(entry.date)
+
+        if fill_empty:
+            empty_days = days - len(logged)
+            for n in NUTRIENTS:
+                totals[n] += needs.get(n, 0) * empty_days
+
+        range_needs = {n: round(v * days, 2) for n, v in needs.items()}
+        rows = [
+            dict(
+                row,
+                label=nutrient_label(row['nutrient']),
+                daily_need=needs[row['nutrient']],
+                avg_per_day=round(row['intake'] / days, 2),
+            )
+            for row in coverage(totals, range_needs)
+        ]
+
+        return JsonResponse({
+            'days': days,
+            'logged_days': len(logged),
+            'fill_empty': fill_empty,
+            'rows': rows,
         })

@@ -6,7 +6,7 @@
 {% block content %}
 <script src="{% static 'js/planner/kcal_calnedar_handler.js' %}" defer></script>
 
-<div id="above-table-manage-div" class="main-first-child-container-padding" style="padding-bottom: 2rem; height: 15rem;">
+<div id="above-table-manage-div" class="main-first-child-container-padding" style="padding-bottom: 2rem; min-height: 15rem;">
 
 {% if request.user.is_authenticated %}
 
@@ -27,11 +27,12 @@
                 <i class="fa-solid fa-arrow-down-long"></i>
                 <input type="date" id="deficit-end" class="styled-input">
                 <button class="a-btn btn-mint-small" onclick="calculateDeficit()">Calculate</button>
+                <button class="a-btn btn-mint-small" onclick="calculateNutrientRange()">Nutrients</button>
         </div>
 
         <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem;">
             <input type="checkbox" id="fill-empty" class="styled-input" style="width:auto; height:auto; flex-shrink:0;" checked>
-            <label for="fill-empty" style="font-size:0.875rem; margin:0;">Fill empty days with maintenance calories</label>
+            <label for="fill-empty" style="font-size:0.875rem; margin:0;">Fill empty days with maintenance calories / daily nutrient needs</label>
         </div>
 
         <p class="section-description">Note that this calculation is for fat mass only. Your actual weight on the scale will vary based on multiple factors, such as water retention, new muscle mass from heavy exercise, and food being metabolized.</p>
@@ -69,6 +70,9 @@
         </div>
 
         <div id="deficit-error" style="display:none; color: #ff6b6b; font-size: 0.875rem;"></div>
+
+        <div id="nutrient-range-result" class="data-table" style="display:none; padding: 1rem;"></div>
+        <div id="nutrient-range-error" style="display:none; color: #ff6b6b; font-size: 0.875rem;"></div>
     </div>
 </div>
 
@@ -113,6 +117,7 @@
             </div>
             <div id="modal-summary" style="margin-bottom:1rem;"></div>
             <div id="modal-entries" style="margin-bottom:1.25rem;"></div>
+            <div id="modal-nutrients" style="margin-bottom:1.25rem;"></div>
 
             <div style="border-top:1px solid var(--mint); padding-top:1rem;">
                 <p style="font-size:0.875rem; font-weight:700; color:var(--olive); margin-bottom:0.75rem;">Add entry</p>

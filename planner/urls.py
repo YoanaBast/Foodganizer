@@ -61,5 +61,6 @@ urlpatterns = [
     path('calendar/delete/<int:entry_id>/', CalendarDeleteEntryView.as_view(), name='calendar_delete'),
     path('calendar/search/', CalendarSearchView.as_view(), name='calendar_search'),
     path('calendar/deficit/', CalendarDeficitView.as_view(), name='calendar_deficit'),
+    path('calendar/nutrients/', CalendarNutrientRangeView.as_view(), name='calendar_nutrients'),
 
 ]

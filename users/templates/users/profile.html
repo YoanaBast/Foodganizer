@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load nutrition_tags %}
 
 {% block title %}Profile{% endblock %}
 
@@ -19,6 +20,7 @@
     </div>
 
     {% include 'users/_profile_card.html' %}
+    {% nutrient_needs request.user %}
 
     <a href="{% url 'biometrics' %}" class="filter-submit btn-small-fixed">Biometrics</a>
     <a href="{% url 'change_password' %}" class="filter-submit btn-small-fixed">

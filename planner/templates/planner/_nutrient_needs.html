@@ -1,0 +1,15 @@
+<div class="profile-card" style="display:block; margin-top:1.5rem;">
+    <h3 class="section-title ranchers-regular">Daily nutrient needs</h3>
+    {% if bio %}
+        <p><strong>BMI:</strong> {{ bio.bmi }} ({{ bio.bmi_category }})</p>
+        <p><strong>Target:</strong> {{ bio.target_calories }} kcal/day</p>
+        <p class="section-description">Based on US adult RDA/AI values. "max" marks upper limits.</p>
+        {% for r in rows %}
+            <p><strong>{{ r.label }}:</strong> {% if r.limit %}max {% endif %}{{ r.amount }} {{ r.unit }}</p>
+        {% endfor %}
+    {% else %}
+        <p class="section-description">
+            <a href="{% url 'biometrics' %}">Set your biometrics</a> to see your daily nutrient needs.
+        </p>
+    {% endif %}
+</div>
